@@ -1,0 +1,383 @@
+@import './variables.scss';
+@import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './sidebar.scss';
+@import './btn.scss';
+
+.el-avatar--circle img{
+  margin:0 auto
+}
+.ellipsis {
+  overflow:hidden; //超出的文本隐藏
+  text-overflow:ellipsis; //溢出用省略号显示
+  white-space:nowrap; //溢出不换行
+}
+.el-input__inner {
+  border: 1px solid #b8b8b8;
+}
+// 菜单字体大小统一16px
+.el-menu-item span {
+  font-size: 17px !important;
+
+}
+.el-menu-item svg {
+  font-size: 17px !important;
+
+}
+// tree 字体大小15px
+.el-tree .el-tree-node__label{
+  font-size: 15px !important;
+}
+
+.el-table--small {
+  font-size: 14px !important;
+}
+// 穿梭框
+.el-transfer .el-transfer-panel__item {
+  line-height: 10px !important;
+}
+.el-transfer .el-checkbox {
+  display: block;
+}
+// tree动画
+.tree-enter-active,  .tree-leave-active {
+  transition: all 0.2s linear;
+  transform: translateX(0);
+}
+.tree-enter,  .tree-leave {
+  transform: translateX(-100%);
+}
+.tree-leave-to{
+  transform: translateX(-100%);
+}
+.el-main {
+  position: relative;
+}
+.tree-toggle-style {
+  color:#666;
+  background: #1890ff;
+  width: 15px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1000;
+  height: 60px;
+  line-height: 60px;
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translate(0%, -50%);
+  i {
+    color: #fff;
+  }
+}
+// 表格如果为空使用-代替
+// td .cell:empty::before,td .cell span:empty::before {
+//   content: '-';
+//   color: gray;
+// }
+/*控制整个滚动条*/
+::-webkit-scrollbar {
+  background-color: #dfe6ec;
+  width: 10px;
+  height: 10px;
+  background-clip: padding-box;
+}
+
+/*滚动条两端方向按钮*/
+::-webkit-scrollbar-button {
+  background-color: #dfe6ec;
+  height: 3px;
+}
+
+/*滚动条中间滑动部分*/
+::-webkit-scrollbar-thumb {
+  background-color: #d1d1d1;
+  border-radius: 5px;
+}
+
+/*滚动条右下角区域*/
+::-webkit-scrollbar-corner {
+  background-color: #c3c3c3;
+}
+// 全局标题
+.golobal-title-style {
+  // background: red;
+  margin-bottom: 10px;
+  font-weight: 700;
+  
+}
+.golobal-title-style::before {
+	content: '';
+	height: 13px;
+  border-left: 4px solid #1890ff;
+  margin-right:5px;
+}
+//el-table 鼠标经过颜色
+// .el-table tbody tr:hover>td { 
+//   background-color:transparent !important
+// }
+// 解决表头不对齐的问题
+.el-table th {
+	display: table-cell!important; 
+}
+// 分页器居右
+.el-pagination {
+  float:right;
+  margin:20px 0;
+}
+// 解决element-ui的表格设置固定栏后，边框线消失的bug
+.el-table__row{
+  td:not(.is-hidden):last-child{
+    z-index: 1;
+    right:-1px;
+    border-right: 2px solid #dfe6ec ;
+  }
+}
+// 表头颜色
+.el-table__header tr th {
+  color: #333333;
+  background: #F3F9FF !important;
+}
+
+.el-table__header tr {
+  th:not(.is-hidden):last-child{
+    right:-1px;
+    border-right: 2px solid #dfe6ec ;
+  }
+}
+
+// 弹窗样式
+.el-dialog {
+  margin-top: 7vh !important;
+}
+.el-dialog_img {
+  position: absolute;
+  margin: 0 !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.el-form-item--small.el-form-item {
+  margin-bottom: 15px;
+}
+// 
+.search-btn-style {
+  margin-bottom: 15px;
+}
+// .el-menu-item.is-active  激活菜单背景色
+.side-bar .el-menu-item.is-active {
+  background: #e8f4ff;
+}
+.el-dialog__header {
+  text-align: center;
+  background: #F3F7FF;
+  padding: 15px;
+  border-bottom: 1px solid #DBDBDB;
+  .el-dialog__title {
+    font-weight:bold;
+    font-size: 16px;
+  }
+}
+.el-dialog__body {
+  padding-bottom: 0;
+}
+.el-dialog__footer {
+  text-align: center;
+}
+.long-text {
+  width: 200px;
+  height: 40px;
+  padding: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
+  white-space: nowrap;  /*规定段落中的文本不进行换行*/
+}
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
+label {
+  font-weight: 700;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.padding-content {
+  padding: 4px 0;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+.fr {
+  float: right;
+}
+
+.fl {
+  float: left;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
+.pl-5 {
+  padding-left: 5px;
+}
+
+.block {
+  display: block;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.inlineBlock {
+  display: block;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+
+aside {
+  // background: #eef1f6;
+  // padding: 8px 24px;
+  // margin-bottom: 20px;
+  border-radius: 2px;
+  display: block;
+  line-height: 32px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  color: #2c3e50;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  a {
+    color: #337ab7;
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(32, 160, 255);
+    }
+  }
+}
+
+//main-container全局样式
+// .app-container {
+  // padding: 20px;
+// }
+
+.components-container {
+  margin: 30px 50px;
+  position: relative;
+}
+
+.pagination-container {
+  margin-top: 30px;
+}
+
+.text-center {
+  text-align: center
+}
+
+.sub-navbar {
+  height: 50px;
+  line-height: 50px;
+  position: relative;
+  width: 100%;
+  text-align: right;
+  padding-right: 20px;
+  transition: 600ms ease position;
+  background: linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%);
+
+  .subtitle {
+    font-size: 20px;
+    color: #fff;
+  }
+
+  &.draft {
+    background: #d0d0d0;
+  }
+
+  &.deleted {
+    background: #d0d0d0;
+  }
+}
+
+.link-type,
+.link-type:focus {
+  color: #337ab7;
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(32, 160, 255);
+  }
+}
+
+.filter-container {
+  padding-bottom: 10px;
+
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+}
+
+//refine vue-multiselect plugin
+.multiselect {
+  line-height: 16px;
+}
+
+.multiselect--active {
+  z-index: 1000 !important;
+}

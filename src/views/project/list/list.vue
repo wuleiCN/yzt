@@ -1,0 +1,408 @@
+<template>
+  <div class="project-list">
+    <el-container>
+      <transition name="tree">
+        <div v-show="isShow" class="main">
+          <el-aside v-if="userType === 1 || userType === 0" class="left" width="280px">
+            <el-tree :data="orgList" node-key="id" :default-expanded-keys="[companyId]" :props="defaultProps" @node-click="handleNodeClick" />
+          </el-aside>
+        </div>
+      </transition>
+
+      <el-main>
+        <div>
+          <el-form :inline="true" :model="dataForm">
+            <el-form-item prop="projectName">
+              <el-input v-model="dataForm.projectName" clearable placeholder="项目名称" />
+            </el-form-item>
+            <el-form-item prop="projectState">
+              <el-select v-model="dataForm.projectState" clearable placeholder="请选择状态" @change="(e) => selectChangeHandle(e, 'enterAndRetreatCondition')">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="timeRange">
+              <el-date-picker
+                v-model="dataForm.timeRange"
+                clearable
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="(e) => selectChangeHandle(e, 'timeRange')"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="searchHandle()">查询</el-button>
+            </el-form-item>
+            <div class="search-btn-style">
+
+              <el-button v-permit="'project_list_btn_add'" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+              <el-button v-permit="'project_list_btn_log'" type="primary" @click="viewAsyncLog()">对接日志</el-button>
+              <el-button v-permit="'project_list_btn_delete'" type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
+              <el-button v-permit="'project_list_btn_setStatus'" type="primary" :disabled="dataListSelections.length <= 0" @click="setProStatus()">项目设置</el-button>
+            </div>
+          </el-form>
+          <div v-if="userType === 1 || userType === 0" class="tree-toggle-style" @click="isShow = !isShow">
+            <span v-if="isShow"><i class="el-icon-arrow-left" /></span>
+            <span v-else><i class="el-icon-arrow-right" /></span>
+          </div>
+          <el-table
+            v-loading="dataListLoading"
+            :data="dataList"
+            border
+            stripe
+            tooltip-effect="light"
+            highlight-current-row
+            @selection-change="selectionChangeHandle"
+            @row-dblclick="rowDblclick"
+          >
+            <el-table-column
+              type="selection"
+              header-align="center"
+              align="center"
+              width="50"
+            />
+            <el-table-column
+              prop="projectName"
+              header-align="center"
+              align="center"
+              width="250"
+              :show-overflow-tooltip="true"
+              label="项目名称"
+            >
+              <template slot-scope="scope">
+                <a class="projectName-style" target="_blank" :href="$http.staticUrl(`/#/datav?id=${scope.row.id}`)" rel="opener">{{ scope.row.projectName }}</a>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="projectCost"
+              header-align="center"
+              align="center"
+              width="140"
+              label="工程造价（万元）"
+            />
+            <el-table-column
+              prop="workersNum"
+              header-align="center"
+              align="center"
+              width="100"
+              label="项目人员数"
+            />
+            <el-table-column
+              prop="projectRegion"
+              header-align="center"
+              align="center"
+              width="182"
+              :show-overflow-tooltip="true"
+              label="所属区域"
+            />
+            <el-table-column
+              prop="projectTypeName"
+              header-align="center"
+              align="center"
+              width="120"
+              label="项目类别"
+            />
+            <el-table-column
+              prop="companyName"
+              header-align="center"
+              align="center"
+              width="200"
+              :show-overflow-tooltip="true"
+              label="所属企业"
+            />
+            <el-table-column
+              prop="startingTime"
+              header-align="center"
+              align="center"
+              width="110"
+              label="开工日期"
+            >
+              <template slot-scope="scope"> <span>{{ scope.row.startingTime ? parseTime(scope.row.startingTime, '{y}-{m}-{d}') : '' }}</span> </template>
+            </el-table-column>
+            <el-table-column
+              prop="finishTime"
+              header-align="center"
+              align="center"
+              width="110"
+              label="完工日期"
+            >
+              <template slot-scope="scope"> <span>{{ scope.row.finishTime ? parseTime(scope.row.finishTime, '{y}-{m}-{d}') : '' }}</span> </template>
+            </el-table-column>
+            <el-table-column
+              prop="projectState"
+              header-align="center"
+              align="center"
+              label="项目状态"
+            >
+              <template slot-scope="scope">
+                <el-tag v-if="scope.row.projectState == 0" size="small" type="success">在建</el-tag>
+                <el-tag v-if="scope.row.projectState == 1" size="small" type="danger">停工</el-tag>
+                <el-tag v-if="scope.row.projectState == 2" size="small" type="info">竣工</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              v-if="basePermit('project_list_btn_set') || basePermit('project_list_btn_update') || basePermit('project_list_btn_delete')"
+              fixed="right"
+              header-align="center"
+              align="center"
+              label="操作"
+              width="190"
+            >
+              <template slot-scope="scope">
+                <el-button v-permit="'project_list_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+                <el-button slot="reference" v-permit="'project_list_btn_set'" style="margin-right:5px" type="text" @click="settingGruop(null, scope.row.id)">对接设置</el-button>
+                <!-- <el-popover
+                  placement="left"
+                  width="auto"
+                  trigger="click"
+                >
+                  <div v-for="(item, index) in settingList" :key="index" class="temp-name" @click="settingGruop(item.tag, scope.row.id)">{{ index + 1 }}、{{ item.title }}</div>
+                  <el-button slot="reference" v-permit="'project_list_btn_set'" style="margin-right:5px" type="text" @click="settingHandle()">对接设置</el-button>
+                </el-popover> -->
+                <el-button v-permit="'project_list_btn_delete'" type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            background
+            :current-page="pageIndex"
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pageSize"
+            :total="totalPage"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="sizeChangeHandle"
+            @current-change="currentChangeHandle"
+          />
+          <!-- 弹窗, 新增 / 修改 -->
+          <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList" />
+          <!-- 对接设置弹窗 -->
+          <synDetial v-if="synDetialVisible" ref="synDetial" @refreshDataList="getDataList" />
+          <!-- 对接设置弹窗 -->
+          <asyncLog v-if="asyncLogVisible" ref="asyncLog" />
+          <!-- 项目设置弹窗 -->
+          <setStatus v-if="setStatusVisible" ref="setStatus" />
+        </div>
+      </el-main>
+    </el-container>
+
+  </div>
+</template>
+
+<script>
+import { treeDataTranslate, parseTime } from '@/utils/index'
+import AddOrUpdate from './list-add-or-update'
+import synDetial from './list-synSet'
+import asyncLog from './list-async-log'
+import setStatus from './list-setStatus'
+import dist from '@/utils/dist'
+import { getList, getTreeList, del, setList } from '@/api/project/project'
+export default {
+  components: {
+    AddOrUpdate,
+    asyncLog,
+    setStatus,
+    synDetial
+  },
+  data() {
+    return {
+      dist,
+      parseTime,
+      isShow: false,
+      synDetialVisible: false,
+      asyncLogVisible: false,
+      setStatusVisible: false,
+      options: [
+        { value: null, label: '全部' },
+        { value: 0, label: '在建' },
+        { value: 1, label: '停工' },
+        { value: 2, label: '竣工' }
+      ],
+      dataForm: {
+        projectName: '',
+        projectState: null
+      },
+      defaultProps: {
+        children: 'children',
+        label: 'companyName'
+      },
+      userType: JSON.parse(sessionStorage.getItem('result')).userType,
+      companyId: '',
+      dataList: [],
+      orgList: [],
+      settingList: [],
+      pageIndex: 1,
+      pageSize: 10,
+      totalPage: 0,
+      dataListLoading: false,
+      dataListSelections: [],
+      addOrUpdateVisible: false
+    }
+  },
+  async created() {
+    if (this.userType === 1 || this.userType === 0) {
+      const list = await this.getTreeList()
+      if (list.length) {
+        this.companyId = list[0].id || list[0].projectsId
+        this.type = list[0].type
+      }
+    }
+    this.getDataList()
+  },
+  methods: {
+    // 获取数据列表
+    getDataList() {
+      this.dataListLoading = true
+      getList({
+        'page': this.pageIndex,
+        'rows': this.pageSize,
+        companyId: this.companyId,
+        ...this.dataForm
+      }).then((data) => {
+        if (data && data.code === 1000) {
+          this.dataList = data.result.records
+          this.totalPage = data.result.total
+        } else {
+          this.dataList = []
+          this.totalPage = 0
+        }
+        this.dataListLoading = false
+      })
+    },
+    // 获取公司列表
+    getTreeList() {
+      this.dataListLoading = true
+      return new Promise((resolve, reject) => {
+        getTreeList().then(data => {
+          if (data && data.code === 1000) {
+            this.orgList = treeDataTranslate(data.result, 'id')
+            resolve(this.orgList)
+          }
+        })
+      })
+    },
+    selectChangeHandle(val, type) {
+      if (type === 'timeRange') {
+        this.dataForm.startDate = val && val.length ? val[0] : ''
+        this.dataForm.endDate = val && val.length ? val[1] : ''
+      }
+      this.dataForm[type] = val
+      this.getDataList()
+    },
+    handleNodeClick(data) {
+      this.companyId = data.id
+      this.getDataList(data.id)
+    },
+    // 每页数
+    sizeChangeHandle(val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    // 查询
+    searchHandle() {
+      this.pageIndex = 1
+      this.getDataList(this.companyId)
+    },
+    // 当前页
+    currentChangeHandle(val) {
+      this.pageIndex = val
+      this.getDataList()
+    },
+    // 多选
+    selectionChangeHandle(val) {
+      this.dataListSelections = val
+    },
+    // 新增 / 修改
+    addOrUpdateHandle(id) {
+      this.addOrUpdateVisible = true
+      this.$nextTick(() => {
+        this.$refs.addOrUpdate.init(id)
+      })
+    },
+    // 对接弹窗
+    settingGruop(tag, id) {
+      this.synDetialVisible = true
+      this.$nextTick(() => {
+        this.$refs.synDetial.init(tag, id)
+      })
+    },
+    // 对接弹窗
+    viewAsyncLog(row) {
+      this.asyncLogVisible = true
+      this.$nextTick(() => {
+        this.$refs.asyncLog.init({ ...row })
+      })
+    },
+    // 项目设置
+    setProStatus() {
+      var ids = this.dataListSelections.map(item => {
+        return item.id
+      })
+      if (ids.length > 1) return this.$message.error('项目设置只能单选')
+      this.setStatusVisible = true
+      this.$nextTick(() => {
+        this.$refs.setStatus.init(ids[0])
+      })
+    },
+    // 对接设置
+    settingHandle(id) {
+      setList({ category: 'PLATFORM' }).then(data => {
+        this.settingList = data.result
+      })
+    },
+    // 双击table
+    rowDblclick(row) {
+      if (this.basePermit('project_list_btn_update')) this.addOrUpdateHandle(row.id)
+    },
+    basePermit(e) {
+      return this.$store.getters.roleList.includes(e)
+    },
+    // 删除
+    deleteHandle(id) {
+      var ids = id ? [id] : this.dataListSelections.map(item => {
+        return item.id
+      })
+      this.$confirm(`您确定进行[${id ? '删除' : '批量删除'}]操作吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        del(ids).then((data) => {
+          if (data && data.code === 1000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }).catch(() => {})
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+  .project-list {
+    .left {
+      border: 1px solid #e9eef2;
+      overflow: auto;
+      height: 700px;
+    }
+    .projectName-style {
+      color: #46a6ff;
+    }
+  }
+</style>

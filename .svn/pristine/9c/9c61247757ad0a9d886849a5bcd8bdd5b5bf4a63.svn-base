@@ -1,0 +1,482 @@
+<template>
+  <div class="statistic-dashboard-energy dashboard-full-screen">
+    <!-- <div class="statistic-dashboard-header">
+      <FullScreen ref="FullScreen" />
+      <SelectProject @newsReload="newsReload" />
+    </div>
+    <Nav /> -->
+    <div class="statistic-dashboard-main">
+      <div class="main-item item-attendance-left">
+        <div class="title-wrap">
+          <div class="title"><span class="icon" /> 总用电图表</div>
+        </div>
+        <Bar id="pictorialBar-pie-main" :trend-data="eleData" height="13.54rem" width="100%" />
+        <div class="electric-ranking">
+          <div><span class="icon" /> 用电排行</div>
+          <div class="rank-wrap">
+            <div class="node-wrap">
+              <div v-for="(item, idx) in eleSortData.sortDay" :key="idx">
+                <div class="date">{{ item.name }}</div>
+                <img class="node" src="@/assets/img-zhgd/ph-bg.png" alt="">
+                <div class="nodeName">{{ item.mwo || 0 }} kWh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="main-item item-attendance-center">
+        <div class="title-wrap">
+          <div class="title"><span class="icon" /> 设备情况</div>
+        </div>
+        <div class="center-wrap">
+          <div class="item">
+            <img src="@/assets/img-zhgd/db.png" alt="">
+          </div>
+          <div class="item">
+            <img src="@/assets/img-zhgd/sb.png" alt="">
+          </div>
+          <div class="item">
+            <span class="item-value">{{ waterStaData.onLineTotal || 0 }}</span>
+            <img src="@/assets/statistic-dashboard/item-yellow.png" alt="">
+            <div>在线设备</div>
+          </div>
+          <div class="item">
+            <span class="item-value">{{ electricStaData.onLineTotal || 0 }}</span>
+            <img src="@/assets/statistic-dashboard/item-yellow.png" alt="">
+            <div>在线设备</div>
+          </div>
+          <div class="item">
+            <span class="item-value">{{ waterStaData.total || 0 }}</span>
+            <img src="@/assets/statistic-dashboard/item-blue.png" alt="">
+            <div>设备总数</div>
+          </div>
+          <div class="item">
+            <span class="item-value">{{ electricStaData.total || 0 }}</span>
+            <img src="@/assets/statistic-dashboard/item-blue.png" alt="">
+            <div>设备总数</div>
+          </div>
+        </div>
+      </div>
+      <div class="main-item item-attendance-right">
+        <div class="title-wrap">
+          <div class="title"><span class="icon" />总用水图表</div>
+        </div>
+        <Bar id="pictorialBar-pie-main1" :trend-data="waterData" height="13.54rem" width="100%" />
+        <div class="electric-ranking">
+          <div><span class="icon" /> 用水排行</div>
+          <div class="rank-wrap">
+            <div class="node-wrap">
+              <div v-for="(item, idx) in waterSortData.sortDay" :key="idx">
+                <div class="date">{{ item.name }}</div>
+                <img class="node" src="@/assets/img-zhgd/ph-bg.png" alt="">
+                <div class="nodeName">{{ item.mwo || 0 }}m³</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="statistic-dashboard-footer">
+      <div class="footer-item footer-item-1">
+        <div class="title-wrap">
+          <div class="title"><span class="icon" />用电监测</div>
+        </div>
+        <div class="chart-wrap">
+          <LiquidFill id="vehicle-LiquidFill" :record-data="{dayCompare: queryDayCompare, monCompare: queryMonCompare, yearCompare: queryYearCompare}" height="5.62rem" width="38.72rem" />
+          <div class="compare-wrap">
+            <div class="compare-item">
+              <div>较昨日同时段  {{ queryDayCompare.dayRate }} {{ parseInt(queryDayCompare.dayRate) > 0 ? '↑' : '↓' }}</div>
+              <div style="margin-top: .4rem">较上周同时段 {{ queryDayCompare.weekRate }} {{ parseInt(queryDayCompare.weekRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+            <div class="compare-item">
+              <div>较上月用水  {{ queryMonCompare.MonRate }} {{ parseInt(queryMonCompare.MonRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+            <div class="compare-item">
+              <div>较去年用水  {{ queryYearCompare.YearRate }} {{ parseInt(queryYearCompare.YearRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-item footer-item-2">
+        <div class="title-wrap">
+          <div class="title"><span class="icon-water" />用水监测</div>
+        </div>
+        <div class="chart-wrap">
+          <LiquidFill id="vehicle-LiquidFill1" :record-data="{type: 'water', dayCompare: queryDayEleCompare, monCompare: queryMonEleCompare, yearCompare: queryYearEleCompare}" height="5.62rem" width="38.72rem" />
+          <div class="compare-wrap">
+            <div class="compare-item">
+              <div>较昨日同时段  {{ queryDayEleCompare.dayRate }} {{ parseInt(queryDayEleCompare.dayRate) > 0 ? '↑' : '↓' }}</div>
+              <div style="margin-top: .4rem">较上周同时段 {{ queryDayEleCompare.weekRate }} {{ parseInt(queryDayEleCompare.weekRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+            <div class="compare-item">
+              <div>较上月用水  {{ queryMonEleCompare.MonRate }} {{ parseInt(queryMonEleCompare.MonRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+            <div class="compare-item">
+              <div>较去年用水  {{ queryYearEleCompare.YearRate }} {{ parseInt(queryYearEleCompare.YearRate) > 0 ? '↑' : '↓' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import LiquidFill from './component/LiquidFill.vue'
+import Bar from './component/pictorialBar.vue'
+import { getBy15Daping, electricSta, getSort, getEleDaTJ } from '@/api-zhgd/electric-meter'
+import { waterSta, getBy15Daping as waterGetBy15Daping, getSort as waterGetSort, getDaTJ } from '@/api-zhgd/water-meter'
+export default {
+  components: {
+    LiquidFill,
+    Bar
+  },
+  data() {
+    return {
+      deviceId: '',
+      waterStaData: {},
+      electricStaData: {},
+      queryDayCompare: {},
+      queryMonCompare: {},
+      queryYearCompare: {},
+      queryDayEleCompare: {},
+      queryMonEleCompare: {},
+      queryYearEleCompare: {},
+      eleData: [],
+      waterData: [],
+      waterSortData: {},
+      eleSortData: {}
+    }
+  },
+  methods: {
+    init(projectId) {
+      this.fatchGetBy15(projectId)
+      this.fatchWaterGetBy15(projectId)
+      this.getWaterSta(projectId)
+      this.getElectricSta(projectId)
+      this.fatchWaterSort(projectId)
+      this.fatchEleSort(projectId)
+      this.fatchGetDaTJ(projectId, 'queryDay')
+      this.fatchGetDaTJ(projectId, 'queryMon')
+      this.fatchGetDaTJ(projectId, 'queryYear')
+      this.fatchEleGetDaTJ(projectId, 'queryDay')
+      this.fatchEleGetDaTJ(projectId, 'queryMon')
+      this.fatchEleGetDaTJ(projectId, 'queryYear')
+    },
+    newsReload(projectId) {
+      this.init(projectId)
+    },
+    // 水表设备情况
+    getWaterSta(projectId) {
+      waterSta({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.waterStaData = data.result
+        }
+      })
+    },
+    // 电表设备情况
+    getElectricSta(projectId) {
+      electricSta({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.electricStaData = data.result
+        }
+      })
+    },
+    // 用水排行
+    fatchWaterSort(projectId) {
+      waterGetSort({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.waterSortData = data.result
+        }
+      })
+    },
+    // 用电排行
+    fatchEleSort(projectId) {
+      getSort({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.eleSortData = data.result
+        }
+      })
+    },
+    // 水表比较接口
+    fatchGetDaTJ(projectId, query) {
+      getDaTJ({ projectId, query }).then(data => {
+        if (data && data.code === 1000) {
+          this[query + 'Compare'] = data.result
+        }
+      })
+    },
+    // 电表比较接口
+    fatchEleGetDaTJ(projectId, query) {
+      getEleDaTJ({ projectId, query }).then(data => {
+        if (data && data.code === 1000) {
+          this[query + 'EleCompare'] = data.result
+        }
+      })
+    },
+    //  15分钟 电表图表
+    fatchGetBy15(projectId) {
+      getBy15Daping({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.eleData = data.result || []
+          console.log(data, 'dddd')
+        }
+      })
+    },
+    //  15分钟 水表图表
+    fatchWaterGetBy15(projectId) {
+      waterGetBy15Daping({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.waterData = data.result || []
+        }
+      })
+    }
+  }
+}
+</script>
+<style lang="scss">
+// 计算方式 26px -> 1rem
+.statistic-dashboard-energy {
+  // position: absolute;
+  // left: 50%;
+  // top: 50%;
+  // transform: translate(-50%, -50%);
+  background: url('../../../assets/statistic-dashboard/sq-bg.png') center no-repeat no-repeat;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 41.54rem;
+  color: #fff;
+  font-size: .77rem;
+  .statistic-dashboard-header {
+    position: relative;
+    height: 3.85rem;
+    background: url('../../../assets/statistic-dashboard/top-header.png') center no-repeat no-repeat;
+    background-size: 100% 100%;
+    .pro-name {
+      color: #0686D8;
+      font-size: 1.15rem;
+      font-weight: 600;
+      width: 20rem;
+      .marquee {
+        text-align: center;
+        width: 20rem;
+        cursor: pointer;
+        position: absolute;
+        left: 50%;
+        top: 45%;
+        transform: translate(-50%, -30%);
+      }
+    }
+  }
+  .statistic-dashboard-main {
+    display: flex;
+    box-sizing: border-box;
+    padding: 0 .74rem;
+    margin-bottom: .5rem;
+    .main-item {
+      display: flex;
+      height: 21.69rem;
+    }
+    .title-wrap {
+      width: 100%;
+      height: 1rem;
+      background: url('../../../assets/statistic-dashboard/title-item.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      margin: .5rem;
+      padding: 0rem 0 .5rem 0;
+      font-size: .62rem;
+      .title {
+        margin-top: -.5rem;
+        .icon {
+          display: inline-block;
+          background: url('../../../assets/img-zhgd/en-tb.png') center no-repeat no-repeat;
+          background-size: 100% 100%;
+          width: 1.38rem;
+          height: 1.54rem;
+          vertical-align: middle;
+        }
+      }
+    }
+    .item-attendance-left {
+      flex: 750;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0.5rem;
+      background: url('../../../assets/statistic-dashboard/quality-left-bro.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      .electric-ranking {
+        width: 100%;
+        .icon {
+          display: inline-block;
+          background: url('../../../assets/img-zhgd/ph.png') center no-repeat no-repeat;
+          background-size: 100% 100%;
+          width: 1.5rem;
+          height: 1.54rem;
+          vertical-align: middle;
+        }
+        .rank-wrap {
+          width: 100%;
+          height: 5.38rem;
+          .node-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            .node {
+              height: 1.8rem;
+              text-align: right;
+            }
+            .date {
+              width: 100%;
+              font-size: .38rem;
+              margin-bottom: .19rem;
+              text-align: center;
+            }
+            .nodeName {
+              width: 100%;
+              font-size: .46rem;
+              text-align: center;
+            }
+          }
+        }
+      }
+
+    }
+    .item-attendance-center {
+      flex: 370;
+      height: 21.8rem;
+      display: flex;
+      padding: 0.5rem;
+      flex-wrap: wrap;
+      background: url('../../../assets/statistic-dashboard/vehicle-wrap-bg1.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      width: 18.69rem;
+      .center-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        width: 18.69rem;
+        .item {
+          width: 50%;
+          margin: .46rem 0;
+          text-align: center;
+          position: relative;
+          .item-value {
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+          }
+          img {
+            width: 4rem;
+          }
+        }
+      }
+    }
+    .item-attendance-right {
+      flex: 750;
+      padding: 0.5rem;
+      margin-right: .58rem;
+      background: url('../../../assets/statistic-dashboard/quality-right-bro.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      display: flex;
+      flex-wrap: wrap;
+      .electric-ranking {
+        width: 100%;
+        .icon {
+          display: inline-block;
+          background: url('../../../assets/img-zhgd/ph.png') center no-repeat no-repeat;
+          background-size: 100% 100%;
+          width: 1.5rem;
+          height: 1.54rem;
+          vertical-align: middle;
+        }
+        .rank-wrap {
+          width: 100%;
+          height: 5.38rem;
+          .node-wrap {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            .node {
+              height: 1.8rem;
+              text-align: right;
+            }
+            .date {
+              width: 100%;
+              font-size: .38rem;
+              margin-bottom: .19rem;
+              text-align: center;
+            }
+            .nodeName {
+              width: 100%;
+              font-size: .46rem;
+              text-align: center;
+            }
+          }
+        }
+      }
+    }
+  }
+  .statistic-dashboard-footer {
+    display: flex;
+    height: 12.5rem;
+    width: 99%;
+    margin: 0 .5rem;
+    .footer-item {
+      padding: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      flex: 1;
+      margin-right: 1rem;
+      background: url('../../../assets/statistic-dashboard/quality-footer-bg.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      .title-wrap {
+        width: 100%;
+        height: 1rem;
+        background: url('../../../assets/statistic-dashboard/attendance-bro-bg.png') center no-repeat no-repeat;
+        background-size: 100% 100%;
+        margin: .5rem;
+        padding: 0rem 0 .5rem 0;
+        font-size: .62rem;
+        .title {
+          margin-top: -.5rem;
+          .icon {
+            display: inline-block;
+            background: url('../../../assets/img-zhgd/d-icon.png') center no-repeat no-repeat;
+            background-size: 100% 100%;
+            width: 1.38rem;
+            height: 1.54rem;
+            vertical-align: middle;
+          }
+          .icon-water {
+            display: inline-block;
+            background: url('../../../assets/img-zhgd/s-icon.png') center no-repeat no-repeat;
+            background-size: 100% 100%;
+            width: 1.38rem;
+            height: 1.54rem;
+            vertical-align: middle;
+          }
+        }
+      }
+      .chart-wrap {
+        margin: 0 auto;
+        .compare-wrap {
+          display: flex;
+          margin-left: .78rem;
+          .compare-item {
+            flex: 1;
+            font-size: .77rem;
+          }
+        }
+      }
+    }
+    .footer-item-1 {
+      flex: 404;
+      width: 35.57rem;
+    }
+    .footer-item-2 {
+      flex: 404;
+      width: 35.57rem;
+    }
+  }
+}
+</style>

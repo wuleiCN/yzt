@@ -1,0 +1,116 @@
+<template>
+  <el-dialog
+    custom-class="ic-bind-modal"
+    title="绑定IC卡号"
+    :close-on-click-modal="false"
+    :visible.sync="visible"
+    @close="closeHandle"
+  >
+    <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="80px" @keyup.enter.native="dataFormSubmit()">
+      <el-form-item label="姓 名">
+        <el-input v-model.trim="row.empName" :disabled="true" placeholder="姓 名" />
+      </el-form-item>
+      <el-form-item label="卡 号" prop="icCardNo">
+        <el-input v-model.trim="dataForm.icCardNo" placeholder="卡 号" />
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" :loading="bindLoading" @click="dataFormSubmit()">确 定</el-button>
+    </span>
+
+  </el-dialog>
+</template>
+
+<script>
+import { bindIcDetail, bindIcSaveOrUpdate } from '@/api/project/person'
+export default {
+  data() {
+    return {
+      row: {},
+      dataListSelections: [],
+      index: 0,
+      dataForm: {
+        icCardNo: ''
+      },
+      dataRule: {
+        icCardNo: [
+          { required: true, message: '请输入卡号', trigger: ['blur'] }
+        ]
+      },
+      visible: false,
+      bindLoading: false
+    }
+  },
+  methods: {
+    init(dataListSelections) {
+      // 初始化
+      this.index = 0
+      this.empId = ''
+      this.dataListSelections = []
+      this.row = []
+
+      this.dataListSelections = dataListSelections
+      this.row = dataListSelections && dataListSelections.length ? dataListSelections[this.index] : {}
+      this.visible = true
+      this.empId = this.row.id
+      this.$nextTick(() => {
+        this.getDetail(this.row.id)
+      })
+    },
+    getDetail(empId) {
+      bindIcDetail({ empId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.dataForm = data.result || {}
+        } else {
+          this.$message.error(data.message)
+        }
+      })
+    },
+    nextEmp() {
+      if (this.index <= this.dataListSelections.length - 1) {
+        this.row = this.dataListSelections && this.dataListSelections.length ? this.dataListSelections[this.index] : {}
+        this.empId = this.row.id
+        this.getDetail(this.row.id)
+      } else {
+        this.visible = false
+      }
+    },
+    closeHandle() {
+      if (this.index >= 1) this.$emit('refreshDataList')
+    },
+    // 表单提交
+    dataFormSubmit() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          bindIcSaveOrUpdate({ ...this.dataForm, empId: this.empId }).then((data) => {
+            this.bindLoading = true
+            if (data && data.code === 1000) {
+              this.bindLoading = false
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000
+              })
+              this.index++
+              this.nextEmp()
+            } else {
+              this.$message.error(data.message)
+              this.bindLoading = false
+            }
+          })
+        }
+      })
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+.ic-bind-modal {
+  width: 500px;
+  .el-dialog__body {
+    padding: 15px 10px 0;
+  }
+}
+
+</style>

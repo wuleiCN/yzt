@@ -1,0 +1,53 @@
+import request from '@/utils/request'
+
+export function getTodayAttendance(data) {
+  return request({
+    url: '/projectKanban/todayAttendance',
+    method: 'post',
+    data
+  })
+}
+
+export function getWorkTypeProportion(data) {
+  return request({
+    url: '/projectKanban/workTypeProportion',
+    method: 'post',
+    data
+  })
+}
+export function getConsAttendance(data) {
+  return request({
+    url: '/projectKanban/consAttendance',
+    method: 'post',
+    data
+  })
+}
+export function getWeekAttendance(data) {
+  return request({
+    url: '/projectKanban/weekAttendance',
+    method: 'post',
+    data
+  })
+}
+export function getNewestAttendance(data) {
+  return request({
+    url: '/projectKanban/newestAttendance',
+    method: 'post',
+    data
+  })
+}
+export function getAttendanceDynamic(data) {
+  return request({
+    url: '/projectKanban/attendanceDynamic',
+    method: 'post',
+    data
+  })
+}
+export function newestAttendanceAndEpidemic(data) {
+  return request({
+    url: '/projectKanban/newestAttendanceAndEpidemic',
+    method: 'post',
+    data
+  })
+}
+

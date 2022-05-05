@@ -1,0 +1,914 @@
+<template>
+  <div class="data-v-container1">
+    <div class="gyc-dashboard-header">
+      <div class="gyc-full-screen-toggle" @click="toggleFullScreen()">
+        <svg-icon :icon-class="iconStatus ? 'exit-full-screen' : 'full-screen'" />
+        <span>{{ iconStatus ? '退出' : '全屏' }}</span>
+      </div>
+      <div class="now-time">
+        <span>
+          <div>{{ getTime().date }}</div>
+          <div>{{ time || '00:00:00' }}</div>
+          <div>星期{{ numTodaxie[(new Date()).getDay()] }}</div>
+        </span>
+      </div>
+      <div class="pro-name">
+        <div class="marquee">
+          <span>防疫大数据平台</span>
+        </div>
+      </div>
+      <div class="cpt-name">
+        <span>中国建设第N建设局</span>
+      </div>
+    </div>
+    <main>
+      <div class="item-left">
+        <div class="main-item weather-wrap">
+          <div class="weather-title gradient-title">
+            <img class="item-img" src="@/assets/antiepidemic/security.png" alt="">
+            <div class="item-title">单位防疫情况一览表</div>
+          </div>
+          <dv-scroll-board
+            :config="config"
+          />
+        </div>
+        <div class="main-item type-work-wrap">
+          <div class="type-work-wrap-title gradient-title">
+            <img class="item-img" src="@/assets/antiepidemic/security.png" alt="">
+            <div class="item-title">近7天防疫情况</div>
+          </div>
+          <div class="pie-char">
+            <ApdBar id="apdBar" :workers="recordData" height="10.95rem" width="100%" />
+            <JkmFill id="vehicle-JkmFill" :statistics="recordData" height="100%" width="100%" />
+          </div>
+        </div>
+      </div>
+      <div class="item-center">
+        <div class="main-item center-attendance-wrap">
+          <div class="main-item-content1">
+            <div class="main-item-content-title wrap-content">当天防疫人数</div>
+            <div class="wrap-content">
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalNumber[6-i] || 0 }}</div>
+            </div>
+            <div class="main-item-content-title wrap-content">防疫累计人次</div>
+            <div class="wrap-content">
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalCount[6-i] || 0 }}</div>
+            </div>
+          </div>
+          <div class="main-item-content2">
+            <div class="main-item-content-title2">健康防疫管理运行</div>
+            <div class="item-time-content">
+              <div v-for="(v, i) in 3" :key="i" class="date">{{ totalDay[2-i] || 0 }}</div>
+              <div class="day">天</div>
+              <div v-for="(v, s) in 2" :key="s+'a'" class="date">{{ totalHours[1-s] || 0 }}</div>
+              <div class="hour">小时</div>
+            </div>
+          </div>
+        </div>
+        <div class="main-item week-attendance-wrap">
+          <div class="week-attendance-wrap-title">
+            <img class="item-img" src="@/assets/antiepidemic/security.png" alt="">
+            <div class="item-title">地方码记录</div>
+          </div>
+          <div class="item-code">
+            <div v-for="(r, i) in localCode" :key="i" class="local-code">
+              <div class="local">{{ r.coed }}</div>
+              <div class="count">{{ r.count }}次</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 如果是admin账号默认隐藏防疫模块 -->
+      <!-- v-permit="'datav_fy_btn'" -->
+      <div class="item-right-fy">
+        <div class="main-item new-attendance-wrap">
+          <div class="new-attendance-wrap-title gradient-title">
+            <img class="item-img" src="@/assets/antiepidemic/security.png" alt="">
+            <div class="item-title">最新打卡</div>
+          </div>
+          <div class="new-attendance-main">
+            <div class="fy-item-1">
+              <div class="worker-img">
+                <img :src="fyData.sitePhoto" alt="">
+                <div class="info-base">
+                  <div>姓名</div>
+                  <div>{{ fyData.empName }}</div>
+                  <div class="tw">体温</div>
+                  <div class="centigrade">{{ fyData.temperature }}℃</div>
+                </div>
+                <img :src="fyData.faceUrl" alt="">
+              </div>
+              <div class="info-woker">
+                <div class="styles">
+                  <p class="radius style1" />
+                  <p class="style1" style="color: #00FDF6;">单位名称</p>
+                  <p class="style2">{{ fyData.companyName }}</p>
+                </div>
+                <div class="styles">
+                  <p class="radius style1" />
+                  <p class="style1">身份证号</p>
+                  <p class="style2">{{ fyData.idCode }}</p>
+                </div>
+                <div class="styles">
+                  <p class="radius style1" />
+                  <p class="style1">职业工种</p>
+                  <p class="style2">{{ fyData.workType }}</p>
+                </div>
+                <div class="styles">
+                  <p class="radius style1" />
+                  <p class="style1">班组名称</p>
+                  <p class="style2">{{ fyData.teamName }}</p>
+                </div>
+                <div class="in-time">
+                  <div />
+                  <div>通行时间：{{ getTime(fyData.passedTime).date + '  ' }} {{ getTime(fyData.passedTime).time || '00:00:00' }}</div>
+                  <div />
+                </div>
+              </div>
+            </div>
+            <div class="fy-item-2">
+              <div>
+                <p>健康码</p>
+                <p>{{ ['绿码','黄码','红码'][fyData.healthCode] }}</p>
+              </div>
+              <div>
+                <p>核酸检测</p>
+                <p>{{ fyData.nucleicAcid }}小时阴性</p>
+              </div>
+              <div>
+                <p>疫苗接种</p>
+                <p>{{ ['第一针', '第二针', '第三针'][fyData.vaccines - 1] }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main-item in-out-wrap">
+          <div class="in-out-wrap-title gradient-title">
+            <img class="item-img" src="@/assets/antiepidemic/security.png" alt="">
+            <div class="item-title">通行记录</div>
+          </div>
+          <dv-scroll-board
+            :config="config1"
+          />
+        </div>
+        <div class="block" />
+      </div>
+    </main>
+  </div>
+</template>
+
+<script>
+import ApdBar from '../datav/apdBar'
+import JkmFill from '../datav/jkmFill'
+import fullScreen from '@/utils/fullScreen'
+// import { pList } from '@/api-zhgd/zhgd-dashboard'
+import { getConsAttendance, getAttendanceDynamic, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic } from '@/api/datav'
+import { parseTime } from '@/utils/index'
+export default {
+  components: {
+    ApdBar,
+    JkmFill
+  },
+  data() {
+    // eslint-disable-next-line new-cap
+    const full = new fullScreen(() => {
+      console.log('不支持全屏')
+    })
+    return {
+      full,
+      time: '',
+      totalNumber: [],
+      totalCount: [],
+      totalDay: [],
+      totalHours: [],
+      consAttenList: [],
+      inOutList: [],
+      // proList: [],
+      fyData: {
+        projectIds: '',
+        vaccines: 2,
+        idCode: '',
+        companyName: '',
+        nucleicAcid: '',
+        sitePhoto: '',
+        empName: '',
+        passedTime: 1651129979000,
+        temperature: '',
+        workType: '',
+        healthCode: '',
+        faceUrl: ''
+      },
+      permiList: this.$store.getters.roleList,
+      config: {
+        header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+        headerBGC: '#132239',
+        evenRowBGC: '#71CDF9',
+        carousel: 'single',
+        columnWidth: [180],
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center', 'center']
+      },
+      config1: {
+        header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+        headerBGC: '#132239',
+        evenRowBGC: '#71CDF9',
+        carousel: 'single',
+        rowNum: 7,
+        align: ['center'],
+        data: []
+      },
+      resultConfig: [],
+      weekData: [],
+      recordData: [],
+      localCode: [
+        {
+          coed: '粤康码',
+          count: 100
+        },
+        {
+          coed: '闽政通',
+          count: 20
+        },
+        {
+          coed: '国康码',
+          count: 10
+        },
+        {
+          coed: '湖南码',
+          count: 50
+        },
+        {
+          coed: '苏康码',
+          count: 0
+        },
+        {
+          coed: '四川码',
+          count: 0
+        },
+        {
+          coed: '浙江码',
+          count: 0
+        },
+        {
+          coed: '山西码',
+          count: 0
+        },
+        {
+          coed: '湖北码',
+          count: 0
+        }
+      ],
+      resultConfig1: [],
+      userType: JSON.parse(sessionStorage.getItem('result')).userType,
+      token: JSON.parse(sessionStorage.getItem('result')).token,
+      projectIds: JSON.parse(sessionStorage.getItem('result')).projectId,
+      firstPanelVisible: false,
+      iconStatus: false,
+      numTodaxie: {
+        0: '日',
+        1: '一',
+        2: '二',
+        3: '三',
+        4: '四',
+        5: '五',
+        6: '六'
+      }
+    }
+  },
+  created() {
+    this.init()
+  },
+  mounted() {
+    setInterval(() => {
+      this.time = this.getTime().time
+    }, 1000)
+    this.setRem(23)
+    window.addEventListener('resize', () => {
+      this.iconStatus = this.full.isElementFullScreen()
+      this.full.isElementFullScreen() ? this.setRem(26) : this.setRem(23)
+    })
+    document.addEventListener('click', (e) => {
+      e.stopPropagation()
+      if (e.target.className === 'company-wrap' || e.target.className === 'company-item') {
+        this.firstPanelVisible = true
+      } else {
+        this.firstPanelVisible = false
+      }
+    })
+  },
+  beforeDestroy() {
+    document.documentElement.style.fontSize = '16px'
+    clearInterval(this.tiemer)
+    clearInterval(this.tiemer1)
+  },
+  methods: {
+    setRem(size) {
+      const baseSize = size
+      const basePc = baseSize / 1920
+      let vW = window.innerWidth
+      const vH = window.innerHeight
+      const dueH = (vW * 1080) / 1920
+      if (vH < dueH) vW = (vH * 1920) / 1080
+      const rem = vW * basePc
+      document.documentElement.style.fontSize = rem + 'px'
+    },
+    async init(item) {
+      this.getNewestAttendanceAndEpidemic()
+      this.getConsAttendance()
+      this.getAttendanceDynamic()
+      this.weekHeaCode()
+      this.getFYNumber()
+      this.tiemer = setInterval(() => {
+        // this.getNewestAttendanceAndEpidemic()
+        // this.weekHeaCode()
+        // this.getConsAttendance()
+        // this.getAttendanceDynamic()
+      }, 5000)
+      this.tiemer1 = setInterval(() => {
+        // this.getFYNumber()
+      }, 3600000)
+    },
+    // 获取项目id
+    // getPList(data) {
+    //   return pList().then((data) => {
+    //     if (data && data.code === 1000) {
+    //       for (let i = 1; i <= data.length - 1; i++) {
+    //         for (let s = 0; s <= data.result[i].projectList.length; s++) {
+    //           if (data.result[i].projectList[s] && data.result[i].projectList[s].id) {
+    //             this.proList.push(data.result[i].projectList[s].id)
+    //           }
+    //         }
+    //       }
+    //     } else {
+    //       this.$message.error(data.msg)
+    //     }
+    //   })
+    // },
+    showPanel(status) {
+      // 是集团或者公司才能选择项目
+      if (this.userType === 1 || this.userType === 0) {
+        this.firstPanelVisible = status
+      }
+    },
+    // 全屏 / 退出全屏
+    toggleFullScreen() {
+      this.iconStatus = !this.full.isElementFullScreen()
+      if (this.full.isElementFullScreen()) {
+        this.full.exitFullscreen()
+      } else {
+        this.full.Fullscreen('.data-v-container1')
+      }
+    },
+    // 项目防疫情况
+    getConsAttendance() {
+      getConsAttendance({ 'token': this.token }).then((data) => {
+        this.consAttenList = data.result.map(item => {
+          return [
+            item.constructionName,
+            `<span style="color:#fff;">${item.todayWorkersCount + '/' + item.inCount}</span>`,
+            `<span style="color:#38F1A1;">${item.lmCount}</span>`,
+            `<span style="color:#38F1A1;">${item.hsCount}</span>`,
+            `<span style="color:#38F1A1;">${item.twCount}</span>`
+          ]
+        })
+        this.config = {
+          header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+          headerBGC: '#132239',
+          oddRowBGC: ['transparent'],
+          evenRowBGC: '#112c60',
+          carousel: 'single',
+          columnWidth: [180],
+          rowNum: 7,
+          align: ['center'],
+          data: this.consAttenList
+        }
+        // this.proList[0] = data.result[0].projectIds
+      })
+    },
+    // 通行记录
+    getAttendanceDynamic() {
+      getAttendanceDynamic({ 'projectIds': this.projectIds }).then((data) => {
+        this.inOutList = data.result.map(item => {
+          return [
+            item.name,
+            `<span style="color:#fff;">${item.health_code}</span>`,
+            `<span style="color:#38F1A1;">${item.nucleic_acid}</span>`,
+            `<span style="color:#38F1A1;">${item.tw}</span>`,
+            `<span style="color:#fff;">${item.vaccines}</span>`,
+            `<span style="color:#e5b965;">${item.txsj}</span>`
+
+          ]
+        })
+        this.config1 = {
+          header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+          headerBGC: '#132239',
+          oddRowBGC: ['transparent'],
+          evenRowBGC: '#112c60',
+          carousel: 'single',
+          rowNum: 7,
+          align: ['center', 'center', 'center', 'center', 'center'],
+          data: this.inOutList
+        }
+      })
+    },
+    getFYNumber() {
+      getFYNumber({ 'projectIds': this.projectIds }).then((data) => {
+        if (data.code === 1000 && data.result) {
+          for (let i = 0; i <= 6; i++) {
+            this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
+            this.totalCount[i] = (parseInt(data.result.dayNumber / Math.pow(10, i)) % 10)
+            i <= 2 && (this.totalDay[i] = (parseInt(data.result.days / Math.pow(10, i)) % 10))
+            i <= 1 && (this.totalHours[i] = (parseInt(data.result.hours / Math.pow(10, i)) % 10))
+          }
+        }
+      })
+    },
+    // 防疫
+    weekHeaCode() {
+      weekHeaCode({ 'projectIds': this.projectIds }).then((data) => {
+        if (data.result) this.recordData = this.weekData = data.result
+      })
+    },
+    // 最新打卡
+    getNewestAttendanceAndEpidemic() {
+      console.log(this.projectIds)
+      getNewestAttendanceAndEpidemic({ 'projectIds': this.projectIds }).then((data) => {
+        if (data.code === 1000 && data.result) this.fyData = data.result
+      })
+    },
+    getTime(Time) {
+      return {
+        time: parseTime(Time || new Date(), '{h}:{i}:{s}'),
+        date: parseTime(Time || new Date(), '{y}/{m}/{d}')
+      }
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+.data-v-container1 {
+  background: url('../../assets/antiepidemic/bg.png') center no-repeat no-repeat;
+  background-size: 100% 100%;
+  color: #fff;
+  width: 100%;
+  // height: 100vh;
+  height: 41.54rem;
+  .gyc-dashboard-header {
+    position: relative;
+    top: .62rem;
+    height: 3.85rem;
+    background: url('../../assets/antiepidemic/header1.png') center no-repeat no-repeat;
+    background-size: 100% 100%;
+    .now-time {
+        position: absolute;
+        left: 3.54rem;
+        top: 1.32rem;
+        width: 14.12rem;
+        height: .96rem;
+        font-size: 1.06rem;
+        font-weight: 400;
+        color: #F1F1F1;
+        line-height: 1.56rem;
+        span {
+          display: flex;
+          justify-content: space-around;
+        }
+        }
+    .pro-name {
+      .marquee {
+        text-align: center;
+        letter-spacing: .19rem;
+        width: 20rem;
+        cursor: pointer;
+        position: absolute;
+        left: 50%;
+        top: 30%;
+        transform: translate(-50%, -30%);
+        font-size: 1.62rem;
+        font-family: Source Han Sans CN;
+        font-weight: bold;
+        color: #FFFFFF;
+        font-weight: 600;
+        background: linear-gradient(92deg, #0072FF 0%, #00EAFF 48.8525390625%, #01AAFF 100%);
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        width: 20rem;
+      }
+    }
+    .cpt-name {
+      position: absolute;
+      letter-spacing: .19rem;
+      width: 12.31rem;
+      height: 1.27rem;
+      top: 1.32rem;
+      right: 3.54rem;
+      font-size: 1.15rem;
+      color: #FFFFFF;
+      font-weight: bold;
+      background: linear-gradient(92deg, #0072FF 0%, #00EAFF 48.8525390625%, #01AAFF 100%);
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gyc-full-screen-toggle {
+      width: 4rem;
+      line-height: 2.9rem;
+      margin-left: .58rem;
+      font-size: .9rem;
+      color: #0686D8;
+      cursor: pointer;
+    }
+    .header-time {
+      position: absolute;
+      top: 1.1rem;
+      right: 1.92rem;
+      font-size: .62rem;
+      color: #0686D8;
+    }
+  }
+  main {
+    display: flex;
+    width: 100%;
+    .gradient-title {
+      display: flex;
+      padding-left: .38rem;
+      font-size: .62rem;
+      color: #F1F1F1;
+      font-weight: bold;
+      background: url('../../assets/antiepidemic/header.png') center no-repeat no-repeat;
+      background-size: 23.92rem 1.37rem;
+      div {
+        line-height: 1.37rem;
+      }
+    }
+    .main-item {
+      // background-repeat: no-repeat;
+      // background-size: 2px 8px, 8px 2px;
+      .item-img {
+        vertical-align: sub;
+        width: 1.25rem;
+        height: 1.42rem;
+      }
+      .dv-scroll-board {
+        width: 100%;
+        height: 13.04rem;
+        .header {
+          color: #48ECE7;
+        }
+        .rows {
+          .row-item {
+            height: 1.68rem !important;
+            line-height: 1.68rem !important;
+          }
+        }
+      }
+    }
+    .item-left {
+      width: 37%;
+      margin-left: .5rem;
+      .weather-wrap {
+        height: 17.46rem;
+        padding: .5rem;
+        background: url('../../assets/antiepidemic/frame2.png');
+        background-size: 100% 100%;
+         .weather-title {
+          text-align: left;
+          height: 1.92rem;
+        }
+      }
+      .type-work-wrap {
+        height: 19.19rem;
+        padding: .5rem;
+        background: url('../../assets/antiepidemic/frame4.png');
+        background-size: 100% 100%;
+        .type-work-wrap-title {
+          height: 1.92rem;
+          text-align: left;
+        }
+        .pie-char {
+          .pie {
+          width: 100%;
+          height: 7.39rem;
+          margin: 0 auto;
+          }
+        }
+      }
+    }
+    .item-center {
+      width: 26%;
+      .center-attendance-wrap {
+        height: 19.38rem;
+        padding-top: 1.54rem;
+        .main-item-content1 {
+          display: flex;
+          height: 10.77rem;
+          flex-direction: column;
+          align-content: center;
+          .wrap-content {
+            padding: 0 .96rem;
+            margin-top: .58rem;
+            display: flex;
+            justify-content: space-between;
+            .num {
+              width: 1.8rem;
+              height: 2.2rem;
+              line-height: 1.98rem;
+              font-size: 1.98rem;
+              font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+              text-align: center;
+              color: #00FDF6;
+              background: linear-gradient(0deg, #06296A, rgba(6, 41, 106, 0));
+              border: 0.04px solid;
+              border-image: linear-gradient(0deg, rgba(0, 182, 255, 0.8), rgba(0, 182, 255, 0.8)) 0.04 0.04;
+              border-radius: 8%;
+            }
+          }
+          .main-item-content-title {
+            padding: 0 1.35rem;
+            height: 1.12rem;
+            font-size: 1rem;
+            color: #FFFFFF;
+            line-height: 1.12rem;
+            text-shadow: 0 0 1px #fff,0 0 5px #0072FF,0 0 10px #0072FF,0 0 15px #0072FF;
+          }
+        }
+        .main-item-content2 {
+          // display: flex;
+          // flex-direction: column;
+          // align-content: center;
+          width: 18.3rem;
+          height: 6.65rem;
+          margin-right: .58rem;
+          background: url('../../assets/antiepidemic/frame1.png');
+          background-size: 18.35rem 6.75rem;
+          .main-item-content-title2 {
+            padding-top: 0.73rem;
+            height: 1.12rem;
+            font-size: 1rem;
+            text-align: center;
+            color: #FFFFFF;
+            line-height: 1.12rem;
+            text-shadow: 0 0 1px #fff,0 0 5px #0072FF,0 0 10px #0072FF,0 0 15px #0072FF;
+          }
+          .item-time-content {
+            margin-top: 2.04rem;
+            display: flex;
+            justify-content: center;
+            height: 2.2rem;
+            .date {
+              width: 1.8rem;
+              height: 2.2rem;
+              margin-right: .38rem;
+              line-height: 1.98rem;
+              font-size: 1.98rem;
+              font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+              text-align: center;
+              color: #00FDF6;
+              background: linear-gradient(0deg, #06296A, rgba(6, 41, 106, 0));
+              border: 0.04px solid;
+              border-image: linear-gradient(0deg, rgba(0, 182, 255, 0.8), rgba(0, 182, 255, 0.8)) 0.04 0.04;
+              border-radius: 8%;
+            }
+            .day, .hour {
+              height: 2.2rem;
+              font-size: 0.8rem;
+              padding-right: .38rem;
+              line-height: 3.27rem !important;
+              color: #FFFFFF;
+              line-height: 1.12rem;
+              text-shadow: 0 0 1px #fff,0 0 5px #0072FF,0 0 10px #0072FF,0 0 15px #0072FF;
+            }
+          }
+        }
+      }
+      .week-attendance-wrap {
+        height: 17.35rem;
+        width: 18.3rem;
+        padding-top: .38rem;
+        background: url('../../assets/antiepidemic/frame.png');
+        background-size: 100% 100%;
+        .week-attendance-wrap-title {
+          text-align: left;
+          padding: 0 1.15rem;
+          width: 17.92;
+          height: 1.77rem;
+          display: flex;
+          padding-left: .38rem;
+          font-size: .62rem;
+          color: #F1F1F1;
+          font-weight: bold;
+          background: url('../../assets/antiepidemic/header3.png') center no-repeat no-repeat;
+          background-size: 16.92rem 1.77rem;
+          .item-title {
+            line-height: 1.37rem;
+          }
+        }
+        .item-code {
+          display: flex;
+          justify-content: space-around;
+          flex-wrap: wrap;
+          padding: .58rem 0.31rem 0;
+          width: 100%;
+          height: 12.42rem;
+          .local-code {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 5.81rem;
+            height: 4.35rem;
+            background: url('../../assets/antiepidemic/frame3.png');
+            background-size: 100% 100%;
+            .local {
+              width: 100%;
+              height: 2.15rem;
+              line-height: 3.15rem;
+              font-size: .69rem;
+              color: #FFFFFF;
+            }
+            .count {
+              width: 100%;
+              height: 2.15rem;
+              line-height: 1.55rem;
+              font-size: 0.92rem;
+              color: #38F1A1;
+            }
+          }
+        }
+      }
+    }
+    .item-right-fy {
+      width: 37%;
+      margin: 0 .5rem;
+      .new-attendance-wrap {
+        padding: .5rem;
+        height: 17.46rem;
+        width: 98%;
+        background: url('../../assets/antiepidemic/frame2.png');
+        background-size: 100% 100%;
+        .new-attendance-wrap-title {
+          text-align: left;
+          height: 1.92rem;;
+          line-height: 1.92rem;;
+        }
+        .new-attendance-main {
+          display: flex;
+          justify-content: space-between;
+          padding-left: .38rem;
+          line-height: 1.2rem;
+          font-size: .62rem;
+          .fy-item-1 {
+            display: flex;
+            flex-direction: column;
+            width: 19.23rem;
+            height: 16rem;
+            .worker-img {
+              display: flex;
+              width: 16.34rem;
+              height: 5.98rem;
+              .info-base {
+                width: 5.77rem;
+                padding: .58rem;
+                font-size: 0.77rem;
+                color: #FFFFFF;
+                .tw {
+                  margin-top: .38rem;
+                }
+                .centigrade {
+                  color: #3BFBA6;
+                }
+              }
+              img {
+                width: 4.51rem;
+                height: 5.98rem;
+              }
+            }
+          .info-woker {
+            width: 100%;
+            font-size: 0.77rem;
+            .styles {
+              display: flex;
+              margin-bottom: .96rem;
+              height: .77rem;
+              .radius {
+                width: 0.46rem;
+                height: 0.46rem;
+                margin-top: 1.08rem;
+                border-radius: 50%;
+                background: #00FDF6;
+              }
+              .style1 {
+                color: #00FDF6;
+                margin-right: .38rem;
+              }
+              .style2 {
+                color: #FFFFFF;
+              }
+            }
+            .in-time {
+              display: flex;
+              // width: 12.23rem;
+              justify-content: center;
+              padding-top: .38rem;
+              font-size: .62rem;
+              color: #F1F1F1;
+              div {
+                &:nth-child(1) {
+                  margin-top: .31rem;
+                  width: 3.54rem !important;
+                  height: .58rem;
+                  width: 50%;
+                  background: url('../../assets/antiepidemic/footer.png') center no-repeat no-repeat;
+                  background-size: 3.54rem .58rem;
+                }
+                &:nth-child(3) {
+                  margin-top: .31rem;
+                  width: 3.54rem !important;
+                  height: .58rem;
+                  width: 50%;
+                  background: url('../../assets/antiepidemic/footer.png') center no-repeat no-repeat;
+                  background-size: 3.54rem .58rem;
+                }
+              }
+            }
+          }
+        }
+          .fy-item-2 {
+            display: flex;
+            flex-direction: column;
+            align-content: space-between;
+            width: 100%;
+            div {
+              // width: 6.55rem;
+              height: 4.77rem;
+              background: url('../../assets/antiepidemic/frame3.png') center no-repeat no-repeat;
+              background-size: 6.25rem 5.05rem;
+              text-align: center;
+              p {
+                margin: 0;
+                &:nth-child(1) {
+                  font-size: .77rem;
+                  margin-top: 1.15rem;
+                }
+                &:nth-child(2) {
+                  font-size: .92rem;
+                  color: #38F1A1;
+                }
+              }
+            }
+          }
+        }
+      }
+      .block {
+        width: 100%;
+        height: .04rem;
+      }
+      .in-out-wrap {
+        height: 19.59rem;
+        width: 98%;
+        padding: .5rem;
+        background: url('../../assets/antiepidemic/frame2.png') center no-repeat no-repeat;
+        background-size: 100% 100%;
+         .weather-title {
+          text-align: left;
+          height: 1.92rem;
+        }
+        .in-out-wrap-title {
+          text-align: left;
+          height: 1.92rem;
+        }
+        .in-out-wrap-main {
+          padding: 1.5rem .052083rem .15625rem .15625rem;
+          .table-header {
+            font-size: .90rem;
+            margin-bottom: .104167rem;
+            text-align: center;
+          }
+          .table-body-wrap {
+            height: 8rem;
+            overflow: auto;
+          }
+          .table-body {
+            line-height: 2rem;
+            font-size: .6rem;
+            text-align: center;
+            .num {
+              color: #E5B965;
+            }
+            .attendance {
+              color: #0DE779;
+            }
+          }
+        }
+      }
+    }
+  }
+  .ellipsis {
+    cursor: pointer;
+    overflow:hidden; //超出的文本隐藏
+    text-overflow:ellipsis; //溢出用省略号显示
+    white-space:nowrap; //溢出不换行
+  }
+}
+</style>

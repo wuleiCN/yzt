@@ -1,0 +1,417 @@
+<template>
+  <div class="statistic-dashboard-video dashboard-full-screen">
+    <!-- <div class="statistic-dashboard-header">
+      <FullScreen ref="FullScreen" />
+      <SelectProject @newsReload="newsReload" />
+    </div>
+    <Nav /> -->
+    <div class="statistic-dashboard-main">
+      <div class="left-wrap">
+        <div class="toogle">
+          <span :class="isMap ? 'active' : ''" @click="changeToMap(true)">地图</span>
+          <span :class="!isMap ? 'active' : ''" @click="changeToMap(false)">网格</span>
+        </div>
+        <div class="project-list">
+          <div
+            v-for="(item, index) in dataList"
+            v-show="!isMap"
+            :key="index"
+            class="video-project-list"
+            @click="getVideoMonitorList(item.id, projectId)"
+          >
+            <span>{{ item.videoName }}</span>
+          </div>
+          <my-upload v-show="isMap" ref="myUpload" :is-show="false" :limit="'image'" :title="'点击上传地图'" :action="'/user/upload'" @getfileList="getFileData" />
+        </div>
+      </div>
+      <div v-show="!isMap" class="right-wrap">
+        <div v-for="(item,index) in videoList" :key="index" class="wrap-item">
+          <div class="video-item-block">
+            <iframe
+              :id="'container' + index"
+              class="video-style"
+              :src="item.deviceSerial"
+              allowfullscreen
+            />
+            <!-- <div v-if="item && item.isControl" class="zhezhao" @click.stop="selectVideoHandle(item, index, 'yinshiyun')" /> -->
+          </div>
+        </div>
+      </div>
+      <div v-show="isMap" class="right-wrap1">
+        <div v-if="datailData.projectImgUrl" class="map-img" :style="projectImgUrl" @click="showMarkModal">
+          <!-- {{ $refs.FullScreen && $refs.FullScreen.status }} -->
+          <div
+            v-for="(item, index) in site"
+            :key="index"
+            class="mark-wrap"
+            :style="{
+              left: item.longitude - 16 + 'px',
+              top: item.latitude - 60 + 'px',
+            }"
+            @click="(e) => updateHandle(e, item)"
+          >
+            <div :title="item.videoName" class="mark-name inaline">
+              {{ item.videoName }}
+            </div>
+            <span class="icon-style" @click="e => deleteHandle(e, item.id)"><i class="el-icon-circle-close" /></span>
+            <img
+              class="mark"
+              src="@/assets/statistic-dashboard/video-mark.png"
+            >
+          </div>
+        </div>
+      </div>
+      <div v-show="isMap" class="right-wrap1">
+        <div>
+          <!-- {{ $refs.FullScreen && $refs.FullScreen.status }} -->
+        </div>
+      </div>
+      <!-- 弹窗 -->
+      <MarkModal v-if="markVisible" ref="markModal" @refreshDataList="getMapDetail" />
+    </div>
+  </div>
+</template>
+<script>
+// import FullScreen from '../component/FullScreen.vue'
+// import SelectProject from '../component/SelectPro.vue'
+// import common from '../mixins/common'
+// import Nav from '../component/Nav.vue'
+import { videoMonitorList, videoProList, getList } from '@/api-zhgd/video-device'
+import { detail, saveOrUpdateImg, delMark } from '@/api/statistic-dashboard/video'
+import MyUpload from '@/components/upload'
+import MarkModal from './mark-modal.vue'
+export default {
+  components: {
+    MyUpload,
+    MarkModal
+    // FullScreen,
+    // SelectProject,
+    // Nav
+  },
+  // mixins: [common],
+  data() {
+    return {
+      isMap: false,
+      markVisible: false,
+      videoList: [],
+      site: [],
+      projectImgUrl: '',
+      projectId: 'e81aa55d13348234a50cc0f874e0c0aa',
+      datailData: {},
+      dataList: [
+        {
+          videoName: '12#号吊塔驾驶室语音监控'
+        },
+        {
+          videoName: '宝安大门进出口监控'
+        },
+        {
+          videoName: '物料堆放区'
+        },
+        {
+          videoName: '项目部监控'
+        },
+        {
+          videoName: '宿舍区进出口监控'
+        },
+        {
+          videoName: '15#号吊塔驾驶室语音监控'
+        },
+        {
+          videoName: '12#号吊塔可视化'
+        }
+      ]
+    }
+  },
+  mounted() {
+  },
+  methods: {
+    init(projectId) {
+      this.projectId = projectId
+      this.getMapDetail(projectId)
+      // this.getDataList(projectId)
+      // this.getProList(projectId)
+      this.getVideoMonitorList(null, projectId)
+    },
+    newsReload(projectId) {
+      this.init(projectId)
+    },
+    getProList(projectId) {
+      videoProList({ projectId, isDel: 0 }).then(data => {
+        if (data && data.code === 1000) {
+          const proList = data.result
+          if (proList.length) {
+            // const projectId = proList[0].id
+            const id = proList[0].deviceList[0].id
+            // this.id = proList[0].deviceList[0].id
+            this.getVideoMonitorList(id, projectId)
+          }
+        }
+      })
+    },
+    changeToMap(value) {
+      this.isMap = value
+    },
+    getFileData(fileList) {
+      saveOrUpdateImg({ projectId: this.projectId, projectImgUrl: fileList.result }).then(data => {
+        if (data && data.code === 1000) {
+          this.getMapDetail(this.projectId)
+        }
+      })
+    },
+    showMarkModal(e) {
+      this.markVisible = true
+      this.$nextTick(() => {
+        this.$refs.markModal.init({ offsetX: e.offsetX, offsetY: e.offsetY, projectId: this.projectId })
+      })
+    },
+    updateHandle(e, item) {
+      e.stopPropagation()
+      this.markVisible = true
+      this.$nextTick(() => {
+        this.$refs.markModal.init({ ...item, projectId: this.projectId })
+      })
+    },
+    getMapDetail(projectId) {
+      detail({ projectId }).then(data => {
+        if (data && data.code === 1000) {
+          this.datailData = data.result
+          this.projectImgUrl = `background: url(${data.result.projectImgUrl}) center no-repeat no-repeat;background-size: 100% 100%;`
+          this.site = data.result.site || []
+        }
+      })
+    },
+    show(item) {
+      this.player = null
+      if (item && item.isControl === 0) {
+        // 本地模式
+      } else {
+        this.src = item.deviceSerial
+      }
+    },
+    // 获取设备列表
+    getDataList(projectId) {
+      return getList({ projectId, isDel: 0 }).then(data => {
+        if (data && data.code === 1000) {
+          this.dataList = data.result.records
+          return this.dataList
+        } else {
+          this.dataList = []
+        }
+      })
+    },
+    // 获取数据列表
+    getVideoMonitorList(id, projectId) {
+      videoMonitorList({
+        id,
+        isDel: 0,
+        rows: 9,
+        page: 1,
+        projectId
+      }).then(data => {
+        if (data && data.code === 1000) {
+          var arr = []
+          var result = data.result.result.records
+          arr = this.getVideoList(result)
+          this.total = arr.length
+          this.videoList = []
+          for (let index = 0; index < 9; index++) {
+            const element = arr[index] || {}
+            this.videoList.push(element)
+          }
+          this.videoList.map((item) => {
+            if (item) this.show(item)
+          })
+        }
+      })
+    },
+    // 删除
+    deleteHandle(e, id) {
+      e.stopPropagation()
+      // this.$confirm(`您确定进行删除操作吗?`, '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   'modalAppendToBody': false,
+      //   type: 'warning'
+      // }).then(() => {
+      //   delMark({ id, projectId: this.projectId }).then((data) => {
+      //     if (data && data.code === 1000) {
+      //       this.$message({
+      //         message: '操作成功',
+      //         type: 'success',
+      //         duration: 1000,
+      //         onClose: () => {
+      //           this.getMapDetail(this.projectId)
+      //         }
+      //       })
+      //     } else {
+      //       this.$message.error(data.msg)
+      //     }
+      //   })
+      // }).catch(() => {})
+      delMark({ id, projectId: this.projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000,
+            onClose: () => {
+              this.getMapDetail(this.projectId)
+            }
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getVideoList(data) {
+      const list = []
+      data.map(item => {
+        this.isControl = item.isControl
+        const lastStr = item.deviceSerial ? item.deviceSerial.split('/')[item.deviceSerial.split('/').length - 1] : ''
+        if (item.isControl === 2) {
+          item.childVideo && item.childVideo.map((ele, index) => {
+            ele.pId = item.id
+            ele.accessToken = item.accessToken
+            ele.isControl = item.isControl
+            ele.deviceSerial = `https://open.ys7.com/ezopen/h5/iframe?url=${item.deviceSerial.replace(lastStr, `${index + 1}.live`)}&autoplay=1&accessToken=${ele.accessToken}`
+            list.push(ele)
+          })
+        } else if (item.isControl === 1) {
+          item.deviceSerial = 'https://open.ys7.com/ezopen/h5/iframe?url=' + item.deviceSerial + '&autoplay=1&accessToken=' + item.accessToken
+          list.push(item)
+        }
+      })
+      return list
+    }
+  }
+}
+</script>
+<style lang="scss">
+// 计算方式 26px -> 1rem
+.statistic-dashboard-video {
+  // position: absolute;
+  // left: 50%;
+  // top: 50%;
+  // transform: translate(-50%, -50%);
+  background: url('../../../assets/statistic-dashboard/sq-bg.png') center no-repeat no-repeat;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 41.54rem;
+  color: #fff;
+  font-size: .77rem;
+  .statistic-dashboard-header {
+    position: relative;
+    height: 3.85rem;
+    background: url('../../../assets/statistic-dashboard/top-header.png') center no-repeat no-repeat;
+    background-size: 100% 100%;
+  }
+  .statistic-dashboard-main {
+    display: flex;
+    padding: 0 .74rem;
+    .left-wrap {
+      flex: 12.31;
+      height: 35rem;
+      background: url('../../../assets/statistic-dashboard/video-left.png') center no-repeat no-repeat;
+      background-size: 100% 100%;
+      .toogle {
+        width: 8rem;
+        height: 2.85rem;
+        line-height: 2.85rem;
+        text-align: center;
+        border: .04rem solid #0154BE;
+        margin: 0 auto;
+        margin-top: 1.54rem;
+        span {
+          width: 40%;
+          cursor: pointer;
+          display: inline-block;
+        }
+      }
+      .project-list {
+        // line-height: 2.15rem;
+        .video-project-list {
+          text-align: center;
+          margin: 1.38rem 0 1.38rem 0;
+        }
+        div {
+          text-align: center;
+          margin-top: 1rem;
+        }
+      }
+    }
+    .right-wrap {
+      flex: 61;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      // margin-top: .2rem;
+      .video-style {
+        width: 100%;
+        height: 100%;
+        // margin: 0.3% 0 0 .5%;
+        border: .04rem solid #0154BE;
+      }
+      .wrap-item {
+        width: 33.33%;
+        div {
+          height: 11.2rem;
+          margin: 0 1rem;
+          background: #000;
+          // border: .04rem solid #0154BE;
+        }
+      }
+
+    }
+    .right-wrap1 {
+      flex: 61;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 1.15rem 3.08rem;
+      .map-img {
+        position: relative;
+        // width: 100%;
+        // height: 99%;
+        width: 1400px;
+        height: 700px;
+        .mark-wrap {
+          position: absolute;
+          // text-align: center;
+          width: 30px;
+          .mark-name {
+            text-align: center;
+            background: url('../../../assets/statistic-dashboard/mark-name-bg.png') center no-repeat no-repeat;
+            background-size: 100% 100%;
+            width: 239.98px;
+            height: 34.06px;
+            line-height: 34.06px;
+            margin-left: -104px;
+            padding: 1px;
+          }
+          .icon-style {
+            position: absolute;
+            top: 0px;
+            font-size: 20px;
+            right: -105px;
+          }
+          img {
+            width: 30px;
+            height: 30px;
+            margin: 0 auto;
+          }
+        }
+      }
+    }
+    .inaline {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      /*clip  修剪文本。*/
+    }
+    .active {
+      color: #00EDFF;
+    }
+  }
+}
+</style>

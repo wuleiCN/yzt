@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>激活</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    .wrap {
+      margin-top: 20px;
+      width: 50%;
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, -0%);
+    }
+    .res {
+      color: red;
+    }
+    .url-wrap {
+      display: flex;
+    }
+    .url-wrap .url-wrap-left {
+      flex: 4;
+      margin-right:10px;
+    }
+    .url-wrap .url-wrap-right {
+      flex: 1;
+    }
+    input[type=text], select {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    input[type=button] {
+      width: 100%;
+      background-color: #04AA6D;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    input[type=button]:hover {
+      background-color: #45a049;
+    }
+    
+    div.container {
+      border-radius: 5px;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    </style>
+</head>
+<body>
+<div class="wrap">
+  <label for="ip">设备ip</label>
+  <input type="text" id="ip" name="ip" placeholder="设备ip" value='http://192.168.1.116'>
+  <label for="post">端口</label>
+  <input type="text" id="post" name="post" placeholder="端口" value='8088'>
+  <h3>配置心跳URL</h3>
+  <div class="container">
+    <form name="form1" id="form1"  method="post" required>
+      <label for="key">秘钥</label>
+      <input type="text" id="key" name="key" placeholder="秘钥" value='abc'>
+      <label for="url">心跳url</label>
+      <div class="url-wrap">
+        <input class="url-wrap-left" type="text" id="url" name="url" placeholder="心跳url" value='192.168.1.176/yzt-device/syd/deviceHeart'>
+        <input class="url-wrap-right" type="button" onclick="submitFrom1('query')" value="查询">
+      </div>
+      <div class="res" id="urlResult1"></div>
+      <label for="period">心跳周期</label>
+      <input type="text" id="period" name="period" placeholder="心跳周期" value='5'>
+      <input type="button" onclick="submitFrom1('submit')" value="提交">
+      <div class="res" id="result1"></div>
+    </form>
+  </div>
+  <h3>设置websocket基本URL</h3>
+  <div class="container">
+    <form name="form2" id="form2"  method="post" required>
+      <label for="key">秘钥</label>
+      <input type="text" id="key" name="key" placeholder="秘钥" value='abc'>
+      <label for="url">WS服务器url</label>
+      <div class="url-wrap">
+        <input class="url-wrap-left" type="text" id="url" name="url" placeholder="WS服务器url" value='ws://192.168.1.176/yzt-device/devs/'>
+        <input class="url-wrap-right" type="button" onclick="submitFrom2('query')" value="查询">
+      </div>
+      <div class="res" id="urlResult2"></div>
+      <input type="button" onclick="submitFrom2('submit')" value="提交">
+      <div class="res" id="result2"></div>
+    </form>
+  </div>
+  <h3>设置过闸数据自动上传URL</h3>
+  <div class="container">
+    <form name="form3" id="form3"  method="post" required>
+      <label for="key">秘钥</label>
+      <input type="text" id="key" name="key" placeholder="秘钥" value='abc'>
+      <label for="url">上传数据URL</label>
+      <div class="url-wrap">
+        <input class="url-wrap-left" type="text" id="url" name="url" placeholder="上传数据URL" value='http://192.168.1.176/yzt-device/syd/saveOrUpdate'>
+        <input class="url-wrap-right" type="button" onclick="submitFrom3('query')" value="查询">
+      </div>
+      <div class="res" id="urlResult3"></div>
+      <label for="uploadPhoto">是否上传照片</label>
+      <select id="uploadPhoto" name="uploadPhoto">
+        <option value="1">上传</option>
+        <option value="0">不上传</option>
+      </select>
+      <label for="retainUploaded">是否上传照片</label>
+      <select id="retainUploaded" name="retainUploaded">
+        <option value="1">保留</option>
+        <option value="0">不保留</option>
+      </select>
+      <input type="button" onclick="submitFrom3('submit')" value="提交">
+      <div class="res" id="result3"></div>
+    </form>
+  </div>
+</div>
+  <script>
+    function submitFrom1(type) {
+      var key = document.forms["form1"]["key"].value;
+      var url = document.forms["form1"]["url"].value;
+      var period = document.forms["form1"]["period"].value;
+      const ip = document.querySelector('#ip').value
+      const post = document.querySelector('#post').value
+      const formData = "key="+ key + "&url=" + url + "&period=" + period
+      if (type === 'submit') {
+        fetch(ip + ':' + post + '/setHeartBeat', 'post', formData).then(res => {
+          document.querySelector('#result1').innerHTML = res
+        })
+      } else {
+        fetch(ip + ':' + post + '/getHeartBeat?key=abc', 'get').then(res => {
+          document.querySelector('#urlResult1').innerHTML = res
+        })
+      }
+    }
+    function submitFrom2(type) {
+      var key = document.forms["form2"]["key"].value;
+      var url = document.forms["form2"]["url"].value;
+      const ip = document.querySelector('#ip').value
+      const post = document.querySelector('#post').value
+      const formData = "key="+ key + "&url=" + url + "&auth=ZGV2OjEyMw=="
+      if (type === 'submit') {
+        fetch(ip + ':' + post + '/setWebSocketBaseURL', 'post', formData).then(res => {
+          document.querySelector('#result2').innerHTML = res
+        })
+      } else {
+        fetch(ip + ':' + post + '/getWebSocketBaseURL?key=abc', 'get').then(res => {
+          document.querySelector('#urlResult2').innerHTML = res
+        })
+      }
+    }
+    function submitFrom3(type) {
+      var key = document.forms["form3"]["key"].value;
+      var url = document.forms["form3"]["url"].value;
+      var uploadPhoto = document.forms["form3"]["uploadPhoto"].value;
+      var retainUploaded = document.forms["form3"]["retainUploaded"].value;
+      const ip = document.querySelector('#ip').value
+      const post = document.querySelector('#post').value
+      const formData = "key="+ key + "&url=" + url + "&uploadPhoto=" + uploadPhoto + "&retainUploaded=" + retainUploaded
+      if (type === 'submit') {
+        fetch(ip + ':' + post + '/setRecordCallback', 'post', formData).then(res => {
+          document.querySelector('#result3').innerHTML = res
+        })
+      } else {
+        fetch(ip + ':' + post + '/getRecordCallback?key=abc', 'get').then(res => {
+          document.querySelector('#urlResult3').innerHTML = res
+        })
+      }
+    }
+    const fetch = function(url, method, formData) {
+      return new Promise(function(resolve, reject){
+        const xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Mscrosoft.XMLHttp')
+        xhr.open(method, url)
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+        xhr.send(formData)
+        xhr.onreadystatechange = function () {
+          if(xhr.readyState === 4) {
+            resolve(xhr.responseText)
+          } else {
+            // reject(new Error(xhr.responseText))
+          }
+        }
+      })
+    }
+  </script>
+  </body>
+</html>

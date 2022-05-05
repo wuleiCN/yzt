@@ -1,0 +1,64 @@
+import router, { getmenuList } from './router'
+import store from './store'
+import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
+import { getToken } from '@/utils/auth' // get token from cookie
+import getPageTitle from '@/utils/get-page-title'
+
+NProgress.configure({ showSpinner: false }) // NProgress Configuration
+
+const whiteList = ['/login', '/exam', '/ic-worker', '/learn', '/zhgd-dashboard'] // no redirect whitelist
+
+router.beforeEach(async(to, from, next) => {
+  // 开始加载条
+  NProgress.start()
+  // 设置页面title
+  document.title = getPageTitle(to.meta.title)
+  const hasToken = getToken()
+
+  if (hasToken) {
+    if (to.path === '/login') {
+      next({ path: '/' })
+      NProgress.done()
+    } else {
+      const hasGetUserInfo = store.getters.name
+      if (hasGetUserInfo) {
+        next()
+      } else {
+        // get user info
+        await store.dispatch('user/getInfo')
+        await store.dispatch('user/setroles', router.pmit().map(item => item.alias))
+        if (to.matched.length === 0) {
+          const asyncRouter = getmenuList()
+          asyncRouter.push({ path: '*', redirect: '/404', hidden: true })
+          // vue-router v4
+          // for (let i = 1; i < asyncRouter.length; i++) {
+          //   const element = asyncRouter[i]
+          //   router.addRoute(element)
+          // }
+          // router.addRoutes(asyncRouter)
+          router.selfaddRoutes(asyncRouter)
+          next({ ...to, replace: true })
+        } else {
+          next()
+        }
+      }
+    }
+  } else {
+    /* has no token*/
+
+    if (whiteList.indexOf(to.path) !== -1) {
+      // in the free login whitelist, go directly
+      next()
+    } else {
+      // other pages that do not have permission to access are redirected to the login page.
+      next(`/login?redirect=${to.path}`)
+      NProgress.done()
+    }
+  }
+})
+
+router.afterEach(() => {
+  // finish progress bar
+  NProgress.done()
+})
