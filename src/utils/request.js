@@ -7,7 +7,7 @@ import { getToken } from '@/utils/auth'
 
 const host = window.location.hostname.includes(':') ? window.location.hostname : window.location.hostname + ':8059'
 
-const STAGE_API = ['http://192.168.1.176/yzt-provider', 'http://yzt.yztzn.com/yzt-provider', 'http://117.88.101.64:8059/yzt-provider'] // 测试环境
+const STAGE_API = ['http://192.168.1.176/yzt-provider', 'http://yzt.yztzn.com/yzt-provider'] // 测试环境
 const PRO_API = ['//' + host + '/yzt-provider', window.location.origin] // 线上环境
 const CS_PRO_API = '//' + window.location.hostname + '/yzt-cs' // cs线上环境
 // const CS_DEV_API = 'http://192.168.1.176/yzt-cs' // cs测试环境
