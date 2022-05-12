@@ -48,11 +48,11 @@
           <div class="main-item-content1">
             <div class="main-item-content-title wrap-content">当天防疫人数</div>
             <div class="wrap-content">
-              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalNumber[6-i] || 0 }}</div>
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalCount[6-i] || 0 }}</div>
             </div>
             <div class="main-item-content-title wrap-content">防疫累计人次</div>
             <div class="wrap-content">
-              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalCount[6-i] || 0 }}</div>
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalNumber[6-i] || 0 }}</div>
             </div>
           </div>
           <div class="main-item-content2">
@@ -110,7 +110,7 @@
 import ApdBar from '../datav/apdBar'
 import JkmFill from '../datav/jkmFill'
 import fullScreen from '@/utils/fullScreen'
-import { getConsAttendance, getAttendanceDynamic, weekHeaCode, getFYNumber, getAttlist } from '@/api/datav'
+import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getAttlist } from '@/api/datav'
 import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -126,6 +126,7 @@ export default {
       full,
       time: '',
       compyName: '',
+      initData: [],
       totalNumber: [],
       totalCount: [],
       totalDay: [],
@@ -138,30 +139,33 @@ export default {
       config: {
         header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
         headerBGC: '#132239',
-        evenRowBGC: '#71CDF9',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
         carousel: 'page',
         columnWidth: [180],
         rowNum: 7,
-        align: ['center', 'center', 'center', 'center', 'center']
+        align: ['center'],
+        data: []
       },
       config1: {
         header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
         headerBGC: '#132239',
-        evenRowBGC: '#71CDF9',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
         carousel: 'page',
         rowNum: 7,
-        align: ['center', 'center', 'center', 'center', 'center'],
+        align: ['center'],
         data: []
       },
       config2: {
         header: ['项目简称', '设备总数', '在线设备', '掉线设备'],
         headerBGC: '#132239',
-        oddRowBGC: ['transparent'],
-        evenRowBGC: '#112c60',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
         columnWidth: [180],
         carousel: 'page',
         rowNum: 7,
-        align: ['center', 'center', 'center', 'center'],
+        align: ['center'],
         data: []
       },
       weekData: [],
@@ -222,6 +226,7 @@ export default {
   },
   created() {
     this.init()
+    this.dataInit()
   },
   mounted() {
     setInterval(() => {
@@ -258,9 +263,9 @@ export default {
       document.documentElement.style.fontSize = rem + 'px'
     },
     async init(item) {
-      this.getConsAttendance()
+      this.getEpidemicConsAttendance()
       this.tiemer = setInterval(() => {
-        this.getConsAttendance()
+        this.getEpidemicConsAttendance()
       }, 5000)
       this.tiemer1 = setInterval(() => {
         this.getFYNumber()
@@ -279,9 +284,57 @@ export default {
         this.full.Fullscreen('.data-v-container1')
       }
     },
+    dataInit() {
+      const obj = { a: '', b: '', c: '', d: '', e: '', f: '' }
+      for (let i = 1; i <= 6; i++) {
+        this.initData.push(obj)
+      }
+      this.initData = this.initData.map(item => {
+        return [
+          item.f,
+          `<span style="color:#fff;">${item.a}</span>`,
+          `<span style="color:#38F1A1;">${item.b}</span>`,
+          `<span style="color:#38F1A1;">${item.c}</span>`,
+          `<span style="color:#fff;">${item.d}</span>`,
+          `<span style="color:#e5b965;">${item.e}</span>`
+        ]
+      })
+      this.config = {
+        header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+        headerBGC: '#132239',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        carousel: 'page',
+        columnWidth: [140],
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center', 'center'],
+        data: this.initData
+      }
+      this.config1 = {
+        header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+        headerBGC: '#132239',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        carousel: 'page',
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center', 'center', 'center'],
+        data: this.initData
+      }
+      this.config2 = {
+        header: ['项目简称', '设备总数', '在线设备', '掉线设备'],
+        headerBGC: '#132239',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        columnWidth: [120],
+        carousel: 'page',
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center'],
+        data: this.initData
+      }
+    },
     // 项目防疫情况
-    getConsAttendance() {
-      getConsAttendance({ 'token': this.token }).then((data) => {
+    getEpidemicConsAttendance() {
+      getEpidemicConsAttendance({ 'token': this.token }).then((data) => {
         if (data.code === 1000 && data.result) {
           this.getPList(data)
           this.consAttenList = data.result.map(item => {
@@ -297,20 +350,20 @@ export default {
         this.config = {
           header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
           headerBGC: '#132239',
-          oddRowBGC: ['transparent'],
-          evenRowBGC: '#112c60',
+          oddRowBGC: '#112c60',
+          evenRowBGC: '112c60',
           carousel: 'page',
           columnWidth: [180],
           rowNum: 7,
           align: ['center', 'center', 'center', 'center', 'center'],
-          data: this.consAttenList
+          data: this.consAttenList.length ? this.consAttenList : this.initData
         }
         // this.proList[0] = data.result[0].projectId
         this.weekHeaCode()
-        this.getAttendanceDynamic()
+        this.getEpidemicTrafficRecord()
         this.getFYNumber()
         this.getAttlist()
-        this.getAttendanceDynamic()
+        this.getEpidemicTrafficRecord()
       })
     },
     // 设备列表
@@ -328,20 +381,20 @@ export default {
           this.config2 = {
             header: ['项目简称', '设备总数', '在线设备', '掉线设备'],
             headerBGC: '#132239',
-            oddRowBGC: ['transparent'],
-            evenRowBGC: '#112c60',
+            oddRowBGC: '#003B51',
+            evenRowBGC: '003B51',
             carousel: 'page',
-            columnWidth: [180],
+            // columnWidth: [180],
             rowNum: 7,
-            align: ['center', 'center', 'center', 'center'],
-            data: this.resultConfig
+            align: ['center'],
+            data: this.resultConfig.length ? this.resultConfig : this.initData
           }
         }
       })
     },
     // 通行记录
-    getAttendanceDynamic() {
-      getAttendanceDynamic({ projectIds: this.proList }).then((data) => {
+    getEpidemicTrafficRecord() {
+      getEpidemicTrafficRecord({ projectIds: this.proList }).then((data) => {
         this.inOutList = data.result.map(item => {
           return [
             item.name,
@@ -355,12 +408,12 @@ export default {
         this.config1 = {
           header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
           headerBGC: '#132239',
-          oddRowBGC: ['transparent'],
-          evenRowBGC: '#112c60',
+          oddRowBGC: '#112c60',
+          evenRowBGC: '112c60',
           carousel: 'page',
           rowNum: 7,
-          align: ['center', 'center', 'center', 'center', 'center'],
-          data: this.inOutList
+          align: ['center'],
+          data: this.inOutList.length ? this.inOutList : this.initData
         }
       })
     },

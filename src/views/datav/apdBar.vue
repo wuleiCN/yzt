@@ -144,7 +144,7 @@ export default {
           symbolOffset: [-21.5, -5],
           symbolPosition: 'end',
           z: 12,
-          color: '#68B4FF',
+          color: '#00ffff',
           data: yData1
         },
         {
@@ -153,7 +153,7 @@ export default {
           symbolSize: [18, 7],
           symbolOffset: [-21.5, 5],
           z: 12,
-          color: '#2244AC',
+          color: '#7fffd4',
           data: yData1
         },
         {
@@ -166,7 +166,7 @@ export default {
           barWidth: '18',
           color: new echarts.graphic.LinearGradient(0.1, 0.2, 0.3, 1, [{
             offset: 0,
-            color: '#3D83CD'
+            color: '#29E8A8'
           },
           {
             offset: 1,

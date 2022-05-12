@@ -18,7 +18,7 @@
         </div>
       </div>
       <div class="cpt-name">
-        <span>中国建设第N建设局</span>
+        <span>{{ compyName }}</span>
       </div>
     </div>
     <main>
@@ -48,11 +48,11 @@
           <div class="main-item-content1">
             <div class="main-item-content-title wrap-content">当天防疫人数</div>
             <div class="wrap-content">
-              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalNumber[6-i] || 0 }}</div>
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalCount[6-i] || 0 }}</div>
             </div>
             <div class="main-item-content-title wrap-content">防疫累计人次</div>
             <div class="wrap-content">
-              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalCount[6-i] || 0 }}</div>
+              <div v-for="(v, i) in 7" :key="i" class="num">{{ totalNumber[6-i] || 0 }}</div>
             </div>
           </div>
           <div class="main-item-content2">
@@ -71,7 +71,7 @@
             <div class="item-title">地方码记录</div>
           </div>
           <div class="item-code">
-            <div v-for="(r, i) in localCode" :key="i" class="local-code">
+            <div v-for="(r, i) in localCode" :key="i" :class="{ 'local-code': true, 'flip-vertical-right': animation }">
               <div class="local">{{ r.coed }}</div>
               <div class="count">{{ r.count }}次</div>
             </div>
@@ -90,39 +90,40 @@
           <div class="new-attendance-main">
             <div class="fy-item-1">
               <div class="worker-img">
-                <img :src="fyData.sitePhoto" alt="">
+                <img :src="fyData.sitePhoto || 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'" alt="">
                 <div class="info-base">
                   <div>姓名</div>
                   <div>{{ fyData.empName }}</div>
                   <div class="tw">体温</div>
                   <div class="centigrade">{{ fyData.temperature }}℃</div>
                 </div>
-                <img :src="fyData.faceUrl" alt="">
+                <img :src="fyData.faceUrl || 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png'" alt="">
               </div>
               <div class="info-woker">
                 <div class="styles">
                   <p class="radius style1" />
                   <p class="style1" style="color: #00FDF6;">单位名称</p>
-                  <p class="style2">{{ fyData.companyName }}</p>
+                  <p class="style2 ellipsis">{{ fyData.companyName || '无' }}</p>
                 </div>
                 <div class="styles">
                   <p class="radius style1" />
                   <p class="style1">身份证号</p>
-                  <p class="style2">{{ fyData.idCode }}</p>
+                  <p class="style2">{{ fyData.idCode || '无' }}</p>
                 </div>
                 <div class="styles">
                   <p class="radius style1" />
                   <p class="style1">职业工种</p>
-                  <p class="style2">{{ fyData.workType }}</p>
+                  <p class="style2">{{ fyData.workType || '无' }}</p>
                 </div>
                 <div class="styles">
                   <p class="radius style1" />
                   <p class="style1">班组名称</p>
-                  <p class="style2">{{ fyData.teamName }}</p>
+                  <p class="style2">{{ fyData.teamName || '无' }}</p>
                 </div>
                 <div class="in-time">
                   <div />
-                  <div>通行时间：{{ getTime(fyData.passedTime).date + '  ' }} {{ getTime(fyData.passedTime).time || '00:00:00' }}</div>
+                  <div v-if="fyData.passedTime">通行时间：{{ getTime(fyData.passedTime).date + '  ' }} {{ getTime(fyData.passedTime).time || '00:00:00' }}</div>
+                  <div v-else>通行时间：</div>
                   <div />
                 </div>
               </div>
@@ -130,15 +131,15 @@
             <div class="fy-item-2">
               <div>
                 <p>健康码</p>
-                <p>{{ ['绿码','黄码','红码'][fyData.healthCode] }}</p>
+                <p>{{ fyData.healthCode || '无' }}</p>
               </div>
               <div>
                 <p>核酸检测</p>
-                <p>{{ fyData.nucleicAcid }}小时阴性</p>
+                <p>{{ fyData.nucleicAcid || '无' }}</p>
               </div>
               <div>
                 <p>疫苗接种</p>
-                <p>{{ ['第一针', '第二针', '第三针'][fyData.vaccines - 1] }}</p>
+                <p>{{ fyData.vaccines || '无' }}</p>
               </div>
             </div>
           </div>
@@ -163,7 +164,7 @@ import ApdBar from '../datav/apdBar'
 import JkmFill from '../datav/jkmFill'
 import fullScreen from '@/utils/fullScreen'
 // import { pList } from '@/api-zhgd/zhgd-dashboard'
-import { getConsAttendance, getAttendanceDynamic, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic } from '@/api/datav'
+import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic } from '@/api/datav'
 import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -178,6 +179,9 @@ export default {
     return {
       full,
       time: '',
+      compyName: '',
+      animation: true,
+      initData: [],
       totalNumber: [],
       totalCount: [],
       totalDay: [],
@@ -203,16 +207,19 @@ export default {
       config: {
         header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
         headerBGC: '#132239',
-        evenRowBGC: '#71CDF9',
-        carousel: 'single',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        carousel: 'page',
         columnWidth: [180],
         rowNum: 7,
-        align: ['center', 'center', 'center', 'center', 'center']
+        align: ['center'],
+        data: []
       },
       config1: {
         header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
         headerBGC: '#132239',
-        evenRowBGC: '#71CDF9',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
         carousel: 'single',
         rowNum: 7,
         align: ['center'],
@@ -263,6 +270,7 @@ export default {
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
       projectIds: JSON.parse(sessionStorage.getItem('result')).projectId,
+      userId: JSON.parse(sessionStorage.getItem('result')).id,
       firstPanelVisible: false,
       iconStatus: false,
       numTodaxie: {
@@ -278,6 +286,7 @@ export default {
   },
   created() {
     this.init()
+    this.dataInit()
   },
   mounted() {
     setInterval(() => {
@@ -315,36 +324,22 @@ export default {
     },
     async init(item) {
       this.getNewestAttendanceAndEpidemic()
-      this.getConsAttendance()
-      this.getAttendanceDynamic()
+      this.getEpidemicConsAttendance()
+      this.getEpidemicTrafficRecord()
       this.weekHeaCode()
       this.getFYNumber()
       this.tiemer = setInterval(() => {
-        // this.getNewestAttendanceAndEpidemic()
-        // this.weekHeaCode()
-        // this.getConsAttendance()
-        // this.getAttendanceDynamic()
+        this.getNewestAttendanceAndEpidemic()
+        this.weekHeaCode()
+        this.getEpidemicConsAttendance()
+        this.getEpidemicTrafficRecord()
+        this.animation = !this.animation
+        console.log(this.getsArr(this.localCode, 3))
       }, 5000)
       this.tiemer1 = setInterval(() => {
-        // this.getFYNumber()
+        this.getFYNumber()
       }, 3600000)
     },
-    // 获取项目id
-    // getPList(data) {
-    //   return pList().then((data) => {
-    //     if (data && data.code === 1000) {
-    //       for (let i = 1; i <= data.length - 1; i++) {
-    //         for (let s = 0; s <= data.result[i].projectList.length; s++) {
-    //           if (data.result[i].projectList[s] && data.result[i].projectList[s].id) {
-    //             this.proList.push(data.result[i].projectList[s].id)
-    //           }
-    //         }
-    //       }
-    //     } else {
-    //       this.$message.error(data.msg)
-    //     }
-    //   })
-    // },
     showPanel(status) {
       // 是集团或者公司才能选择项目
       if (this.userType === 1 || this.userType === 0) {
@@ -360,9 +355,47 @@ export default {
         this.full.Fullscreen('.data-v-container1')
       }
     },
+    // 初始化滚动表格数据
+    dataInit() {
+      const obj = { a: '', b: '', c: '', d: '', e: '', f: '' }
+      for (let i = 1; i <= 6; i++) {
+        this.initData.push(obj)
+      }
+      this.initData = this.initData.map(item => {
+        return [
+          item.f,
+          `<span style="color:#fff;">${item.a}</span>`,
+          `<span style="color:#38F1A1;">${item.b}</span>`,
+          `<span style="color:#38F1A1;">${item.c}</span>`,
+          `<span style="color:#fff;">${item.d}</span>`,
+          `<span style="color:#e5b965;">${item.e}</span>`
+        ]
+      })
+      this.config = {
+        header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+        headerBGC: '#132239',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        carousel: 'page',
+        columnWidth: [140],
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center', 'center'],
+        data: this.initData
+      }
+      this.config1 = {
+        header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+        headerBGC: '#132239',
+        oddRowBGC: '#112c60',
+        evenRowBGC: '112c60',
+        carousel: 'page',
+        rowNum: 7,
+        align: ['center', 'center', 'center', 'center', 'center', 'center'],
+        data: this.initData
+      }
+    },
     // 项目防疫情况
-    getConsAttendance() {
-      getConsAttendance({ 'token': this.token }).then((data) => {
+    getEpidemicConsAttendance() {
+      getEpidemicConsAttendance({ 'token': this.token }).then((data) => {
         this.consAttenList = data.result.map(item => {
           return [
             item.constructionName,
@@ -375,45 +408,47 @@ export default {
         this.config = {
           header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
           headerBGC: '#132239',
-          oddRowBGC: ['transparent'],
-          evenRowBGC: '#112c60',
+          oddRowBGC: '#112c60',
+          evenRowBGC: '112c60',
           carousel: 'single',
           columnWidth: [180],
           rowNum: 7,
-          align: ['center'],
-          data: this.consAttenList
+          align: ['center', 'center', 'center', 'center', 'center'],
+          data: this.consAttenList.length ? this.consAttenList : this.initData
         }
         // this.proList[0] = data.result[0].projectIds
       })
     },
     // 通行记录
-    getAttendanceDynamic() {
-      getAttendanceDynamic({ 'projectIds': this.projectIds }).then((data) => {
-        this.inOutList = data.result.map(item => {
-          return [
-            item.name,
-            `<span style="color:#fff;">${item.health_code}</span>`,
-            `<span style="color:#38F1A1;">${item.nucleic_acid}</span>`,
-            `<span style="color:#38F1A1;">${item.tw}</span>`,
-            `<span style="color:#fff;">${item.vaccines}</span>`,
-            `<span style="color:#e5b965;">${item.txsj}</span>`
-
-          ]
-        })
-        this.config1 = {
-          header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
-          headerBGC: '#132239',
-          oddRowBGC: ['transparent'],
-          evenRowBGC: '#112c60',
-          carousel: 'single',
-          rowNum: 7,
-          align: ['center', 'center', 'center', 'center', 'center'],
-          data: this.inOutList
+    getEpidemicTrafficRecord() {
+      getEpidemicTrafficRecord({ 'projectIds': [this.projectIds] }).then((data) => {
+        if (data.code === 1000 && data.result) {
+          this.inOutList = data.result.map(item => {
+            return [
+              item.name,
+              `<span style="color:#38F1A1;">${item.health_code || '无'}</span>`,
+              `<span style="color:#38F1A1;">${item.nucleic_acid || '未检测'}</span>`,
+              `<span style="color:#38F1A1;">${item.tw}</span>`,
+              `<span style="color:#fff;">${item.vaccines}</span>`,
+              `<span style="color:#e5b965;">${item.txsj}</span>`
+            ]
+          })
+          this.config1 = {
+            header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+            headerBGC: '#132239',
+            oddRowBGC: '#112c60',
+            evenRowBGC: '112c60',
+            carousel: 'single',
+            rowNum: 7,
+            align: ['center', 'center', 'center', 'center', 'center', 'center'],
+            data: this.inOutList.length ? this.inOutList : this.initData
+          }
         }
       })
     },
     getFYNumber() {
-      getFYNumber({ 'projectIds': this.projectIds }).then((data) => {
+      getFYNumber({ 'projectIds': [this.projectIds], userId: this.userId }).then((data) => {
+        this.compyName = data.result.compyName
         if (data.code === 1000 && data.result) {
           for (let i = 0; i <= 6; i++) {
             this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
@@ -426,14 +461,13 @@ export default {
     },
     // 防疫
     weekHeaCode() {
-      weekHeaCode({ 'projectIds': this.projectIds }).then((data) => {
-        if (data.result) this.recordData = this.weekData = data.result
+      weekHeaCode({ 'projectIds': [this.projectIds] }).then((data) => {
+        if (data.code === 1000 && data.result) this.recordData = this.weekData = data.result
       })
     },
     // 最新打卡
     getNewestAttendanceAndEpidemic() {
-      console.log(this.projectIds)
-      getNewestAttendanceAndEpidemic({ 'projectIds': this.projectIds }).then((data) => {
+      getNewestAttendanceAndEpidemic({ 'projectIds': [this.projectIds] }).then((data) => {
         if (data.code === 1000 && data.result) this.fyData = data.result
       })
     },
@@ -442,12 +476,53 @@ export default {
         time: parseTime(Time || new Date(), '{h}:{i}:{s}'),
         date: parseTime(Time || new Date(), '{y}/{m}/{d}')
       }
+    },
+    getsArr(arr, num) {
+      const a = []
+      for (var i in arr) {
+        a.push(arr[i])
+      }
+      const retunArr = []
+      for (let i = 0; i < num; i++) {
+        if (a.length > 0) {
+          var nums = Math.floor(Math.random() * arr.length)
+          retunArr[i] = a[nums]
+          a.splice(nums, 1)
+        }
+      }
+      return retunArr
     }
   }
 }
 </script>
 
 <style lang="scss">
+.flip-vertical-right {
+	-webkit-animation: flip-vertical-right 0.5s linear;
+	animation: flip-vertical-right 0.5s linear;
+}
+
+@-webkit-keyframes flip-vertical-right {
+  0% {
+    -webkit-transform: rotateY(0);
+            transform: rotateY(0);
+  }
+  100% {
+    -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+  }
+}
+@keyframes flip-vertical-right {
+  0% {
+    -webkit-transform: rotateY(0);
+            transform: rotateY(0);
+  }
+  100% {
+    -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+  }
+}
+
 .data-v-container1 {
   background: url('../../assets/antiepidemic/bg.png') center no-repeat no-repeat;
   background-size: 100% 100%;
@@ -803,6 +878,8 @@ export default {
                 margin-right: .38rem;
               }
               .style2 {
+                width: 10.08rem;
+                height: 1.03rem;
                 color: #FFFFFF;
               }
             }
@@ -852,7 +929,7 @@ export default {
                   margin-top: 1.15rem;
                 }
                 &:nth-child(2) {
-                  font-size: .92rem;
+                  font-size: .77rem;
                   color: #38F1A1;
                 }
               }

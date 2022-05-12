@@ -25,8 +25,8 @@ export default {
   data() {
     return {
       title: '',
-      // logo: this.$store.state.user.loginInfo.logoUrl || require('../../../assets/datav-logo3.png')
-      logo: require('../../../assets/datav-logo2.png')
+      logo: this.$store.state.user.loginInfo.logoUrl || require('../../../assets/datav-logo2.png')
+      // logo: require('../../../assets/datav-logo2.png')
     }
   }
 }

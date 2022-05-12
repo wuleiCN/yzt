@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth'
 
 // 发版只要更改request.js和request-zhgd文件的变量env
 
-const host = window.location.hostname.includes(':') ? window.location.hostname : window.location.hostname + ':8059'
+const host = window.location.hostname
 
 const STAGE_API = ['http://192.168.1.176/yzt-provider', 'http://yzt.yztzn.com/yzt-provider'] // 测试环境
 const PRO_API = ['//' + host + '/yzt-provider', window.location.origin] // 线上环境
@@ -14,7 +14,7 @@ const CS_PRO_API = '//' + window.location.hostname + '/yzt-cs' // cs线上环境
 const env = false
 // 整体接口变量
 // const getEnvValue = env ? STAGE_API[0] : PRO_API[0]
-const getEnvValue = env ? PRO_API[0] : STAGE_API[0]
+const getEnvValue = env ? PRO_API[0] : STAGE_API[1]
 // 本地测试环境
 // const getEnvValue = env ? 'https://192.168.1.125' : PRO_API[0]
 // const getEnvValue = env ? `${window.location.origin}/yzt-provider` : PRO_API[0]

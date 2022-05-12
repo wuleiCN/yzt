@@ -106,6 +106,10 @@ export default {
   },
   async mounted() {
     await this.getProOptionList()
+    // this.disabled = true
+    // this.dataForm.projectId = this.loginInfo.projectId
+    // this.exportUrl = `/statisticalReport/export?projectId=${this.dataForm.projectId}`
+    // this.getDataList()
     if (this.loginInfo.userType === 3) {
       this.dataForm.projectId = this.loginInfo.projectId
       this.disabled = true

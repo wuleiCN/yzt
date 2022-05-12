@@ -5,9 +5,9 @@ import { getToken } from '@/utils/auth'
 
 // 发版只要更改request.js和request-zhgd文件的变量env
 
-const host = window.location.hostname.includes(':') ? window.location.hostname : window.location.hostname + ':8059'
+const host = window.location.hostname
 
-const STAGE_API = ['http://192.168.1.176/yzt-zhgd', 'ws://192.168.1.176/yzt-zhgd']
+const STAGE_API = ['http://yzt.yztzn.com/yzt-zhgd', 'ws://yzt.yztzn.com/yzt-zhgd']
 const PRO_API = [
   '//' + host + '/yzt-zhgd',
   window.location.origin,

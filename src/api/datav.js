@@ -15,9 +15,16 @@ export function getWorkTypeProportion(data) {
     data
   })
 }
-export function getConsAttendance(data) {
+export function getEpidemicConsAttendance(data) {
   return request({
     url: '/epidemic/consAttendance',
+    method: 'post',
+    data
+  })
+}
+export function getConsAttendance(data) {
+  return request({
+    url: '/projectKanban/consAttendance',
     method: 'post',
     data
   })
@@ -37,6 +44,13 @@ export function getNewestAttendance(data) {
   })
 }
 export function getAttendanceDynamic(data) {
+  return request({
+    url: '/projectKanban/attendanceDynamic',
+    method: 'post',
+    data
+  })
+}
+export function getEpidemicTrafficRecord(data) {
   return request({
     url: '/epidemic/trafficRecord',
     method: 'post',

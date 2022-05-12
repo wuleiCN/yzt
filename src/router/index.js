@@ -27,11 +27,6 @@ export const golobalRoutes = [
     component: () => import('@/views/datav/index'),
     hidden: true
   },
-  // {
-  //   path: '/zhgd-dashboard',
-  //   component: () => import('@/views/zhgd-dashboard/index'),
-  //   hidden: true
-  // },
   {
     path: '/learn',
     component: () => import('@/views/learn/index'),

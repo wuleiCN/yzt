@@ -18,23 +18,42 @@
               <el-input v-model.trim="dataForm.empName" clearable placeholder="工人名称" />
             </el-form-item>
             <el-form-item prop="vaccines">
-              <el-select v-model.trim="dataForm.vaccines" clearable style="width:100%" placeholder="疫苗接种" @change="(e) => searchHandle(e, 'vaccines')">
+              <el-select v-model.trim="dataForm.vaccines" clearable style="width:100%" placeholder="疫苗接种" @change="(e) => searchHandle()">
                 <el-option label="已完成" :value="1"> 已完成 </el-option>
                 <el-option label="未完成" :value="0"> 未完成 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item prop="healthCode">
-              <el-select v-model.trim="dataForm.healthCode" clearable style="width:100%" placeholder="健康码" @change="(e) => searchHandle(e, 'healthCode')">
+              <el-select v-model.trim="dataForm.healthCode" clearable style="width:100%" placeholder="健康码" @change="(e) => searchHandle()">
                 <el-option label="绿码" :value="0"> 绿码 </el-option>
                 <el-option label="黄码" :value="1"> 黄码 </el-option>
                 <el-option label="红码" :value="2"> 红码 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item prop="healthCode">
-              <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="进场人员" @change="(e) => searchHandle(e, 'staff')">
+              <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="进场人员" @change="(e) => searchHandle()">
                 <el-option label="班组人员" :value="0"> 班组人员 </el-option>
                 <el-option label="陌生人" :value="1"> 陌生人 </el-option>
               </el-select>
+            </el-form-item>
+            <el-form-item prop="healthCode">
+              <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="体温" @change="(e) => searchHandle()">
+                <el-option label="高于37.5℃" :value="0"> 高于37.5℃ </el-option>
+                <el-option label="正常" :value="1"> 正常 </el-option>
+                <el-option label="低于37.5℃" :value="1"> 低于37.5℃ </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="timeRange">
+              <el-date-picker
+                v-model="dataForm.timeRange"
+                clearable
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="(e) => selectChangeHandle(e, 'timeRange')"
+              />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="searchHandle()">查询</el-button>
@@ -256,6 +275,14 @@ export default {
     // 当前页
     currentChangeHandle(val) {
       this.pageIndex = val
+      this.getDataList()
+    },
+    selectChangeHandle(val, type) {
+      if (type === 'timeRange') {
+        this.dataForm.startDate = val && val.length ? val[0] : ''
+        this.dataForm.endDate = val && val.length ? val[1] : ''
+      }
+      this.dataForm[type] = val
       this.getDataList()
     }
   }

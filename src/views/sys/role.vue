@@ -228,6 +228,7 @@ export default {
     },
     clickDeal(currentObj, treeStatus) {
       this.clickCheck(currentObj, treeStatus, this.$refs.tree)
+      console.log(currentObj, treeStatus, this.$refs.tree)
     },
 
     /**

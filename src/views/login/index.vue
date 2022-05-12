@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-header">
       <div class="header-item">
-        <img src="../../assets/datav-logo2.png" alt="" srcset="">
+        <img src="../../assets/datav-logo.png" alt="" srcset="">
       </div>
     </div>
     <el-form
@@ -18,7 +18,7 @@
       <div class="login-form-wrap">
         <div class="title-container">
           <h1 class="title">
-            易筑云管理平台
+            智慧工地宝管理平台
           </h1>
         </div>
         <el-tabs v-model="activeName" @tab-click="handleClick">

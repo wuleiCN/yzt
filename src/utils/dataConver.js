@@ -20,8 +20,8 @@ const dataConver = {
   },
   mul: (arg1, arg2) => {
     var c = 0
-    var d = a.toString()
-    var e = b.toString()
+    var d = arg1.toString()
+    var e = arg2.toString()
     try {
       c += d.split('.')[1].length
     } catch (f) {}
