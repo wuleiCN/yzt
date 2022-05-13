@@ -71,7 +71,7 @@
             <div class="item-title">地方码记录</div>
           </div>
           <div class="item-code">
-            <div v-for="(r, i) in localCode" :key="i" class="local-code">
+            <div v-for="(r, i) in localCode" :key="i" :class="{ 'local-code': true, 'flip-vertical-right': animation }">
               <div class="local">{{ r.coed }}</div>
               <div class="count">{{ r.count }}次</div>
             </div>
@@ -110,7 +110,8 @@
 import ApdBar from '../datav/apdBar'
 import JkmFill from '../datav/jkmFill'
 import fullScreen from '@/utils/fullScreen'
-import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getAttlist } from '@/api/datav'
+import { codeList } from './codeList'
+import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getAttlist, getLocalCodeList } from '@/api/datav'
 import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -126,6 +127,8 @@ export default {
       full,
       time: '',
       compyName: '',
+      localCode: [],
+      animation: true,
       initData: [],
       totalNumber: [],
       totalCount: [],
@@ -170,44 +173,6 @@ export default {
       },
       weekData: [],
       recordData: [],
-      localCode: [
-        {
-          coed: '粤康码',
-          count: 100
-        },
-        {
-          coed: '闽政通',
-          count: 20
-        },
-        {
-          coed: '国康码',
-          count: 10
-        },
-        {
-          coed: '湖南码',
-          count: 50
-        },
-        {
-          coed: '苏康码',
-          count: 0
-        },
-        {
-          coed: '四川码',
-          count: 0
-        },
-        {
-          coed: '浙江码',
-          count: 0
-        },
-        {
-          coed: '山西码',
-          count: 0
-        },
-        {
-          coed: '湖北码',
-          count: 0
-        }
-      ],
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
       userId: JSON.parse(sessionStorage.getItem('result')).id,
@@ -250,6 +215,7 @@ export default {
     document.documentElement.style.fontSize = '16px'
     clearInterval(this.tiemer)
     clearInterval(this.tiemer1)
+    clearInterval(this.tiemer2)
   },
   methods: {
     setRem(size) {
@@ -269,7 +235,11 @@ export default {
       }, 5000)
       this.tiemer1 = setInterval(() => {
         this.getFYNumber()
-      }, 3600000)
+        this.getLocalCodeList()
+      }, 60000)
+      this.tiemer2 = setInterval(() => {
+        this.animation = !this.animation
+      }, 2400)
     },
     // 获取项目id
     getPList(data) {
@@ -441,17 +411,68 @@ export default {
         this.recordData = this.weekData = data.result
       })
     },
+    // 地方码记录
+    getLocalCodeList() {
+      getLocalCodeList({ 'projectIds': [this.projectIds] }).then((data) => {
+        if (data.code === 1000 && data.result) {
+          data.result.map(v => {
+            codeList.forEach(r => {
+              if (v.localCode === r.localCode) r.localCount = v.localCount
+            })
+          })
+          this.getsArr(codeList, 9)
+        }
+      })
+    },
     getTime() {
       return {
         time: parseTime(new Date(), '{h}:{i}:{s}'),
         date: parseTime(new Date(), '{y}/{m}/{d}')
       }
+    },
+    getsArr(arr, num) {
+      const a = []
+      const b = []
+      const retunArr = []
+      while (a.length < num) {
+        arr.forEach((v, i) => b.push(i))
+        var temp = (Math.random() * arr.length - 1) >> 0
+        a.push(b.splice(temp, 1)[0])
+      }
+      // eslint-disable-next-line no-return-assign
+      a.map((v, i) => retunArr[i] = arr[v])
+      this.localCode = retunArr
     }
   }
 }
 </script>
 
 <style lang="scss">
+.flip-vertical-right {
+	-webkit-animation: flip-vertical-right 0.5s linear;
+	animation: flip-vertical-right 0.5s linear;
+}
+
+@-webkit-keyframes flip-vertical-right {
+  0% {
+    -webkit-transform: rotateY(0);
+            transform: rotateY(0);
+  }
+  100% {
+    -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+  }
+}
+@keyframes flip-vertical-right {
+  0% {
+    -webkit-transform: rotateY(0);
+            transform: rotateY(0);
+  }
+  100% {
+    -webkit-transform: rotateY(180deg);
+            transform: rotateY(180deg);
+  }
+}
 .data-v-container1 {
   background: url('../../assets/antiepidemic/bg.png') center no-repeat no-repeat;
   background-size: 100% 100%;

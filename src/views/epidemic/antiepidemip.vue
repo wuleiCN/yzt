@@ -72,8 +72,8 @@
           </div>
           <div class="item-code">
             <div v-for="(r, i) in localCode" :key="i" :class="{ 'local-code': true, 'flip-vertical-right': animation }">
-              <div class="local">{{ r.coed }}</div>
-              <div class="count">{{ r.count }}次</div>
+              <div class="local">{{ r.name }}</div>
+              <div class="count">{{ r.localCount }}次</div>
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@
                 <p>{{ fyData.nucleicAcid || '无' }}</p>
               </div>
               <div>
-                <p>疫苗接种</p>
+                <p>(抗原)疫苗接种</p>
                 <p>{{ fyData.vaccines || '无' }}</p>
               </div>
             </div>
@@ -163,8 +163,9 @@
 import ApdBar from '../datav/apdBar'
 import JkmFill from '../datav/jkmFill'
 import fullScreen from '@/utils/fullScreen'
+import { codeList } from './codeList'
 // import { pList } from '@/api-zhgd/zhgd-dashboard'
-import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic } from '@/api/datav'
+import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic, getLocalCodeList } from '@/api/datav'
 import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -205,7 +206,7 @@ export default {
       },
       permiList: this.$store.getters.roleList,
       config: {
-        header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+        header: [' 单位名称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
         headerBGC: '#132239',
         oddRowBGC: '#112c60',
         evenRowBGC: '112c60',
@@ -228,44 +229,7 @@ export default {
       resultConfig: [],
       weekData: [],
       recordData: [],
-      localCode: [
-        {
-          coed: '粤康码',
-          count: 100
-        },
-        {
-          coed: '闽政通',
-          count: 20
-        },
-        {
-          coed: '国康码',
-          count: 10
-        },
-        {
-          coed: '湖南码',
-          count: 50
-        },
-        {
-          coed: '苏康码',
-          count: 0
-        },
-        {
-          coed: '四川码',
-          count: 0
-        },
-        {
-          coed: '浙江码',
-          count: 0
-        },
-        {
-          coed: '山西码',
-          count: 0
-        },
-        {
-          coed: '湖北码',
-          count: 0
-        }
-      ],
+      localCode: [],
       resultConfig1: [],
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
@@ -310,6 +274,7 @@ export default {
     document.documentElement.style.fontSize = '16px'
     clearInterval(this.tiemer)
     clearInterval(this.tiemer1)
+    clearInterval(this.tiemer2)
   },
   methods: {
     setRem(size) {
@@ -328,17 +293,22 @@ export default {
       this.getEpidemicTrafficRecord()
       this.weekHeaCode()
       this.getFYNumber()
+      this.getLocalCodeList()
       this.tiemer = setInterval(() => {
         this.getNewestAttendanceAndEpidemic()
         this.weekHeaCode()
         this.getEpidemicConsAttendance()
         this.getEpidemicTrafficRecord()
-        this.animation = !this.animation
-        console.log(this.getsArr(this.localCode, 3))
+        // this.getLocalCodeList()
+        this.getsArr(codeList, 9)
       }, 5000)
       this.tiemer1 = setInterval(() => {
         this.getFYNumber()
-      }, 3600000)
+        this.getLocalCodeList()
+      }, 60000)
+      this.tiemer2 = setInterval(() => {
+        this.animation = !this.animation
+      }, 2480)
     },
     showPanel(status) {
       // 是集团或者公司才能选择项目
@@ -372,7 +342,7 @@ export default {
         ]
       })
       this.config = {
-        header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+        header: [' 单位名称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
         headerBGC: '#132239',
         oddRowBGC: '#112c60',
         evenRowBGC: '112c60',
@@ -396,27 +366,28 @@ export default {
     // 项目防疫情况
     getEpidemicConsAttendance() {
       getEpidemicConsAttendance({ 'token': this.token }).then((data) => {
-        this.consAttenList = data.result.map(item => {
-          return [
-            item.constructionName,
-            `<span style="color:#fff;">${item.todayWorkersCount + '/' + item.inCount}</span>`,
-            `<span style="color:#38F1A1;">${item.lmCount}</span>`,
-            `<span style="color:#38F1A1;">${item.hsCount}</span>`,
-            `<span style="color:#38F1A1;">${item.twCount}</span>`
-          ]
-        })
+        if (data.code === 1000 && data.result) {
+          this.consAttenList = data.result.map(item => {
+            return [
+              item.constructionName,
+              `<span style="color:#fff;">${item.todayWorkersCount + '/' + item.inCount}</span>`,
+              `<span style="color:#38F1A1;">${item.lmCount}</span>`,
+              `<span style="color:#38F1A1;">${item.hsCount}</span>`,
+              `<span style="color:#38F1A1;">${item.twCount}</span>`
+            ]
+          })
+        }
         this.config = {
-          header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
+          header: [' 单位名称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
           headerBGC: '#132239',
           oddRowBGC: '#112c60',
           evenRowBGC: '112c60',
-          carousel: 'single',
+          carousel: 'page',
           columnWidth: [180],
           rowNum: 7,
           align: ['center', 'center', 'center', 'center', 'center'],
           data: this.consAttenList.length ? this.consAttenList : this.initData
         }
-        // this.proList[0] = data.result[0].projectIds
       })
     },
     // 通行记录
@@ -448,8 +419,8 @@ export default {
     },
     getFYNumber() {
       getFYNumber({ 'projectIds': [this.projectIds], userId: this.userId }).then((data) => {
-        this.compyName = data.result.compyName
         if (data.code === 1000 && data.result) {
+          this.compyName = data.result.compyName
           for (let i = 0; i <= 6; i++) {
             this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
             this.totalCount[i] = (parseInt(data.result.dayNumber / Math.pow(10, i)) % 10)
@@ -471,6 +442,19 @@ export default {
         if (data.code === 1000 && data.result) this.fyData = data.result
       })
     },
+    // 地方码记录
+    getLocalCodeList() {
+      getLocalCodeList({ 'projectIds': [this.projectIds] }).then((data) => {
+        if (data.code === 1000 && data.result) {
+          data.result.map(v => {
+            codeList.forEach(r => {
+              if (v.localCode === r.localCode) r.localCount = v.localCount
+            })
+          })
+          this.getsArr(codeList, 9)
+        }
+      })
+    },
     getTime(Time) {
       return {
         time: parseTime(Time || new Date(), '{h}:{i}:{s}'),
@@ -479,18 +463,16 @@ export default {
     },
     getsArr(arr, num) {
       const a = []
-      for (var i in arr) {
-        a.push(arr[i])
-      }
+      const b = []
       const retunArr = []
-      for (let i = 0; i < num; i++) {
-        if (a.length > 0) {
-          var nums = Math.floor(Math.random() * arr.length)
-          retunArr[i] = a[nums]
-          a.splice(nums, 1)
-        }
+      while (a.length < num) {
+        arr.forEach((v, i) => b.push(i))
+        var temp = (Math.random() * arr.length - 1) >> 0
+        a.push(b.splice(temp, 1)[0])
       }
-      return retunArr
+      // eslint-disable-next-line no-return-assign
+      a.map((v, i) => retunArr[i] = arr[v])
+      this.localCode = retunArr
     }
   }
 }

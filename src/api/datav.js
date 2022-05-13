@@ -85,3 +85,10 @@ export function getAttlist(data) {
     data
   })
 }
+export function getLocalCodeList(data) {
+  return request({
+    url: 'epidemic/localCodeList',
+    method: 'post',
+    data
+  })
+}

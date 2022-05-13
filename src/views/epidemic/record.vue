@@ -109,11 +109,15 @@
               prop="nucleicAcid"
               header-align="center"
               align="center"
+              width="120"
               label="核酸检测"
             >
               <template slot-scope="scope">
                 <el-tag v-if="scope.row.nucleicAcid === 1" type="danger">阳性</el-tag>
                 <el-tag v-if="scope.row.nucleicAcid === 0" type="success">阴性</el-tag>
+                <el-tag v-if="scope.row.nucleicAcid === 24" type="success">24小时内阴性</el-tag>
+                <el-tag v-if="scope.row.nucleicAcid === 48" type="success">48小时内阴性</el-tag>
+                <el-tag v-if="scope.row.nucleicAcid === 72" type="success">72小时内阴性</el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -122,6 +126,13 @@
               align="center"
               width="160"
               label="检测时间"
+            />
+            <el-table-column
+              prop="passedTime"
+              header-align="center"
+              align="center"
+              width="160"
+              label="通行时间"
             />
             <el-table-column
               prop="healthCode"
@@ -240,6 +251,7 @@ export default {
       }).then((data) => {
         this.dataList = data.result.records.map(item => {
           item.mucleicAcidTime = item.mucleicAcidTime ? parseTime(item.mucleicAcidTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+          item.passedTime = item.passedTime ? parseTime(item.passedTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
           return item
         })
         this.totalPage = data.result.total
