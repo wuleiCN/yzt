@@ -299,7 +299,6 @@ export default {
         this.weekHeaCode()
         this.getEpidemicConsAttendance()
         this.getEpidemicTrafficRecord()
-        // this.getLocalCodeList()
         this.getsArr(codeList, 9)
       }, 5000)
       this.tiemer1 = setInterval(() => {

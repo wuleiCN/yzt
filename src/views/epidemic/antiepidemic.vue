@@ -72,8 +72,8 @@
           </div>
           <div class="item-code">
             <div v-for="(r, i) in localCode" :key="i" :class="{ 'local-code': true, 'flip-vertical-right': animation }">
-              <div class="local">{{ r.coed }}</div>
-              <div class="count">{{ r.count }}次</div>
+              <div class="local">{{ r.name }}</div>
+              <div class="count">{{ r.localCount }}次</div>
             </div>
           </div>
         </div>
@@ -176,7 +176,6 @@ export default {
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
       userId: JSON.parse(sessionStorage.getItem('result')).id,
-      firstPanelVisible: false,
       iconStatus: false,
       numTodaxie: {
         0: '日',
@@ -202,14 +201,6 @@ export default {
       this.iconStatus = this.full.isElementFullScreen()
       this.full.isElementFullScreen() ? this.setRem(26) : this.setRem(23)
     })
-    document.addEventListener('click', (e) => {
-      e.stopPropagation()
-      if (e.target.className === 'company-wrap' || e.target.className === 'company-item') {
-        this.firstPanelVisible = true
-      } else {
-        this.firstPanelVisible = false
-      }
-    })
   },
   beforeDestroy() {
     document.documentElement.style.fontSize = '16px'
@@ -231,11 +222,17 @@ export default {
     async init(item) {
       this.getEpidemicConsAttendance()
       this.tiemer = setInterval(() => {
-        this.getEpidemicConsAttendance()
+        if (this.proList.length) {
+          this.weekHeaCode()
+          this.getEpidemicTrafficRecord()
+        }
+        this.getsArr(codeList, 9)
       }, 5000)
       this.tiemer1 = setInterval(() => {
-        this.getFYNumber()
-        this.getLocalCodeList()
+        if (this.proList.length) {
+          this.getFYNumber()
+          this.getLocalCodeList()
+        }
       }, 60000)
       this.tiemer2 = setInterval(() => {
         this.animation = !this.animation
@@ -316,6 +313,11 @@ export default {
               `<span style="color:#38F1A1;">${item.twCount}</span>`
             ]
           })
+          this.getAttlist()
+          this.getFYNumber()
+          this.getLocalCodeList()
+          this.getEpidemicTrafficRecord()
+          this.weekHeaCode()
         }
         this.config = {
           header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
@@ -329,11 +331,6 @@ export default {
           data: this.consAttenList.length ? this.consAttenList : this.initData
         }
         // this.proList[0] = data.result[0].projectId
-        this.weekHeaCode()
-        this.getEpidemicTrafficRecord()
-        this.getFYNumber()
-        this.getAttlist()
-        this.getEpidemicTrafficRecord()
       })
     },
     // 设备列表
@@ -351,8 +348,8 @@ export default {
           this.config2 = {
             header: ['项目简称', '设备总数', '在线设备', '掉线设备'],
             headerBGC: '#132239',
-            oddRowBGC: '#003B51',
-            evenRowBGC: '003B51',
+            oddRowBGC: '#112c60',
+            evenRowBGC: '112c60',
             carousel: 'page',
             // columnWidth: [180],
             rowNum: 7,
@@ -365,25 +362,27 @@ export default {
     // 通行记录
     getEpidemicTrafficRecord() {
       getEpidemicTrafficRecord({ projectIds: this.proList }).then((data) => {
-        this.inOutList = data.result.map(item => {
-          return [
-            item.name,
-            `<span style="color:#fff;">${item.health_code}</span>`,
-            `<span style="color:#38F1A1;">${item.nucleic_acid}</span>`,
-            `<span style="color:#38F1A1;">${item.tw}</span>`,
-            `<span style="color:#fff;">${item.vaccines}</span>`,
-            `<span style="color:#e5b965;">${item.txsj}</span>`
-          ]
-        })
-        this.config1 = {
-          header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
-          headerBGC: '#132239',
-          oddRowBGC: '#112c60',
-          evenRowBGC: '112c60',
-          carousel: 'page',
-          rowNum: 7,
-          align: ['center'],
-          data: this.inOutList.length ? this.inOutList : this.initData
+        if (data.code === 1000 && data.result) {
+          this.inOutList = data.result.map(item => {
+            return [
+              item.name,
+              `<span style="color:#38F1A1;">${item.health_code || '无'}</span>`,
+              `<span style="color:#38F1A1;">${item.nucleic_acid || '未检测'}</span>`,
+              `<span style="color:#38F1A1;">${item.tw}</span>`,
+              `<span style="color:#fff;">${item.vaccines}</span>`,
+              `<span style="color:#e5b965;">${item.txsj}</span>`
+            ]
+          })
+          this.config1 = {
+            header: ['姓名', '健康码', '核酸', '体温', '疫苗', '通行时间'],
+            headerBGC: '#132239',
+            oddRowBGC: '#112c60',
+            evenRowBGC: '112c60',
+            carousel: 'single',
+            rowNum: 7,
+            align: ['center', 'center', 'center', 'center', 'center', 'center'],
+            data: this.inOutList.length ? this.inOutList : this.initData
+          }
         }
       })
     },
@@ -408,18 +407,19 @@ export default {
     // 防疫
     weekHeaCode() {
       weekHeaCode({ projectIds: this.proList }).then((data) => {
-        this.recordData = this.weekData = data.result
+        if (data.code === 1000 && data.result) this.recordData = this.weekData = data.result
       })
     },
     // 地方码记录
     getLocalCodeList() {
-      getLocalCodeList({ 'projectIds': [this.projectIds] }).then((data) => {
+      getLocalCodeList({ 'projectIds': this.proList }).then((data) => {
         if (data.code === 1000 && data.result) {
           data.result.map(v => {
             codeList.forEach(r => {
               if (v.localCode === r.localCode) r.localCount = v.localCount
             })
           })
+          console.log('data', data)
           this.getsArr(codeList, 9)
         }
       })

@@ -32,7 +32,7 @@
             </el-form-item>
             <el-form-item prop="healthCode">
               <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="进场人员" @change="(e) => searchHandle()">
-                <el-option label="班组人员" :value="0"> 班组人员 </el-option>
+                <el-option label="白名单" :value="0"> 白名单 </el-option>
                 <el-option label="陌生人" :value="1"> 陌生人 </el-option>
               </el-select>
             </el-form-item>
@@ -151,11 +151,14 @@
               prop="vaccines"
               header-align="center"
               align="center"
-              label="疫苗接种"
+              width="120"
+              label="(抗原)疫苗接种"
             >
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.vaccines === 1" type="success">已完成</el-tag>
                 <el-tag v-if="scope.row.vaccines === 0" type="warning">未完成</el-tag>
+                <el-tag v-if="scope.row.vaccines === 1" type="success">已完成</el-tag>
+                <el-tag v-if="scope.row.vaccines === 2" type="success">已完成</el-tag>
+                <el-tag v-if="scope.row.vaccines === 3" type="success">已完成</el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -249,16 +252,20 @@ export default {
         rows: this.pageSize,
         ...this.dataForm
       }).then((data) => {
-        this.dataList = data.result.records.map(item => {
-          item.mucleicAcidTime = item.mucleicAcidTime ? parseTime(item.mucleicAcidTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
-          item.passedTime = item.passedTime ? parseTime(item.passedTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
-          return item
-        })
-        this.totalPage = data.result.total
-        this.dataListLoading = false
-        const { token } = this.loginInfo
-        this.exportUrl = `/attendanceNone/export?token=${token}&id=47&type=1&page=${this.pageIndex}&rows=9999`
-        console.log('data', data)
+        if (data.code === 1000 && data.result) {
+          this.dataList = data.result.records.map(item => {
+            item.empName || (item.empName = '***')
+            item.idCode || (item.idCode = '*******************')
+            item.mucleicAcidTime = item.mucleicAcidTime ? parseTime(item.mucleicAcidTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+            item.passedTime = item.passedTime ? parseTime(item.passedTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+            return item
+          })
+          this.totalPage = data.result.total
+          this.dataListLoading = false
+          const { token } = this.loginInfo
+          this.exportUrl = `/attendanceNone/export?token=${token}&id=47&type=1&page=${this.pageIndex}&rows=9999`
+          console.log('data', data)
+        }
       })
     },
     // 每页数
