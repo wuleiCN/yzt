@@ -253,7 +253,6 @@ export default {
         })
         this.totalPage = data.result.total
         this.dataListLoading = false
-        console.log(this.dataList)
       })
     },
     studyHandle(id) {

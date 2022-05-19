@@ -3,7 +3,7 @@
   <div class="statistical-proAtt">
     <el-form :inline="true" :model="dataForm">
       <el-form-item prop="companyName">
-        <el-select v-model="dataForm.companyName" :disabled="disabled" filterable style="width:100%" placeholder="请选择公司" @change="(e) => selectChangeHandle(e, 'companyId')">
+        <el-select v-model="dataForm.companyName" :disabled="true" filterable style="width:100%" placeholder="请选择公司" @change="(e) => selectChangeHandle(e, 'companyId')">
           <el-option v-for="(item, index) in comList" :key="index" :label="item.id" :value="item.id">{{ item.name }}</el-option>
         </el-select>
       </el-form-item>
@@ -153,16 +153,7 @@ export default {
         projectName: null,
         companyName: null
       },
-      comList: [
-        {
-          id: 1,
-          name: 'test01'
-        },
-        {
-          id: 2,
-          name: 'test02'
-        }
-      ],
+      comList: [],
       disabled: false,
       // exportUrl: `/statisticalReport/exportProjectAttendance?token=${token}`,
       pageIndex: 1,

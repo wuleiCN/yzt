@@ -1,0 +1,190 @@
+<template>
+  <div class="zhgd-tower-crane-device">
+    <el-table
+      v-loading="dataListLoading"
+      :data="dataList"
+      max-height="600px"
+      border
+      stripe
+      tooltip-effect="light"
+      highlight-current-row
+      style="width: 100%;"
+    >
+      <el-table-column
+        v-for="(v, i) in tableData"
+        :key="i"
+        :prop="v.createTime"
+        :width="v.tableWidth"
+        :fixed="v.fixed"
+        :header-align="v.headerAlign"
+        :align="v.align"
+        :label="v.lable"
+      />
+      <el-table-column
+        header-align="center"
+        :fixed="fixed"
+        align="center"
+        width="180"
+        label="操作"
+      >
+        <template slot-scope="scope">
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+          <el-button type="text" size="small" @click="bindHxzHandle(scope.row)">绑定黑匣子</el-button>
+          <el-button type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      background
+      :current-page="pageIndex"
+      :page-sizes="[10, 20, 50, 100]"
+      :page-size="pageSize"
+      :total="totalPage"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="sizeChangeHandle"
+      @current-change="currentChangeHandle"
+    />
+  </div>
+</template>
+
+<script>
+import { getList, craneProList, del } from '@/api-zhgd/zhgd-tower-crane'
+import { parseTime } from '@/utils'
+export default {
+  props: {
+    tableData: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    fixed: {
+      type: [Boolean, String],
+      default: () => {
+        return false
+      }
+    }
+  },
+  data() {
+    return {
+      dataForm: {
+        name: '',
+        isDel: 0,
+        projectId: this.$store.state.user.loginInfo.projectId
+      },
+      userType: JSON.parse(sessionStorage.getItem('result')).userType,
+      proName: '',
+      proList: [],
+      dataList: [],
+      pageIndex: 1,
+      pageSize: 10,
+      totalPage: 0,
+      dataListLoading: false,
+      addOrUpdateVisible: false,
+      bindVisible: false
+    }
+  },
+  async created() {
+    console.log(this.tableData)
+    // this.proList = await this.craneProListHandle()
+    // if (this.proList.length) {
+    //   this.proName = this.proList[0].projectName
+    // }
+    // this.getDataList()
+  },
+  methods: {
+    // 获取项目列表
+    craneProListHandle() {
+      return new Promise(resolve => {
+        craneProList().then(data => {
+          if (data && data.code === 1000) {
+            this.proList = data.result
+            resolve(this.proList)
+          }
+        })
+      })
+    },
+    getDataList() {
+      this.dataListLoading = true
+      getList({
+        'page': this.pageIndex,
+        'rows': this.pageSize,
+        ...this.dataForm
+      }).then((data) => {
+        if (data && data.code === 1000) {
+          this.dataList = data.result.records.map(item => {
+            item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d}') : ''
+            return item
+          })
+          this.totalPage = data.result.total
+        } else {
+          this.dataList = []
+          this.totalPage = 0
+        }
+        this.dataListLoading = false
+      })
+    },
+    // 每页数
+    sizeChangeHandle(val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    // 查询
+    searchHandle() {
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle(val) {
+      this.pageIndex = val
+      this.getDataList()
+    },
+    bindHxzHandle(row) {
+      this.bindVisible = true
+      this.$nextTick(() => {
+        this.$refs.bindHxz.init({ ...row })
+      })
+    },
+    // 删除
+    deleteHandle(id) {
+      this.$confirm(`您确定进行删除操作吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        del({ id }).then((data) => {
+          if (data && data.code === 1000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }).catch(() => {})
+    },
+    // 新增 / 修改
+    addOrUpdateHandle(row) {
+      this.addOrUpdateVisible = true
+      this.$nextTick(() => {
+        this.$refs.addOrUpdate.init({ ...row })
+      })
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+.zhgd-tower-crane-device {
+  .el-divider {
+    width: .13rem;
+    height: 2.6rem;
+  }
+}
+</style>

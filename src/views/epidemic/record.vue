@@ -38,9 +38,8 @@
             </el-form-item>
             <el-form-item prop="healthCode">
               <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="体温" @change="(e) => searchHandle()">
-                <el-option label="高于37.5℃" :value="0"> 高于37.5℃ </el-option>
-                <el-option label="正常" :value="1"> 正常 </el-option>
-                <el-option label="低于37.5℃" :value="1"> 低于37.5℃ </el-option>
+                <el-option label="高于37.5℃" :value="3"> 高于37.5℃ </el-option>
+                <el-option label="正常" :value="4"> 正常 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item prop="timeRange">
@@ -234,6 +233,8 @@ export default {
         teamName: ''
       },
       dataList: [],
+      obj: { name: 1 },
+      arr: [{ name: 2 }],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,

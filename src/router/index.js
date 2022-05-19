@@ -56,16 +56,6 @@ export const golobalRoutes = [
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
-  },
-  {
-    path: '/antiepidemic',
-    component: () => import('@/views/epidemic/antiepidemic'),
-    hidden: true
-  },
-  {
-    path: '/antiepidemicF',
-    component: () => import('@/views/learn/index'),
-    hidden: true
   }
   // { path: '*', redirect: '/404', hidden: true }
 ]

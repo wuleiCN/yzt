@@ -4,6 +4,7 @@
     title="对接设置"
     :close-on-click-modal="false"
     :visible.sync="visible"
+    :destroy-on-close="true"
   >
     <el-container>
       <el-aside class="platform" width="250px">
@@ -104,6 +105,16 @@
                   <el-input v-model.trim="dataForm.cjApiSecret" placeholder="采集cjApiSecret" />
                 </el-form-item>
               </div>
+              <el-form-item
+                v-if="['SHPDXM'].includes(platformName)"
+                label="WORKID"
+                prop="apiKey"
+              >
+                <el-input
+                  v-model.trim="dataForm.apiKey"
+                  placeholder="WORKID"
+                />
+              </el-form-item>
             </el-form>
           </el-col>
           <el-col :span="9">
@@ -232,6 +243,7 @@ export default {
       synDetail({ platId: row.tag, projectId: this.projectId }).then(data => {
         this.$refs['dataForm'] && this.$refs['dataForm'].resetFields()
         this.platformName = row.tag
+        console.log(row.tag)
         if (data.result) {
           this.dataForm = data.result
           const consIds = {}

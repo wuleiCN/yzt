@@ -11,10 +11,10 @@ const STAGE_API = ['http://192.168.1.176/yzt-provider', 'http://yzt.yztzn.com/yz
 const PRO_API = ['//' + host + '/yzt-provider', window.location.origin] // 线上环境
 const CS_PRO_API = '//' + window.location.hostname + '/yzt-cs' // cs线上环境
 // const CS_DEV_API = 'http://192.168.1.176/yzt-cs' // cs测试环境
-const env = true
+const env = false
 // 整体接口变量
 // const getEnvValue = env ? STAGE_API[0] : PRO_API[0]
-const getEnvValue = env ? PRO_API[0] : STAGE_API[1]
+const getEnvValue = env ? PRO_API[0] : STAGE_API[0]
 // 本地测试环境
 // const getEnvValue = env ? 'https://192.168.1.125' : PRO_API[0]
 // const getEnvValue = env ? `${window.location.origin}/yzt-provider` : PRO_API[0]

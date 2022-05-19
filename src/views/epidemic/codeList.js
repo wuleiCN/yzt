@@ -192,11 +192,11 @@ export const codeList = [
   {
     localCode: '351',
     localCount: 0,
-    name: '福建'
+    name: '福建1'
   },
   {
     localCode: '352',
     localCount: 0,
-    name: '福建'
+    name: '福建2'
   }
 ]
