@@ -1,6 +1,6 @@
 <template>
   <div class="record">
-    <towerCrane :table-data="tableData" :fixed="right" />
+    <towerCrane :table-data="tableData" :fixed="fixed" :label="label" :data-list="dataList" :operation="1" />
   </div>
 </template>
 
@@ -14,6 +14,8 @@ export default {
   },
   data() {
     return {
+      fixed: 'right',
+      label: '查看',
       dataForm: {
         name: '',
         isDel: 0,
@@ -22,7 +24,19 @@ export default {
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       proName: '',
       proList: [],
-      dataList: [],
+      dataList: [
+        {
+          id: 'projectName',
+          projectName: 'projectName',
+          installUnit: 'installUnit',
+          contractorName: 'xxxx',
+          name: 'zs',
+          record: '1021021',
+          createTime: '2022-05-20',
+          authority: 'xxxxxxx',
+          status: '0'
+        }
+      ],
       tableData: [
         {
           id: 'projectName',
@@ -37,6 +51,7 @@ export default {
           id: 'installUnit',
           prop: 'installUnit',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '安装单位'
         },
@@ -44,6 +59,7 @@ export default {
           id: 'contractorName',
           prop: 'contractorName',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '施工总承包单位'
         },
@@ -51,6 +67,7 @@ export default {
           id: 'name',
           prop: 'name',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '设备名称'
         },
@@ -58,6 +75,7 @@ export default {
           id: 'record',
           prop: 'record',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '备案编号'
         },
@@ -65,6 +83,7 @@ export default {
           id: 'createTime',
           prop: 'createTime',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '安装日期'
         },
@@ -72,6 +91,7 @@ export default {
           id: 'authority',
           prop: 'authority',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '监督机构'
         },
@@ -79,6 +99,7 @@ export default {
           id: 'status',
           prop: 'status',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '申报状态'
         }

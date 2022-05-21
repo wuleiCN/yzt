@@ -7,7 +7,7 @@ export const Strategy = (function() {
       return ['XMJF']
     },
     consIds: function() { // 对接的参建单位
-      return ['GXGJT', 'SHPDXM']
+      return ['GXGJT']
     },
     userName: function() { // 登录账号
       return ['AJD', 'HZBL', 'SCZIYANG', 'XINGHE', 'JIANGMEN', 'ZHUAN', 'ZHONGYEYUN', 'QINGNINGHUDONG', 'GDMEIZHOU', 'FJS', 'WANKE', 'STZZ', 'DONGWAN', 'ZJKG', 'XMJF', 'GXGJT', 'SHANXI', 'WUHAN', 'HAOFENG', 'TANGCAI', 'HAOFENGYS', 'ZHENGZHOU', 'QUANGUO', 'GUANGZHOUSW', 'GDQINGYUAN', 'LWSMZ', 'RENYUANSMZ', 'SHPDXM']

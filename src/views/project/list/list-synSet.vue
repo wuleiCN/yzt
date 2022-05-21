@@ -243,7 +243,6 @@ export default {
       synDetail({ platId: row.tag, projectId: this.projectId }).then(data => {
         this.$refs['dataForm'] && this.$refs['dataForm'].resetFields()
         this.platformName = row.tag
-        console.log(row.tag)
         if (data.result) {
           this.dataForm = data.result
           const consIds = {}

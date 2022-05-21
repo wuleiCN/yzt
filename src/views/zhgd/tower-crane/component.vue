@@ -13,11 +13,11 @@
       <el-table-column
         v-for="(v, i) in tableData"
         :key="i"
-        :prop="v.createTime"
+        :prop="v.prop"
         :width="v.tableWidth"
         :fixed="v.fixed"
         :header-align="v.headerAlign"
-        :align="v.align"
+        :align="v.aling"
         :label="v.lable"
       />
       <el-table-column
@@ -25,12 +25,12 @@
         :fixed="fixed"
         align="center"
         width="180"
-        label="操作"
+        :label="label"
       >
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
-          <el-button type="text" size="small" @click="bindHxzHandle(scope.row)">绑定黑匣子</el-button>
-          <el-button type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="operation === 1" type="text" size="medium " icon="el-icon-paperclip" @click="addOrUpdateHandle(scope.row)" />
+          <el-button v-if="operation === 2" type="text" size="small" @click="bindHxzHandle(scope.row)">绑定黑匣子</el-button>
+          <el-button v-if="operation === 3" type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -63,6 +63,24 @@ export default {
       default: () => {
         return false
       }
+    },
+    label: {
+      type: String,
+      default: () => {
+        return '操作'
+      }
+    },
+    dataList: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    },
+    operation: {
+      type: Number,
+      default: () => {
+        return 0
+      }
     }
   },
   data() {
@@ -75,17 +93,16 @@ export default {
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       proName: '',
       proList: [],
-      dataList: [],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
       dataListLoading: false,
-      addOrUpdateVisible: false,
       bindVisible: false
     }
   },
   async created() {
-    console.log(this.tableData)
+    // this.show()
+    console.log(this.tableData, this.fixed)
     // this.proList = await this.craneProListHandle()
     // if (this.proList.length) {
     //   this.proName = this.proList[0].projectName
@@ -93,6 +110,10 @@ export default {
     // this.getDataList()
   },
   methods: {
+    show() {
+      this.dataListLoading = true
+      this.dataList.length || (this.dataListLoading = false)
+    },
     // 获取项目列表
     craneProListHandle() {
       return new Promise(resolve => {
@@ -171,9 +192,8 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle(row) {
-      this.addOrUpdateVisible = true
       this.$nextTick(() => {
-        this.$refs.addOrUpdate.init({ ...row })
+        console.log(row)
       })
     }
   }

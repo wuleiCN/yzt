@@ -1,6 +1,6 @@
 <template>
   <div class="record">
-    <towerCrane :table-data="tableData" />
+    <towerCrane :table-data="tableData" :fixed="fixed" />
   </div>
 </template>
 
@@ -14,6 +14,7 @@ export default {
   },
   data() {
     return {
+      fixed: 'right',
       dataForm: {
         name: '',
         isDel: 0,
@@ -37,6 +38,7 @@ export default {
           id: 'disassemblyUnit',
           prop: 'disassemblyUnit',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '拆卸单位'
         },
@@ -44,6 +46,7 @@ export default {
           id: 'contractorName',
           prop: 'contractorName',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '施工总承包单位'
         },
@@ -51,6 +54,7 @@ export default {
           id: 'name',
           prop: 'name',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '设备名称'
         },
@@ -58,6 +62,7 @@ export default {
           id: 'record',
           prop: 'record',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '备案编号'
         },
@@ -65,6 +70,7 @@ export default {
           id: 'RegNumber',
           prop: 'RegNumber',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '使用登记编号'
         },
@@ -72,6 +78,7 @@ export default {
           id: 'status',
           prop: 'status',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '申报状态'
         },
@@ -79,6 +86,7 @@ export default {
           id: 'disassemblyDate',
           prop: 'disassemblyDate',
           headerAlign: 'center',
+          tableWidth: 180,
           aling: 'center',
           lable: '拆卸日期'
         }
