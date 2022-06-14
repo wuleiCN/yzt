@@ -23,8 +23,8 @@
           <el-radio :label="0">否</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="是否全局更新：" prop="xxxx">
-        <el-radio-group v-model="dataForm.xxxx" style="width:100%">
+      <el-form-item label="是否强制更新：" prop="isLocalupdate">
+        <el-radio-group v-model="dataForm.isLocalupdate" style="width:100%">
           <el-radio :label="1">是</el-radio>
           <el-radio :label="0">否</el-radio>
         </el-radio-group>
@@ -63,7 +63,7 @@ export default {
         content: '',
         downloadUrl: '',
         isUpdate: 1,
-        xxxx: 1,
+        isLocalupdate: 1,
         deviceType: 1
       },
       dataRule: {
@@ -72,6 +72,9 @@ export default {
         ]
       }
     }
+  },
+  created() {
+    console.log(this.dataForm.isLocalupdate)
   },
   methods: {
     closeHandle() {

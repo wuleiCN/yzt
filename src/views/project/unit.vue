@@ -53,7 +53,7 @@
               <el-button type="primary" @click="searchHandle()">查询</el-button>
             </el-form-item>
             <div class="search-btn-style">
-              <el-button v-permit="'project_unit_btn_add'" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+              <el-button v-permit="'project_unit_btn_add'" type="primary" @click="addOrUpdateHandle({}, loginInfo.projectId)">新增</el-button>
               <el-button v-permit="'project_unit_btn_in'" type="primary" :disabled="disabled1" @click="getInHandle()">进场</el-button>
               <el-button v-permit="'project_unit_btn_out'" type="primary" :disabled="disabled2" @click="getOutHandle()">退场</el-button>
               <a v-permit="'project_unit_btn_export'" style="margin-left:10px" target="_blank" :href="$http.baseUrl(exportUrl)"><el-button type="primary">导出</el-button></a>
@@ -172,7 +172,7 @@
               width="90"
             >
               <template slot-scope="scope">
-                <el-button v-permit="'project_unit_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+                <el-button v-permit="'project_unit_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row, scope.row.projectId)">修改</el-button>
                 <el-button v-permit="'project_unit_btn_delete'" type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
@@ -333,8 +333,8 @@ export default {
       this.disabled2 = ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
     },
     // 新增 / 修改
-    addOrUpdateHandle(row) {
-      if (this.loginInfo.projectId) {
+    addOrUpdateHandle(row, pId) {
+      if (pId) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init({ ...row })
@@ -353,7 +353,7 @@ export default {
     },
     // 双击table
     rowDblclick(row) {
-      if (this.basePermit('project_unit_btn_update')) this.addOrUpdateHandle(row)
+      if (this.basePermit('project_unit_btn_update')) this.addOrUpdateHandle(row, row.projectId)
     },
     basePermit(e) {
       return this.$store.getters.roleList.includes(e)

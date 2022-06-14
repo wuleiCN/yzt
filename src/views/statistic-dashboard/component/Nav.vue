@@ -97,6 +97,16 @@ export default {
         border: none;
         background: transparent;
       }
+      .el-select-dropdown {
+        background: rgb(5, 34, 80) !important;
+        border: 0;
+        .el-select-dropdown__item {
+          color: #fff;
+          &.hover, &:hover {
+            background-color: rgb(2, 14, 49) !important;
+          }
+        }
+      }
       .el-input__suffix {
         top: -0.12rem;
         color: #2AAEF2;

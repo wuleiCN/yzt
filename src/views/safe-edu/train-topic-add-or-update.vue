@@ -36,22 +36,28 @@
           <el-radio :label="2">线下</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="开始时间" prop="startTime">
+      <el-form-item label="开始时间" prop="startEndTime">
         <el-date-picker
-          v-model.trim="dataForm.startTime"
+          v-model.trim="dataForm.startEndTime"
           style="width:100%"
-          type="datetime"
-          placeholder="开始时间"
+          type="datetimerange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          @change="ck()"
         />
       </el-form-item>
-      <el-form-item label="结束时间" prop="endTime">
+      <el-form-item label="培训地址：" prop="trainAddress">
+        <el-input v-model.trim="dataForm.trainAddress" placeholder="培训地址" />
+      </el-form-item>
+      <!-- <el-form-item label="结束时间" prop="endTime">
         <el-date-picker
           v-model.trim="dataForm.endTime"
           style="width:100%"
           type="datetime"
           placeholder="结束时间"
         />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="内容：" prop="content">
         <el-input
           v-model="dataForm.content"
@@ -103,8 +109,10 @@ export default {
         lecturer: '',
         type: '',
         category: '',
-        startTime: '',
-        endTime: '',
+        startEndTime: [],
+        trainTime: '',
+        trainAddress: '',
+        // endTime: '',
         content: '',
         ids: []
       },
@@ -121,7 +129,7 @@ export default {
         type: [
           { required: true, message: '课题类型不能为空', trigger: 'blur' }
         ],
-        startTime: [
+        startEndTime: [
           { required: true, message: '开始时间不能为空', trigger: 'blur' }
         ],
         endTime: [
@@ -140,6 +148,13 @@ export default {
     }
   },
   methods: {
+    ck() {
+      if (this.dataForm.startEndTime.length) {
+        const hours = Math.floor((this.dataForm.startEndTime[1] - this.dataForm.startEndTime[0]) / (3600 * 1000))
+        this.dataForm.trainTime = hours / 6
+        console.log(this.dataForm.trainTime)
+      }
+    },
     // 打开弹窗
     init(row) {
       this.dataForm.id = row.id || null

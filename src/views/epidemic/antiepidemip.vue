@@ -72,7 +72,7 @@
           </div>
           <div class="item-code">
             <div v-for="(r, i) in localCode" :key="i" :class="{ 'local-code': true, 'flip-vertical-right': animation }">
-              <div class="local">{{ r.name }}</div>
+              <div class="local">{{ r.name || '' }}</div>
               <div class="count">{{ r.localCount }}次</div>
             </div>
           </div>
@@ -183,6 +183,7 @@ export default {
       compyName: '',
       animation: true,
       initData: [],
+      initData1: [],
       totalNumber: [],
       totalCount: [],
       totalDay: [],
@@ -213,7 +214,7 @@ export default {
         carousel: 'page',
         columnWidth: [180],
         rowNum: 7,
-        align: ['center'],
+        align: ['center', 'center', 'center', 'center', 'center'],
         data: []
       },
       config1: {
@@ -223,7 +224,7 @@ export default {
         evenRowBGC: '112c60',
         carousel: 'single',
         rowNum: 7,
-        align: ['center'],
+        align: ['center', 'center', 'center', 'center', 'center', 'center'],
         data: []
       },
       resultConfig: [],
@@ -250,9 +251,9 @@ export default {
   },
   created() {
     this.init()
-    this.dataInit()
   },
   mounted() {
+    this.dataInit()
     setInterval(() => {
       this.time = this.getTime().time
     }, 1000)
@@ -307,7 +308,7 @@ export default {
       }, 60000)
       this.tiemer2 = setInterval(() => {
         this.animation = !this.animation
-      }, 2480)
+      }, 2500)
     },
     showPanel(status) {
       // 是集团或者公司才能选择项目
@@ -329,15 +330,25 @@ export default {
       const obj = { a: '', b: '', c: '', d: '', e: '', f: '' }
       for (let i = 1; i <= 6; i++) {
         this.initData.push(obj)
+        this.initData1.push(obj)
       }
       this.initData = this.initData.map(item => {
         return [
-          item.f,
-          `<span style="color:#fff;">${item.a}</span>`,
-          `<span style="color:#38F1A1;">${item.b}</span>`,
-          `<span style="color:#38F1A1;">${item.c}</span>`,
-          `<span style="color:#fff;">${item.d}</span>`,
-          `<span style="color:#e5b965;">${item.e}</span>`
+          item.a,
+          item.b,
+          item.c,
+          item.d,
+          item.e
+        ]
+      })
+      this.initData1 = this.initData1.map(item => {
+        return [
+          item.a,
+          item.b,
+          item.c,
+          item.d,
+          item.e,
+          item.f
         ]
       })
       this.config = {
@@ -346,7 +357,7 @@ export default {
         oddRowBGC: '#112c60',
         evenRowBGC: '112c60',
         carousel: 'page',
-        columnWidth: [140],
+        columnWidth: [180],
         rowNum: 7,
         align: ['center', 'center', 'center', 'center', 'center'],
         data: this.initData
@@ -359,7 +370,7 @@ export default {
         carousel: 'page',
         rowNum: 7,
         align: ['center', 'center', 'center', 'center', 'center', 'center'],
-        data: this.initData
+        data: this.initData1
       }
     },
     // 项目防疫情况
@@ -394,10 +405,13 @@ export default {
       getEpidemicTrafficRecord({ 'projectIds': [this.projectIds] }).then((data) => {
         if (data.code === 1000 && data.result) {
           this.inOutList = data.result.map(item => {
+            var nucleic
+            item.nucleic_acid ? nucleic = '阴性' : nucleic = '阳性'
+            item.nucleic_acid > 1 && (nucleic = item.nucleic_acid + '小时内阴性')
             return [
               item.name,
               `<span style="color:#38F1A1;">${item.health_code || '无'}</span>`,
-              `<span style="color:#38F1A1;">${item.nucleic_acid || '未检测'}</span>`,
+              `<span style="color:#38F1A1;">${nucleic}</span>`,
               `<span style="color:#38F1A1;">${item.tw}</span>`,
               `<span style="color:#fff;">${item.vaccines}</span>`,
               `<span style="color:#e5b965;">${item.txsj}</span>`
@@ -411,7 +425,7 @@ export default {
             carousel: 'single',
             rowNum: 7,
             align: ['center', 'center', 'center', 'center', 'center', 'center'],
-            data: this.inOutList.length ? this.inOutList : this.initData
+            data: this.inOutList.length ? this.inOutList : this.initData1
           }
         }
       })
@@ -656,9 +670,11 @@ export default {
       .center-attendance-wrap {
         height: 19.38rem;
         padding-top: 1.54rem;
+        margin-left: .19rem;
         .main-item-content1 {
           display: flex;
           height: 10.77rem;
+          width: 100%;
           flex-direction: column;
           align-content: center;
           .wrap-content {
@@ -693,11 +709,11 @@ export default {
           // display: flex;
           // flex-direction: column;
           // align-content: center;
-          width: 18.3rem;
+          width: 100%;
           height: 6.65rem;
           margin-right: .58rem;
           background: url('../../assets/antiepidemic/frame1.png');
-          background-size: 18.35rem 6.75rem;
+          background-size: 100% 100%;
           .main-item-content-title2 {
             padding-top: 0.73rem;
             height: 1.12rem;
@@ -740,8 +756,9 @@ export default {
       }
       .week-attendance-wrap {
         height: 17.35rem;
-        width: 18.3rem;
+        width: 100%;
         padding-top: .38rem;
+        margin-left: .19rem;
         background: url('../../assets/antiepidemic/frame.png');
         background-size: 100% 100%;
         .week-attendance-wrap-title {
@@ -772,7 +789,7 @@ export default {
             flex-direction: column;
             align-items: center;
             text-align: center;
-            width: 5.81rem;
+            width: 30%;
             height: 4.35rem;
             background: url('../../assets/antiepidemic/frame3.png');
             background-size: 100% 100%;

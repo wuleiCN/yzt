@@ -2,7 +2,7 @@
   <div class="statistical-teamAtt">
     <el-form :inline="true" :model="dataForm">
       <el-form-item prop="planId">
-        <el-select v-model="dataForm.projectId" :disabled="disabled" filterable style="width:100%" placeholder="请选择项目" @change="(e) => searchHandle(e, 'projectId')">
+        <el-select v-model="dataForm.projectId" :disabled="disabled" clearable filterable style="width:100%" placeholder="请选择项目" @change="(e) => searchHandle(e, 'projectId')">
           <el-option v-for="(item, index) in proList" :key="index" :label="item.projectName" :value="item.id">{{ item.projectName }}</el-option>
         </el-select>
       </el-form-item>

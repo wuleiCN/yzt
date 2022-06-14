@@ -237,7 +237,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <span slot="footer" class="dialog-footer">
+    <span v-if="loginInfo.projectId" slot="footer" class="dialog-footer">
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
     </span>
   </el-dialog>

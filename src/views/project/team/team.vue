@@ -300,7 +300,7 @@ export default {
     },
     // 双击table
     rowDblclick(row) {
-      if (this.basePermit('project_team_btn_update')) this.addOrUpdateHandle(row.id, this.loginInfo.projectId)
+      if (this.basePermit('project_team_btn_update')) this.addOrUpdateHandle(row.id, row.projectId)
     },
     // 调动 / 合并
     transferOrmerge(type, pId) {

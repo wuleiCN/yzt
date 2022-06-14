@@ -3,8 +3,8 @@
   <div class="statistical-proAtt">
     <el-form :inline="true" :model="dataForm">
       <el-form-item prop="companyName">
-        <el-select v-model="dataForm.companyName" :disabled="true" filterable style="width:100%" placeholder="请选择公司" @change="(e) => selectChangeHandle(e, 'companyId')">
-          <el-option v-for="(item, index) in comList" :key="index" :label="item.id" :value="item.id">{{ item.name }}</el-option>
+        <el-select v-model.trim="dataForm.orgId" filterable :disabled="disabled" clearable style="width:100%" placeholder="请选择公司" @change="selectChangeHandle()">
+          <el-option v-for="(item, index) in groupList" :key="index" :label="item.companyName" :value="item.id"> {{ item.companyName }} <span v-if="item.isGroup" class="flag">(集团)</span> </el-option>
         </el-select>
       </el-form-item>
       <el-form-item prop="projectName">
@@ -59,6 +59,14 @@
         width="250"
         :show-overflow-tooltip="true"
         label="项目所在地"
+      />
+      <el-table-column
+        prop="companyName"
+        header-align="center"
+        align="center"
+        width="250"
+        :show-overflow-tooltip="true"
+        label="公司名称"
       />
       <el-table-column
         prop="projectType"
@@ -143,19 +151,23 @@
 
 <script>
 import { getList } from '@/api/statistical/proAtt'
+import { getGroupComList } from '@/api/sys/user'
 export default {
   data() {
     // const { token } = this.$store.state.user.loginInfo
     return {
       dataList: [],
+      groupList: [],
       keyName: '',
       dataForm: {
         projectName: null,
-        companyName: null
+        companyName: null,
+        orgId: ''
       },
       comList: [],
       disabled: false,
       // exportUrl: `/statisticalReport/exportProjectAttendance?token=${token}`,
+      loginInfo: JSON.parse(sessionStorage.getItem('result')),
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
@@ -164,6 +176,7 @@ export default {
   },
   created() {
     this.getDataList()
+    this.getGroupList()
   },
   methods: {
     // 获取数据列表
@@ -171,7 +184,9 @@ export default {
       this.dataListLoading = true
       getList({
         'page': this.pageIndex,
-        'rows': this.pageSize
+        'rows': this.pageSize,
+        'projectName': this.dataForm.projectName,
+        'comnyId': this.dataForm.orgId
       }).then((data) => {
         if (data && data.code === 1000) {
           this.dataList = data.result.records
@@ -186,11 +201,21 @@ export default {
     },
     // 查询
     selectChangeHandle() {
-      if (this.dataForm.projectName !== null || this.dataForm.companyName !== null) {
-        console.log(this.dataForm)
-      } else {
-        this.$message.error('请选择项目名称')
-      }
+      this.getDataList()
+    },
+    // 获取集团公司下拉列表
+    getGroupList() {
+      getGroupComList().then(data => {
+        const pass = (this.loginInfo.userType === 0) && (this.loginInfo.isManager === 0)
+        if (pass) {
+          this.groupList = data.result.map(item => {
+            if (item.id === this.loginInfo.orgId) item.isGroup = true
+            return item
+          })
+        } else {
+          this.groupList = data.result
+        }
+      })
     },
     // 每页数
     sizeChangeHandle(val) {

@@ -125,9 +125,9 @@
         <div class="left footer-item-2" />
         <div class="right-wrap">
           <div class="right-title">劳务分包</div>
-          <div class="right"><span>{{ projectInfo.consCount }}</span> 人</div>
+          <div class="right"><span>{{ projectInfo.consCount }}</span></div>
           <div class="right-title1">班组</div>
-          <div class="right"><span>{{ projectInfo.teamCount }}</span> 人</div>
+          <div class="right"><span>{{ projectInfo.teamCount }}</span></div>
         </div>
       </div>
       <div class="footer-item">

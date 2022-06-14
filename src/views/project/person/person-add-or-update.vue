@@ -17,7 +17,7 @@
         <component :is="item.content" :id="id" :ref="item.name" :data="row" :id-code="idCode" />
       </el-tab-pane>
     </el-tabs>
-    <span slot="footer" class="dialog-footer">
+    <span v-if="loginInfo.projectId" slot="footer" class="dialog-footer">
       <el-button :loading="btnLoading" type="primary" @click="dataFormSubmit()">确定</el-button>
     </span>
   </el-dialog>
@@ -42,6 +42,7 @@ export default {
       data: {},
       name: 'base-info',
       activeName: 'base-info',
+      loginInfo: this.$store.state.user.loginInfo,
       editableTabs: [
         { title: '人员基本信息', name: 'base-info', content: baseInfo },
         { title: '劳动合同附件', name: 'contract-info', content: contractInfo },

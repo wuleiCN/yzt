@@ -45,6 +45,9 @@
       <el-form-item prop="suid">
         <el-input v-model="dataForm.idCode" clearable placeholder="身份证号" />
       </el-form-item>
+      <el-form-item prop="suid">
+        <el-input v-model="dataForm.wokerType" clearable placeholder="工种" />
+      </el-form-item>
       <el-form-item class="">
         <el-button type="primary" @click="searchHandle()">查询</el-button>
       </el-form-item></el-form>
@@ -168,7 +171,8 @@ export default {
         ageTypes: '',
         titles: [],
         educations: [],
-        idCode: ''
+        idCode: '',
+        wokerType: ''
       },
       row: {},
       dataList: [],

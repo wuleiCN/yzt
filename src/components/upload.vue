@@ -68,7 +68,8 @@ export default {
   data() {
     return {
       loginInfo: this.$store.state.user.loginInfo,
-      fileList: []
+      fileList: [],
+      fileName: ''
     }
   },
   methods: {
@@ -105,6 +106,7 @@ export default {
     },
     handleSuccess(res, file, fileList) {
       if (res.code === 1000) {
+        this.fileName = fileList.name
         this.$message({
           message: '上传成功',
           type: 'success',

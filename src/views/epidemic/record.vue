@@ -31,15 +31,15 @@
               </el-select>
             </el-form-item>
             <el-form-item prop="healthCode">
-              <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="进场人员" @change="(e) => searchHandle()">
+              <el-select v-model.trim="dataForm.isStranger" clearable style="width:100%" placeholder="人员类型" @change="(e) => searchHandle()">
                 <el-option label="白名单" :value="0"> 白名单 </el-option>
                 <el-option label="陌生人" :value="1"> 陌生人 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item prop="healthCode">
-              <el-select v-model.trim="staffData" clearable style="width:100%" placeholder="体温" @change="(e) => searchHandle()">
-                <el-option label="高于37.5℃" :value="3"> 高于37.5℃ </el-option>
-                <el-option label="正常" :value="4"> 正常 </el-option>
+              <el-select v-model.trim="dataForm.temperature" clearable style="width:100%" placeholder="体温" @change="(e) => searchHandle()">
+                <el-option label="高于37.5℃" :value="0"> 高于37.5℃ </el-option>
+                <el-option label="正常" :value="1"> 正常 </el-option>
               </el-select>
             </el-form-item>
             <el-form-item prop="timeRange">
@@ -155,9 +155,9 @@
             >
               <template slot-scope="scope">
                 <el-tag v-if="scope.row.vaccines === 0" type="warning">未完成</el-tag>
-                <el-tag v-if="scope.row.vaccines === 1" type="success">已完成</el-tag>
-                <el-tag v-if="scope.row.vaccines === 2" type="success">已完成</el-tag>
-                <el-tag v-if="scope.row.vaccines === 3" type="success">已完成</el-tag>
+                <el-tag v-if="scope.row.vaccines === 1" type="success">第一针</el-tag>
+                <el-tag v-if="scope.row.vaccines === 2" type="success">第二针</el-tag>
+                <el-tag v-if="scope.row.vaccines === 3" type="success">第三针</el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -230,7 +230,9 @@ export default {
         healthCode: '',
         constructionName: '',
         empName: '',
-        teamName: ''
+        teamName: '',
+        temperature: 1,
+        isStranger: 0
       },
       dataList: [],
       obj: { name: 1 },
@@ -264,7 +266,7 @@ export default {
           this.totalPage = data.result.total
           this.dataListLoading = false
           const { token } = this.loginInfo
-          this.exportUrl = `/attendanceNone/export?token=${token}&id=47&type=1&page=${this.pageIndex}&rows=9999`
+          this.exportUrl = `/attendanceNone/export?token=${token}&id=47&type=1&page=${this.pageIndex}&rows=9999&temperature=1&isStranger=${this.dataForm.isStranger}`
           console.log('data', data)
         }
       })

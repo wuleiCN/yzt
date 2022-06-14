@@ -86,7 +86,7 @@
               <el-button type="primary" @click="searchHandle()">查询</el-button>
             </el-form-item>
             <div class="search-btn-style">
-              <el-button v-permit="'project_person_btn_add'" type="primary" @click="addOrUpdateHandle({})">新增</el-button>
+              <el-button v-permit="'project_person_btn_add'" type="primary" @click="addOrUpdateHandle({}, loginInfo.projectId)">新增</el-button>
               <el-button v-permit="'project_person_btn_in'" type="primary" :disabled="disabled1" @click="getInHandle()">进场</el-button>
               <el-button v-permit="'project_person_btn_out'" type="primary" :disabled="disabled2" @click="getOutHandle()">退场</el-button>
               <el-button v-permit="'project_person_btn_audit'" type="primary" :disabled="disabled3" @click="auditStateHandle()">审核</el-button>
@@ -324,7 +324,7 @@
                   <div v-for="(item, index) in trintTypes" :key="index" class="temp-name" @click="showPrint(scope.row.id, item.id)">{{ index + 1 }}、{{ item.name }}</div>
                   <el-button slot="reference" v-permit="'project_person_btn_print'" style="margin-right:5px" type="text" @click="getPrintTypeHandle(scope.row.projectId)">打印</el-button>
                 </el-popover>
-                <el-button v-permit="'project_person_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+                <el-button v-permit="'project_person_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row, scope.row.projectId)">修改</el-button>
                 <el-button v-permit="'project_person_btn_ic_print'" type="text" size="small" @click="icPrintHandle(scope.row)">证卡打印</el-button>
                 <!-- <el-button v-permit="'project_person_btn_delete'" style="color: rgb(254, 27, 54);" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button> -->
               </template>
@@ -415,7 +415,7 @@ export default {
         constructionName: '',
         projectName: '',
         teamName: '',
-        enterAndRetreatCondition: '',
+        enterAndRetreatCondition: 0,
         empName: '',
         idCode: '',
         empPhon: '',
@@ -603,8 +603,9 @@ export default {
       this.getDataList()
     },
     // 新增 / 修改
-    addOrUpdateHandle(row) {
-      if (this.loginInfo.projectId) {
+    addOrUpdateHandle(row, pId) {
+      console.log(row)
+      if (pId) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
           this.$refs.addOrUpdate.init({ ...row })
@@ -725,7 +726,8 @@ export default {
     },
     // 双击table
     rowDblclick(row) {
-      if (this.basePermit('project_person_btn_update')) this.addOrUpdateHandle(row)
+      console.log('row', row)
+      if (this.basePermit('project_person_btn_update')) this.addOrUpdateHandle(row, row.projectId)
     },
     basePermit(e) {
       return this.$store.getters.roleList.includes(e)

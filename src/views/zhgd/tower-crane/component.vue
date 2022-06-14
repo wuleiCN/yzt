@@ -91,7 +91,6 @@ export default {
         projectId: this.$store.state.user.loginInfo.projectId
       },
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
-      proName: '',
       proList: [],
       pageIndex: 1,
       pageSize: 10,
@@ -102,11 +101,7 @@ export default {
   },
   async created() {
     // this.show()
-    console.log(this.tableData, this.fixed)
     // this.proList = await this.craneProListHandle()
-    // if (this.proList.length) {
-    //   this.proName = this.proList[0].projectName
-    // }
     // this.getDataList()
   },
   methods: {
