@@ -232,7 +232,8 @@ export default {
         empName: '',
         teamName: '',
         temperature: 1,
-        isStranger: 0
+        isStranger: 0,
+        timeRange: []
       },
       dataList: [],
       obj: { name: 1 },
@@ -245,6 +246,7 @@ export default {
   },
   async created() {
     this.getDataList()
+    this.setDefaultDate()
   },
   methods: {
     // 获取数据列表
@@ -267,7 +269,6 @@ export default {
           this.dataListLoading = false
           const { token } = this.loginInfo
           this.exportUrl = `/attendanceNone/export?token=${token}&id=47&type=1&page=${this.pageIndex}&rows=9999&temperature=1&isStranger=${this.dataForm.isStranger}`
-          console.log('data', data)
         }
       })
     },
@@ -306,6 +307,32 @@ export default {
       }
       this.dataForm[type] = val
       this.getDataList()
+    },
+    // 获取前一个月时间
+    setDefaultDate() {
+      const date = new Date()
+      var y = date.getFullYear()
+      var m = date.getMonth() + 1
+      var d = date.getDate()
+      const nowDate = y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
+      if (m === 1) {
+        y--
+        m = 12
+      } else if (m === 3 && d > 28) {
+        m--
+        if (y % 4 === 0 && y % 100 !== 0 || y % 400 === 0) {
+          d = 29
+        } else {
+          d - 28
+        }
+      } else if ((m !== 12 || m !== 8) && d === 31) {
+        m--
+        d = 30
+      } else {
+        m--
+      }
+      const pastDate = y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
+      this.dataForm.timeRange = [pastDate, nowDate]
     }
   }
 }

@@ -386,7 +386,7 @@ export default {
         if (data.code === 1000 && data.result) {
           this.inOutList = data.result.map(item => {
             var nucleic
-            item.nucleic_acid ? nucleic = '阴性' : nucleic = '阳性'
+            item.nucleic_acid ? nucleic = '阳性' : nucleic = '阴性'
             item.nucleic_acid > 1 && (nucleic = item.nucleic_acid + '小时内阴性')
             return [
               item.name,

@@ -276,7 +276,7 @@
 </template>
 
 <script>
-import { processList } from '@/api/safety'
+import { saverOrUpdate, getList } from '@/api/dangerous'
 import { parseTime } from '@/utils'
 import MyUpload from '@/components/upload'
 export default {
@@ -382,7 +382,7 @@ export default {
     },
     // 某人培训列表
     getList(id) {
-      processList({ id }).then((data) => {
+      getList({ id }).then((data) => {
         if (data && data.code === 1000) {
           this.tableList = data.result.map(item => {
             item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
@@ -399,7 +399,9 @@ export default {
       this.row = row
     },
     dataFormSubmit() {
-      this.$message.success('修改成功')
+      saverOrUpdate().then(res => {
+        res.code === 1000 || this.$message.success('修改成功')
+      })
       this.visible = false
     },
     getFileData(fileList, type, index) {
