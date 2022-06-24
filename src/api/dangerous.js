@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getList(data) {
   return request({
-    url: '/qualityControl/list',
+    url: '/dangerousLargeProject/list',
     method: 'post',
     data
   })
@@ -14,4 +14,24 @@ export function saverOrUpdate(data) {
     data
   })
 }
-
+export function getDetail(data) {
+  return request({
+    url: '/dangerousLargeProject/detail',
+    method: 'post',
+    data
+  })
+}
+export function deleteProject(data) {
+  return request({
+    url: '/dangerousLargeProject/del',
+    method: 'post',
+    data
+  })
+}
+export function downloadFile(data) {
+  return request({
+    url: '/dangerousLargeProject/downloadFile',
+    method: 'post',
+    data
+  })
+}

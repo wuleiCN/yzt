@@ -85,6 +85,7 @@ export default {
       visible: false,
       btnLoading: false,
       proList: [],
+      projectType: '',
       optionList: [],
       dataForm: {
         id: null,
@@ -123,8 +124,9 @@ export default {
   },
   methods: {
     // 打开弹窗
-    init(id, pId) {
-      this.dataForm.id = id || null
+    init(row, pId) {
+      this.dataForm.id = (row ? row.id : null)
+      this.projectType = JSON.parse(sessionStorage.getItem('projectType'))
       this.visible = true
       this.$nextTick(async() => {
         this.$refs['dataForm'].resetFields()
@@ -180,19 +182,24 @@ export default {
       })
     },
     getOptionList(projectRegion) {
-      // 根据不同项目拉取不同班组 山西(JOB_NAME_SHANXI)：140000
-      const code = {
-        140000: 'JOB_NAME_SHANXI',
-        441400: 'JOB_NAME_GDMEIZHOU',
-        441800: 'JOB_NAME_GDQINGYUAN',
-        440700: 'JOB_NAME_JIANGMEN'
+      let category = ''
+      if (this.projectType === '92') {
+        category = 'TEAM_TYPE_HFTX'
+      } else {
+        // 根据不同项目拉取不同班组 山西(JOB_NAME_SHANXI)：140000
+        const code = {
+          140000: 'JOB_NAME_SHANXI',
+          441400: 'JOB_NAME_GDMEIZHOU',
+          441800: 'JOB_NAME_GDQINGYUAN',
+          440700: 'JOB_NAME_JIANGMEN'
+        }
+        const region = projectRegion && projectRegion.split(',')
+        const fregion = region.find(item => {
+          return Object.keys(code).includes(item)
+        })
+        category = fregion ? code[fregion] : 'TEAM_TYPE_SZGWS'
+        // const category = projectRegion.includes('140000') ? 'JOB_NAME_SHANXI' : 'TEAM_TYPE_SZGWS'
       }
-      const region = projectRegion && projectRegion.split(',')
-      const fregion = region.find(item => {
-        return Object.keys(code).includes(item)
-      })
-      const category = fregion ? code[fregion] : 'TEAM_TYPE_SZGWS'
-      // const category = projectRegion.includes('140000') ? 'JOB_NAME_SHANXI' : 'TEAM_TYPE_SZGWS'
       optionList({ category }).then((data) => {
         if (data && data.code === 1000) {
           this.optionList = data.result

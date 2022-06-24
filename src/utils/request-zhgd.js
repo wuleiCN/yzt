@@ -15,7 +15,7 @@ const PRO_API = [
 ] // 线上环境
 const CS_PRO_API = 'https://yzt.yztzn.com/yzt-cs' // cs线上环境
 // const CS_DEV_API = 'http://192.168.1.176/yzt-cs' // cs测试环境
-const env = false
+const env = true
 // 整体接口变量
 // const getEnvValue = env ? STAGE_API[0] : PRO_API[0]
 const getEnvValue = env ? PRO_API[0] : STAGE_API[0]

@@ -106,6 +106,7 @@ export default {
   async created() {
     const data = (await this.getMarkerList()).map(item => [item.projectName])
     this.$set(this.config, 'data', data)
+    console.log('router', this.$router.getmenuList())
   },
   async mounted() {
     this.getStatisticsHandle()

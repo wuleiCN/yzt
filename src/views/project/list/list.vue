@@ -268,6 +268,7 @@ export default {
         if (data && data.code === 1000) {
           this.dataList = data.result.records
           this.totalPage = data.result.total
+          this.userType === 2 && sessionStorage.setItem('projectType', JSON.stringify(data.result.records[0].projectType))
         } else {
           this.dataList = []
           this.totalPage = 0

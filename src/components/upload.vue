@@ -3,6 +3,7 @@
     <!-- :before-upload="beforeUpload" -->
     <el-upload
       ref="upload"
+      :disabled="disalbed"
       :action="isZhgd ? $httpZhgd.baseUrl(action) : $http.baseUrl(action)"
       :headers="{
         token: loginInfo.token
@@ -16,7 +17,7 @@
       :show-file-list="(isShow && limit === 'apk') || (isShow && limit === 'mp4') || (isShow && limit === 'zip')"
       :file-list="fileList"
     >
-      <el-button :icon="icon" type="primary" size="small">{{ title }}</el-button>
+      <el-button :icon="icon" :type="type" size="small" :disabled="disalbed">{{ title }}</el-button>
       <div v-if="isShow && limit === 'apk'" slot="tip" class="el-upload__tip">只能上传.apk格式的文件或.zip</div>
       <div v-if="isShow && limit === 'doc'" slot="tip" class="el-upload__tip">只能上传.xlsx格式的文件</div>
       <div v-if="isShow && limit === 'image'" slot="tip" class="el-upload__tip">只能上传图片</div>
@@ -54,7 +55,7 @@ export default {
     },
     icon: {
       type: String,
-      default: ''
+      default: 'primary'
     },
     isShow: {
       type: Boolean,
@@ -63,6 +64,14 @@ export default {
     action: {
       type: String,
       default: ''
+    },
+    type: {
+      type: String,
+      default: 'primary'
+    },
+    disalbed: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

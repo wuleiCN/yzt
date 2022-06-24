@@ -92,6 +92,13 @@
               label="班组名称"
             />
             <el-table-column
+              prop="teamType"
+              header-align="center"
+              align="center"
+              :show-overflow-tooltip="true"
+              label="班组类型"
+            />
+            <el-table-column
               prop="inTime"
               header-align="center"
               align="center"
@@ -129,7 +136,7 @@
               width="90"
             >
               <template slot-scope="scope">
-                <el-button v-permit="'project_team_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row.id, scope.row.projectId)">修改</el-button>
+                <el-button v-permit="'project_team_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row, scope.row.projectId)">修改</el-button>
                 <el-button v-permit="'project_team_btn_delete'" type="text" style="color: rgb(254, 27, 54);" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
@@ -180,6 +187,7 @@ export default {
         teamName: '',
         inTime: '',
         outTime: '',
+        teamType: '',
         status: null
       },
       options: [
@@ -288,11 +296,11 @@ export default {
       this.disabled2 = ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
     },
     // 新增 / 修改
-    addOrUpdateHandle(id, pId) {
+    addOrUpdateHandle(row, pId) {
       if (pId) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
-          this.$refs.addOrUpdate.init(id, pId)
+          this.$refs.addOrUpdate.init(row, pId)
         })
       } else {
         this.$message.error('项目账号才能做此操作!')
@@ -300,7 +308,7 @@ export default {
     },
     // 双击table
     rowDblclick(row) {
-      if (this.basePermit('project_team_btn_update')) this.addOrUpdateHandle(row.id, row.projectId)
+      if (this.basePermit('project_team_btn_update')) this.addOrUpdateHandle(row, row.projectId)
     },
     // 调动 / 合并
     transferOrmerge(type, pId) {

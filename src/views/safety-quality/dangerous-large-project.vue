@@ -3,33 +3,31 @@
     <el-container>
       <el-main>
         <div>
-          <el-form :inline="true" :model="dataForm">
+          <el-form :inline="true" :model="dataForm" @keyup.enter.native="searchHandle()">
             <el-form-item prop="title">
-              <el-input v-model="dataForm.title" clearable placeholder="项目名称" />
+              <el-input v-model="dataForm.projectName" clearable placeholder="项目名称" />
             </el-form-item>
-            <el-form-item prop="projectName">
-              <el-select v-model.trim="dataForm.problemLevel" clearable style="width:100%" placeholder="是否超规模" @change="(e) => selectChangeHandle(e, 'problemLevel')">
+            <el-form-item prop="type">
+              <el-select v-model.trim="dataForm.type" clearable style="width:100%" placeholder="危大工程类别" @change="(e) => selectChangeHandle(e, 'type')">
+                <el-option v-for="(v, i) in categoryList" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item prop="isOversized">
+              <el-select v-model.trim="dataForm.isOversized" clearable style="width:100%" placeholder="是否超规模" @change="(e) => selectChangeHandle(e, 'isOversized')">
                 <el-option label="超大" :value="0"> 超大 </el-option>
                 <el-option label="一般" :value="1"> 一般 </el-option>
                 <el-option label="非危大工程" :value="2"> 非危大工程 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item prop="constructionName">
-              <el-select v-model.trim="dataForm.problemLevel" clearable style="width:100%" placeholder="是否超规模" @change="(e) => selectChangeHandle(e, 'problemLevel')">
-                <el-option label="超大" :value="0"> 超大 </el-option>
-                <el-option label="一般" :value="1"> 一般 </el-option>
-                <el-option label="非危大工程" :value="2"> 非危大工程 </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item prop="problemLevel">
-              <el-select v-model.trim="dataForm.problemLevel" clearable style="width:100%" placeholder="风险等级" @change="(e) => selectChangeHandle(e, 'problemLevel')">
+            <el-form-item prop="riskLevel">
+              <el-select v-model.trim="dataForm.riskLevel" clearable style="width:100%" placeholder="风险等级" @change="(e) => selectChangeHandle(e, 'riskLevel')">
                 <el-option label="A" :value="0"> A </el-option>
                 <el-option label="B" :value="1"> B </el-option>
                 <el-option label="C" :value="2"> C </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item prop="problemLevel">
-              <el-select v-model.trim="dataForm.problemLevel" clearable style="width:100%" placeholder="当前状态" @change="(e) => selectChangeHandle(e, 'problemLevel')">
+            <el-form-item prop="status">
+              <el-select v-model.trim="dataForm.status" clearable style="width:100%" placeholder="当前状态" @change="(e) => selectChangeHandle(e, 'status')">
                 <el-option label="实施中" :value="0"> 实施中 </el-option>
                 <el-option label="未实施" :value="1"> 未实施 </el-option>
                 <el-option label="已结束" :value="2"> 已结束 </el-option>
@@ -50,9 +48,9 @@
             <div>
               <el-form-item>
                 <el-button type="primary" @click="searchHandle()">查询</el-button>
-                <el-button type="primary" @click="showDatalModal({})">新增</el-button>
-                <el-button type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
-                <a target="_blank" :href="$http.baseUrl(exportUrl)" style="margin-left: 10px;"><el-button type="primary">导出</el-button></a>
+                <el-button type="primary" :disabled="userType !== 2" @click="showDatalModal({})">新增</el-button>
+                <el-button v-permit="'dangerouslargeproject_del'" type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
+                <a v-permit="'dangerouslargeproject_export'" target="_blank" :href="$http.baseUrl(exportUrl)" style="margin-left: 10px;"><el-button type="primary">导出</el-button></a>
               </el-form-item>
             </div>
           </el-form>
@@ -73,43 +71,51 @@
               width="50"
             />
             <el-table-column
-              prop="title"
+              prop="projectName"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="项目名称"
             />
             <el-table-column
-              prop="projectName"
+              prop="name"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
-              label="分项名称"
+              label="危大工程名称"
             />
             <el-table-column
-              prop="constructionName"
+              prop="isOversized"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="是否超规模"
-            />
+            >
+              <template slot-scope="scope">
+                {{ oversizedList[scope.row.isOversized] }}
+              </template>
+            </el-table-column>
             <el-table-column
-              prop="problem"
+              prop="type"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
-              label="企业类别"
-            />
+              label="危大工程类别"
+            >
+              <template slot-scope="scope">
+                {{ scope.row.type }}
+              </template>
+            </el-table-column>
             <el-table-column
-              prop="problemLevel"
+              prop="riskLevel"
               header-align="center"
               align="center"
               label="风险等级"
             >
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.problemLevel === 2" style="color:#fff;background: #479BFF">C</el-tag>
-                <el-tag v-if="scope.row.problemLevel === 1" style="color:#fff;background: #F59A23">B</el-tag>
-                <el-tag v-if="scope.row.problemLevel === 0" style="color:#fff;background: #D9001B">A</el-tag>
+                <el-tag v-if="scope.row.riskLevel === 2" style="color:#fff;background: #479BFF">C</el-tag>
+                <el-tag v-if="scope.row.riskLevel === 1" style="color:#fff;background: #F59A23">B</el-tag>
+                <el-tag v-if="scope.row.riskLevel === 0" style="color:#fff;background: #D9001B">A</el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -119,14 +125,14 @@
               label="当前状态"
             >
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.status === 0" style="color:#fff;background: #D9001B">实施中</el-tag>
-                <el-tag v-if="scope.row.status === 1" style="color:#fff;background: #409EFF">未实施</el-tag>
-                <el-tag v-if="scope.row.status === 2" style="color:#fff;background: #67C23A">已结束</el-tag>
+                <el-tag v-if="scope.row.status === 2" style="color:#fff;background: #D9001B">已结束</el-tag>
+                <el-tag v-if="scope.row.status === 1" style="color:#fff;background: #909399">未实施</el-tag>
+                <el-tag v-if="scope.row.status === 0" style="color:#fff;background: #67C23A">实施中</el-tag>
                 <!-- <el-tag v-if="scope.row.status === 3" style="color:#fff;background: #E6A23C">异常</el-tag> -->
               </template>
             </el-table-column>
             <el-table-column
-              prop="createTime"
+              prop="updatedDate"
               header-align="center"
               align="center"
               width="160"
@@ -140,8 +146,8 @@
               label="操作"
             >
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="showDatalModal(scope.row)">查看</el-button>
-                <el-button type="text" size="small" style="color:#D9001B;" @click="deleteHandle(scope.row.id)">删除</el-button>
+                <el-button v-permit="'dangerouslargeproject_detail'" type="text" size="small" @click="showDatalModal(scope.row)">查看</el-button>
+                <el-button v-permit="'dangerouslargeproject_del'" type="text" size="small" style="color:#D9001B;" @click="deleteHandle(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -178,7 +184,7 @@
             <!-- </div> -->
           </el-dialog>
           <!-- 弹窗, 新增 / 修改 -->
-          <project-modal v-if="ProjectModalVisible" ref="recordModal" />
+          <project-modal v-if="ProjectModalVisible" ref="recordModal" @refreshDataList="getDataList" />
         </div>
       </el-main>
     </el-container>
@@ -187,9 +193,11 @@
 </template>
 
 <script>
-import { getList } from '@/api/safety'
+import { getList, deleteProject } from '@/api/dangerous'
+import { optionList } from '@/api/dictionaries'
 import ProjectModal from './dangerous-project-detail'
-import { parseTime } from '@/utils'
+import { parseTime } from '@/utils/index'
+// import { parseTime } from '@/utils'
 export default {
   components: {
     ProjectModal
@@ -198,26 +206,31 @@ export default {
     return {
       ProjectModalVisible: false,
       dataForm: {
-        title: '',
         projectName: '',
-        constructionName: '',
-        problemLevel: '',
-        startDate: '',
-        endDate: '',
+        type: null,
+        isOversized: '',
+        riskLevel: '',
+        timeRange: '',
         status: ''
       },
       dialogVisible: false,
       row: {},
       dataList: [],
       dataListSelections: [],
+      categoryList: [],
+      worketype: [],
+      oversizedList: ['超大', '一般', '非危大工程'],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
       exportUrl: '',
+      token: JSON.parse(sessionStorage.getItem('result')).token,
+      userType: JSON.parse(sessionStorage.getItem('result')).userType,
       dataListLoading: false
     }
   },
-  created() {
+  mounted() {
+    this.getOptionList()
     this.getDataList()
   },
   methods: {
@@ -230,12 +243,15 @@ export default {
         ...this.dataForm
       }).then((data) => {
         if (data.code === 1000) {
-          this.dataList = data.result.records.map(item => {
-            item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+          this.dataList = data.result.list.map(item => {
+            item.updatedDate = item.updatedDate
+              ? parseTime(item.updatedDate, '{y}-{m}-{d} {h}:{i}:{s}')
+              : ''
             return item
           })
           this.totalPage = data.result.total
           this.dataListLoading = false
+          this.exportUrl = `/dangerousLargeProject/export?token=${this.token}&page=${this.pageIndex}&rows=9999`
         }
       })
     },
@@ -249,7 +265,6 @@ export default {
     },
     selectionChangeHandle(val) {
       this.dataListSelections = val
-      console.log(val)
     },
     handleClickImg(row) {
       this.dialogVisible = true
@@ -290,7 +305,14 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          console.log('delete', ids)
+          deleteProject(ids).then(data => {
+            if (data.code === 1000) {
+              this.getDataList()
+              this.$message.success('删除成功！')
+            } else {
+              this.$message.error(data.message)
+            }
+          })
         })
         .catch(() => {})
     },
@@ -298,6 +320,15 @@ export default {
     currentChangeHandle(val) {
       this.pageIndex = val
       this.getDataList()
+    },
+    getOptionList() {
+      optionList({ category: 'DANGEROUS_PROJECT' }).then(data => {
+        if (data.code === 1000 && data.result) this.categoryList = data.result
+      })
+      // optionList({ category: 'DANGEROUS_PROJECT_WORKER_TYPE' }).then(data => {
+      //   if (data.code === 1000 && data.result) this.worketype = data.result
+      //   console.log(this.worketype)
+      // })28
     }
   }
 }
