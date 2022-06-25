@@ -13,8 +13,9 @@
         </span>
       </div>
       <div class="pro-name">
-        <div class="marquee">
+        <div class="pro-marquee">
           <span>防疫大数据平台</span>
+          <!-- <Panel @newsReload="newsReload" /> -->
         </div>
       </div>
       <div class="cpt-name">
@@ -164,6 +165,7 @@ import ApdBar from '../datav/apdBar'
 import JkmFill from '../datav/jkmFill'
 import fullScreen from '@/utils/fullScreen'
 import { codeList } from './codeList'
+// import Panel from './panel.vue'
 // import { pList } from '@/api-zhgd/zhgd-dashboard'
 import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getNewestAttendanceAndEpidemic, getLocalCodeList } from '@/api/datav'
 import { parseTime } from '@/utils/index'
@@ -222,7 +224,7 @@ export default {
         headerBGC: '#132239',
         oddRowBGC: '#112c60',
         evenRowBGC: '112c60',
-        carousel: 'single',
+        carousel: 'page',
         rowNum: 7,
         align: ['center', 'center', 'center', 'center', 'center', 'center'],
         data: []
@@ -234,7 +236,8 @@ export default {
       resultConfig1: [],
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
-      projectIds: JSON.parse(sessionStorage.getItem('result')).projectId,
+      projectId: JSON.parse(sessionStorage.getItem('result')).projectId,
+      projectIds: '',
       userId: JSON.parse(sessionStorage.getItem('result')).id,
       firstPanelVisible: false,
       iconStatus: false,
@@ -288,6 +291,14 @@ export default {
       const rem = vW * basePc
       document.documentElement.style.fontSize = rem + 'px'
     },
+    // newsReload(projectId, item) {
+    //   this.projectIds = projectId || this.projectId
+    //   this.compyName = item.companyName
+    //   console.log(item)
+    //   this.$nextTick(() => {
+    //     this.$refs.FullScreen && this.$refs.FullScreen.full.isElementFullScreen() ? this.setRem(26) : this.setRem(23)
+    //   })
+    // },
     async init(item) {
       this.getNewestAttendanceAndEpidemic()
       this.getEpidemicConsAttendance()
@@ -309,12 +320,6 @@ export default {
       this.tiemer2 = setInterval(() => {
         this.animation = !this.animation
       }, 2500)
-    },
-    showPanel(status) {
-      // 是集团或者公司才能选择项目
-      if (this.userType === 1 || this.userType === 0) {
-        this.firstPanelVisible = status
-      }
     },
     // 全屏 / 退出全屏
     toggleFullScreen() {
@@ -422,7 +427,7 @@ export default {
             headerBGC: '#132239',
             oddRowBGC: '#112c60',
             evenRowBGC: '112c60',
-            carousel: 'single',
+            carousel: 'page',
             rowNum: 7,
             align: ['center', 'center', 'center', 'center', 'center', 'center'],
             data: this.inOutList.length ? this.inOutList : this.initData1
@@ -433,7 +438,6 @@ export default {
     getFYNumber() {
       getFYNumber({ 'projectIds': [this.projectIds], userId: this.userId }).then((data) => {
         if (data.code === 1000 && data.result) {
-          this.compyName = data.result.compyName
           for (let i = 0; i <= 6; i++) {
             this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
             this.totalCount[i] = (parseInt(data.result.dayNumber / Math.pow(10, i)) % 10)
@@ -547,7 +551,7 @@ export default {
         }
         }
     .pro-name {
-      .marquee {
+      .pro-marquee {
         text-align: center;
         letter-spacing: .19rem;
         width: 20rem;

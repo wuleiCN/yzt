@@ -16,9 +16,6 @@ export default {
     return {
       type: JSON.parse(sessionStorage.getItem('result')).userType
     }
-  },
-  created() {
-    console.log(this.type)
   }
 }
 </script>

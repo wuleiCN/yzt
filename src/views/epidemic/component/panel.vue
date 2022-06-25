@@ -1,14 +1,5 @@
 <template>
-  <!-- <div>
-    <div
-      v-for="(item, idx) in proList"
-      :key="idx"
-      class="gyc-panel"
-      :style="{'color': index === idx ? '#00FF84' : '#0686D8'}"
-      @click="selectCompany(idx)"
-    >{{ item.companyName }}</div>
-  </div> -->
-  <div id="panel" class="gyc-panel">
+  <div id="panel" class="statistic-dashboard-panel">
     <div class="company-wrap">
       <div v-for="(item, idx) in proList" :key="idx" class="company-item" :style="{'color': index === idx ? '#00FF84' : '#00EAFF'}" @click="selectCompany(idx)">{{ item.companyName }}</div>
     </div>
@@ -30,55 +21,69 @@ export default {
   data() {
     return {
       isShow: false,
-      index: ''
+      index: '',
+      list: [
+        {
+          companyName: '213',
+          projectList: [
+            {
+              projectName: 1
+            }
+          ]
+        }
+      ]
     }
+  },
+  created() {
+    console.log(this.proList)
   },
   methods: {
     selectCompany(index) {
       this.index = index
       this.isShow = true
-      console.log(index)
     },
     selectProject(item) {
-      this.$emit('closePanel', item.id, item)
+      this.$emit('closePanel', item)
     }
   }
 }
 </script>
 <style lang="scss">
-  .gyc-panel {
-    background: url('../../assets/img-zhgd/panel.png') center no-repeat no-repeat;
+  .statistic-dashboard-panel {
+    background: url('../../../assets/333.png') center no-repeat no-repeat;
+    background-color: rgba(17, 44, 96, .8);
     background-size: 100% 100%;
     position: absolute;
-    width: 20rem;
-    height: 10rem;
+    width: 20.88rem;
+    height: 13.75rem;
     left: 50%;
-    // top: 2.8rem;
+    top: 3rem;
     transform: translate(-50%);
     color: #00EAFF;
     .company-wrap {
-      height: 10rem;
+      height: 13.75rem;
       overflow-y: auto;
+      margin-left: 2rem;
       .company-item {
         cursor: pointer;
-        margin: 1.35rem 2rem;
-        font-size: 1rem;
+        margin: .8rem 0;
+        font-size: .8rem;
       }
     }
-
     .two-panel {
-      background: url('../../assets/img-zhgd/panel-sub.png') center no-repeat no-repeat;
+      background: url('../../../assets/333.png') center no-repeat no-repeat;
+      background-color: rgba(17, 44, 96, 1);
       background-size: 100% 100%;
       position: absolute;
-      width: 20rem;
-      height: 10.75rem;
+      width: 20.88rem;
+      height: 13.75rem;
       overflow-y: auto;
-      left: 90%;
-      top: 50%;
+      left: 100%;
+      top: 0%;
       .project-item {
         cursor: pointer;
-        margin: 1.35rem 2rem;
-        font-size: 1rem;
+        margin: .8rem 0;
+        font-size: .8rem;
       }
     }
   }

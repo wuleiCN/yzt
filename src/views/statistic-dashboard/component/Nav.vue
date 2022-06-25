@@ -56,7 +56,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.$store.state.user.menu)
+
   },
   methods: {
     navClick(path, index) {

@@ -24,6 +24,9 @@ export default {
       index: ''
     }
   },
+  created() {
+    console.log(this.proList)
+  },
   methods: {
     selectCompany(index) {
       this.index = index

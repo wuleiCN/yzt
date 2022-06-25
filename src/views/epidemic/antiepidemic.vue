@@ -13,14 +13,15 @@
         </span>
       </div>
       <div class="pro-name">
-        <div class="marquee">
-          <span>防疫大数据平台</span>
+        <div class="pro-marquee">
+          <span @mouseover="showPanel(true)">防疫大数据平台</span>
         </div>
       </div>
       <div class="cpt-name">
         <span>{{ compyName }}</span>
       </div>
     </div>
+    <Panel v-if="firstPanelVisible" :pro-list="proList" @closePanel="closePanel" />
     <main>
       <div class="item-left">
         <div class="main-item weather-wrap">
@@ -113,10 +114,13 @@ import fullScreen from '@/utils/fullScreen'
 import { codeList } from './codeList'
 import { getEpidemicConsAttendance, getEpidemicTrafficRecord, weekHeaCode, getFYNumber, getAttlist, getLocalCodeList } from '@/api/datav'
 import { parseTime } from '@/utils/index'
+import Panel from './panel.vue'
+import { pList } from '@/api-zhgd/zhgd-dashboard'
 export default {
   components: {
     ApdBar,
-    JkmFill
+    JkmFill,
+    Panel
   },
   data() {
     // eslint-disable-next-line new-cap
@@ -129,6 +133,7 @@ export default {
       compyName: '',
       localCode: [],
       animation: true,
+      firstPanelVisible: false,
       initData: [],
       initData1: [],
       initData2: [],
@@ -139,7 +144,7 @@ export default {
       consAttenList: [],
       inOutList: [],
       resultConfig: [],
-      proList: [],
+      projectId: [],
       permiList: this.$store.getters.roleList,
       config: {
         header: ['项目简称', '在场/进场', '绿码人数', '核酸检验', '体温检验'],
@@ -190,11 +195,21 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
+    const pro0 = await this.getPList()
     this.init()
+    this.closePanel(pro0.id, pro0)
   },
   mounted() {
     this.dataInit()
+    document.addEventListener('click', (e) => {
+      e.stopPropagation()
+      if (e.target.className === 'company-wrap' || e.target.className === 'company-item') {
+        this.firstPanelVisible = true
+      } else {
+        this.firstPanelVisible = false
+      }
+    })
     setInterval(() => {
       this.time = this.getTime().time
     }, 1000)
@@ -221,17 +236,29 @@ export default {
       const rem = vW * basePc
       document.documentElement.style.fontSize = rem + 'px'
     },
-    async init(item) {
+    closePanel(projectId, item) {
+      console.log('item', item)
+      this.projectId = [projectId]
+      this.compyName = item.companyName
+      clearInterval(this.tiemer)
+      clearInterval(this.tiemer1)
+      clearInterval(this.tiemer2)
+      this.$nextTick(() => {
+        this.init()
+        this.$refs.FullScreen && this.$refs.FullScreen.full.isElementFullScreen() ? this.setRem(26) : this.setRem(23)
+      })
+    },
+    async init() {
       this.getEpidemicConsAttendance()
       this.tiemer = setInterval(() => {
-        if (this.proList.length) {
+        if (this.projectId !== '') {
           this.weekHeaCode()
           this.getEpidemicTrafficRecord()
         }
         this.getsArr(codeList, 9)
       }, 5000)
       this.tiemer1 = setInterval(() => {
-        if (this.proList.length) {
+        if (this.projectId !== '') {
           this.getFYNumber()
           this.getLocalCodeList()
         }
@@ -240,9 +267,27 @@ export default {
         this.animation = !this.animation
       }, 2400)
     },
+    getPList() {
+      return pList().then((data) => {
+        if (data && data.code === 1000) {
+          this.proList = data.result
+          this.projectName = this.proList.length !== 0 ? this.proList[0].projectList[0].projectName : ''
+          console.log('project', this.projectName)
+          return this.proList[0].projectList[0]
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
     // 获取项目id
-    getPList(data) {
-      return (this.proList = data.result.map(i => i.projectId))
+    // getPList(data) {
+    //   return (this.projectId = data.result.map(i => i.projectId))
+    // },
+    showPanel(status) {
+      // 是集团或者公司才能选择项目
+      if (this.userType === 1 || this.userType === 0) {
+        this.firstPanelVisible = status
+      }
     },
     // 全屏 / 退出全屏
     toggleFullScreen() {
@@ -324,7 +369,7 @@ export default {
     getEpidemicConsAttendance() {
       getEpidemicConsAttendance({ 'token': this.token }).then((data) => {
         if (data.code === 1000 && data.result) {
-          this.getPList(data)
+          // this.getPList(data)
           this.consAttenList = data.result.map(item => {
             return [
               item.constructionName,
@@ -351,7 +396,7 @@ export default {
           align: ['center', 'center', 'center', 'center', 'center'],
           data: this.consAttenList.length ? this.consAttenList : this.initData
         }
-        // this.proList[0] = data.result[0].projectId
+        // this.projectId[0] = data.result[0].projectId
       })
     },
     // 设备列表
@@ -382,7 +427,7 @@ export default {
     },
     // 通行记录
     getEpidemicTrafficRecord() {
-      getEpidemicTrafficRecord({ projectIds: this.proList }).then((data) => {
+      getEpidemicTrafficRecord({ projectIds: this.projectId }).then((data) => {
         if (data.code === 1000 && data.result) {
           this.inOutList = data.result.map(item => {
             var nucleic
@@ -402,7 +447,7 @@ export default {
             headerBGC: '#132239',
             oddRowBGC: '#112c60',
             evenRowBGC: '112c60',
-            carousel: 'single',
+            carousel: 'page',
             rowNum: 7,
             align: ['center', 'center', 'center', 'center', 'center', 'center'],
             data: this.inOutList.length ? this.inOutList : this.initData1
@@ -413,12 +458,11 @@ export default {
     getFYNumber() {
       getFYNumber([
         {
-          projectIds: this.proList,
+          projectIds: this.projectId,
           userId: this.userId
         }
       ]).then((data) => {
         if (data.code === 1000 && data.result) {
-          this.compyName = data.result.compyName
           for (let i = 0; i <= 6; i++) {
             this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
             this.totalCount[i] = (parseInt(data.result.dayNumber / Math.pow(10, i)) % 10)
@@ -430,20 +474,19 @@ export default {
     },
     // 防疫
     weekHeaCode() {
-      weekHeaCode({ projectIds: this.proList }).then((data) => {
+      weekHeaCode({ projectIds: this.projectId }).then((data) => {
         if (data.code === 1000 && data.result) this.recordData = this.weekData = data.result
       })
     },
     // 地方码记录
     getLocalCodeList() {
-      getLocalCodeList({ 'projectIds': this.proList }).then((data) => {
+      getLocalCodeList({ 'projectIds': this.projectId }).then((data) => {
         if (data.code === 1000 && data.result) {
           data.result.map(v => {
             codeList.forEach(r => {
               if (v.localCode === r.localCode) r.localCount = v.localCount
             })
           })
-          console.log('data', data)
           this.getsArr(codeList, 9)
         }
       })
@@ -497,6 +540,9 @@ export default {
             transform: rotateY(180deg);
   }
 }
+.v-scroll-board {
+  z-index: 9;
+}
 .data-v-container1 {
   background: url('../../assets/antiepidemic/bg.png') center no-repeat no-repeat;
   background-size: 100% 100%;
@@ -526,7 +572,7 @@ export default {
         }
         }
     .pro-name {
-      .marquee {
+      .pro-marquee {
         text-align: center;
         letter-spacing: .19rem;
         width: 20rem;
@@ -602,6 +648,7 @@ export default {
       .dv-scroll-board {
         width: 100%;
         height: 13.04rem;
+        position: revert !important;
         .header {
           color: #48ECE7;
         }

@@ -65,6 +65,7 @@ export default {
   methods: {
     newsReload(projectId, item) {
       this.projectId = projectId
+      console.log('id', projectId, item)
       this.$nextTick(() => {
         this.$refs[this.current.name].newsReload(projectId, item || {})
         this.$refs.FullScreen && this.$refs.FullScreen.full.isElementFullScreen() ? this.setRem(26) : this.setRem(23)

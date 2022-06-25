@@ -21,7 +21,8 @@ export default {
       projectName: '',
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       projectId: this.$store.state.user.loginInfo.projectId,
-      firstPanelVisible: false
+      firstPanelVisible: false,
+      company: this.isCompany
     }
   },
   async mounted() {
@@ -43,8 +44,10 @@ export default {
     getPList() {
       return pList().then((data) => {
         if (data && data.code === 1000) {
+          console.log('project', data)
           this.proList = data.result
-          this.projectName = this.proList[0].projectList[0].projectName
+          this.projectName = this.proList.length !== 0 ? this.proList[0].projectList[0].projectName : ''
+          console.log('project', this.projectName)
           return this.proList[0].projectList[0]
         } else {
           this.$message.error(data.msg)
