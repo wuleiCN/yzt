@@ -236,8 +236,8 @@ export default {
       resultConfig1: [],
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       token: JSON.parse(sessionStorage.getItem('result')).token,
-      projectId: JSON.parse(sessionStorage.getItem('result')).projectId,
-      projectIds: '',
+      projectIds: JSON.parse(sessionStorage.getItem('result')).projectId,
+      // projectIds: '',
       userId: JSON.parse(sessionStorage.getItem('result')).id,
       firstPanelVisible: false,
       iconStatus: false,
@@ -438,6 +438,7 @@ export default {
     getFYNumber() {
       getFYNumber({ 'projectIds': [this.projectIds], userId: this.userId }).then((data) => {
         if (data.code === 1000 && data.result) {
+          this.compyName = data.result.compyName
           for (let i = 0; i <= 6; i++) {
             this.totalNumber[i] = (parseInt(data.result.totalNumber / Math.pow(10, i)) % 10)
             this.totalCount[i] = (parseInt(data.result.dayNumber / Math.pow(10, i)) % 10)

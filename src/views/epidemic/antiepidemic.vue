@@ -237,8 +237,8 @@ export default {
       document.documentElement.style.fontSize = rem + 'px'
     },
     closePanel(projectId, item) {
-      console.log('item', item)
       this.projectId = [projectId]
+      console.log('item', projectId, item)
       this.compyName = item.companyName
       clearInterval(this.tiemer)
       clearInterval(this.tiemer1)

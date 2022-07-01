@@ -28,6 +28,7 @@
               <el-option label="奖惩" :value="17"> 奖惩 </el-option>
               <el-option label="不良记录" :value="18"> 不良记录 </el-option>
               <el-option label="人员进退场" :value="6"> 人员进退场 </el-option>
+              <el-option label="人员进退场" :value="8"> 参建单位上传 </el-option>
             </el-select>
           </el-form-item>
           <el-form-item prop="status">

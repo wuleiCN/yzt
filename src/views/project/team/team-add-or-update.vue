@@ -61,7 +61,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item label="备注" prop="remark">
+      <el-form-item label="备注" :prop="projectType === '99' ? 'remark' : ''">
         <el-input
           v-model.trim="dataForm.remark"
           type="textarea"
@@ -104,6 +104,7 @@ export default {
           { required: true, message: '所属参建单位不能为空', trigger: 'blur' }
         ],
         remark: [
+          { required: true, message: '备注不能为空', trigger: ['blur', 'change'] },
           { pattern: /^(?=[\S\s]{1,160}$)[\S\s]*/, message: '字符长度不能超过160', trigger: ['blur', 'change'] }
         ],
         teamName: [
@@ -183,7 +184,7 @@ export default {
     },
     getOptionList(projectRegion) {
       let category = ''
-      if (this.projectType === '92') {
+      if (this.projectType === '102') {
         category = 'TEAM_TYPE_HFTX'
       } else {
         // 根据不同项目拉取不同班组 山西(JOB_NAME_SHANXI)：140000

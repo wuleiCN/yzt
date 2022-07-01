@@ -115,14 +115,14 @@
                     <el-avatar
                       icon="el-icon-picture"
                       :size="30"
-                      :src="scope.row.type === 0 && scope.row.photoList.length !== 0 && scope.row.photoList[0].indexOf('.jpg') !== -1 ? (scope.row.photoList[0] ) : ''"
+                      :src="scope.row.type === 0 && scope.row.photoList.length !== 0 && scope.row.photoList[0].indexOf('.pdf') !== -1 ? '' : (scope.row.photoList[0] )"
                     />
                   </div>
                   <my-upload
                     ref="myUpload"
                     v-permit="'saverorupdate'"
                     :disalbed="scope.row.type === 1"
-                    :limit="'png&pdf'"
+                    :limit="'png&pdf&jpg&jpeg&bmp&webp'"
                     style="width:40%"
                     :is-show="true"
                     :title="'上传'"
@@ -560,7 +560,7 @@ export default {
     handleClickImg(row) {
       this.dialogVisible = true
       row.photoList.map(v => {
-        v.indexOf('.jpg') !== -1 ? this.rowImg = [...this.rowImg, v] : this.rowPdf = [...this.rowPdf, v]
+        v.indexOf('.pdf') !== -1 ? this.rowPdf = [...this.rowPdf, v] : this.rowImg = [...this.rowImg, v]
       })
     },
     dialogClose() {
@@ -574,11 +574,14 @@ export default {
             if (this.dataForm.startDate > this.dataForm.endDate) {
               return this.$message.error('计划结束时间不能小于计划开始时间')
             }
-            if (this.dataForm.actualEndDate < this.dataForm.endDate) {
+          }
+          if (this.dataForm.actualEndDate) {
+            if (this.dataForm.actualEndDate < this.dataForm.startDate) {
               return this.$message.error('实际结束时间不能小于计划开始时间')
             }
           }
           saverOrUpdate({ ...this.dataForm }).then(res => {
+            console.log(this.dataForm)
             if (res && res.code === 1000) {
               this.$message({
                 message: '操作成功',
@@ -663,7 +666,13 @@ export default {
         method: 'post'
       }).then(res => {
         res.result.map(v => {
-          v.indexOf('data:image/jpg') !== -1 ? FileSaver.saveAs(v, new Date().getTime() + '.jpg') : FileSaver.saveAs(v, new Date().getTime() + '.pdf')
+          // v.indexOf('data:image/jpg') !== -1 ? FileSaver.saveAs(v, new Date().getTime() + '.jpg') : FileSaver.saveAs(v, new Date().getTime() + '.pdf')
+          if (v.indexOf('data:image/jpg') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.jpg')
+          if (v.indexOf('data:image/png') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.png')
+          if (v.indexOf('data:image/jpeg') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.jpeg')
+          if (v.indexOf('data:image/bmp') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.bmp')
+          if (v.indexOf('data:image/webp') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.webp')
+          if (v.indexOf('data:image/pdf') !== -1) FileSaver.saveAs(v, new Date().getTime() + '.pdf')
         })
       })
     }
