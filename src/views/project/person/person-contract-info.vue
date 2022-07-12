@@ -46,12 +46,7 @@ export default {
   },
   data() {
     return {
-      dataForm: {
-        contractName: '',
-        contractEnd: '',
-        contractStart: '',
-        contractCode: ''
-      },
+      dataForm: {},
       dataRule: {
         // contractEnd: [
         //   { required: true, message: '请选择合同结束时间', trigger: 'blur' }
@@ -65,14 +60,10 @@ export default {
       }
     }
   },
-  mounted() {
-    this.dataForm.contractName = this.$refs.myUpload.fileName
-    this.dataForm.contractEnd = this.data.contractEnd
-    this.dataForm.contractStart = this.data.contractStart
-    this.dataForm.contractCode = this.data.contractCode
-    console.log('data', this.dataForm, this.data)
-  },
   methods: {
+    init(row) {
+      this.dataForm = row
+    },
     getFileData(fileList, type) {
       this.$set(this.dataForm, type, fileList.result)
     }

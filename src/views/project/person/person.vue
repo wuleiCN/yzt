@@ -505,8 +505,12 @@ export default {
         type: userType === 3 ? 3 : this.type,
         ...this.dataForm
       }).then((data) => {
-        this.dataList = data.result.records
-        this.totalPage = data.result.total
+        if (data.code === 1000 && data.result) {
+          this.dataList = data.result.records
+          this.totalPage = data.result.total
+        } else {
+          this.$message.error(data.message)
+        }
         this.dataListLoading = false
       })
     },
@@ -604,7 +608,6 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle(row, pId) {
-      console.log(row)
       if (pId) {
         this.addOrUpdateVisible = true
         this.$nextTick(() => {
@@ -726,7 +729,6 @@ export default {
     },
     // 双击table
     rowDblclick(row) {
-      console.log('row', row)
       if (this.basePermit('project_person_btn_update')) this.addOrUpdateHandle(row, row.projectId)
     },
     basePermit(e) {

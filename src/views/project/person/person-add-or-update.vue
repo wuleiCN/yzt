@@ -124,6 +124,8 @@ export default {
     },
     handleClick(tab, event) {
       this.name = tab.name
+      const data = this.$refs['base-info'][0].dataForm
+      this.$refs['contract-info'][0].init(data)
     }
   }
 }

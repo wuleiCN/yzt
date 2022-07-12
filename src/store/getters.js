@@ -17,6 +17,7 @@ const getters = {
   childrenRoutes: state => state.permission.childrenRoutes,
   childrenFullPath: state => state.permission.childrenFullPath,
   permission_routes: state => state.permission.routes,
-  errorLogs: state => state.errorLog.logs
+  errorLogs: state => state.errorLog.logs,
+  contarct: state => state.project.contarct
 }
 export default getters
