@@ -30,9 +30,17 @@ export default {
       this.status = !full.isElementFullScreen()
       if (full.isElementFullScreen()) {
         full.exitFullscreen()
+        // this.$store.dispatch('project/contarct', {
+        //   width: '100%',
+        //   height: '330'
+        // })
       } else {
         // 必须加 dashboard-full-screen 类名
         full.Fullscreen('.dashboard-full-screen')
+        // this.$store.dispatch('project/contarct', {
+        //   width: '100%',
+        //   height: '420'
+        // })
       }
       // }, 100)
     }

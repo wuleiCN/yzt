@@ -4,7 +4,7 @@
       <div class="main-item item-project-general">
         <div class="project-general-wrap">
           <div class="title-wrap">
-            <div class="title"><span class="icon" />项目概括</div>
+            <div class="title"><span class="icon" />项目概况</div>
           </div>
           <div class="pro-info">
             <div class="pro-info-item">
@@ -29,23 +29,24 @@
             </div>
             <div class="pro-info-item">
               <div class="item-circle" />
-              <div class="item-label">项目规模</div>
-              <div class="item-content">{{ projectInfo.projectScale || '暂无数据' }}</div>
+              <div class="item-label">供冷能力</div>
+              <!-- projectInfo.projectScale -->
+              <div class="item-content">{{ '6278RT' || '暂无数据' }}</div>
             </div>
-            <div class="pro-info-item">
+            <!-- <div class="pro-info-item">
               <div class="item-circle" />
               <div class="item-label">占地面积</div>
               <div class="item-content">{{ projectInfo.coverArea || '暂无数据' }}</div>
-            </div>
+            </div> -->
             <div class="pro-info-item">
               <div class="item-circle" />
               <div class="item-label">建筑面积</div>
-              <div class="item-content">{{ projectInfo.acreage || '暂无数据' }}</div>
+              <div class="item-content">{{ projectInfo.acreage ? projectInfo.acreage + '平方米' : '暂无数据' }}</div>
             </div>
             <div class="pro-info-item">
               <div class="item-circle" />
               <div class="item-label">建筑高度</div>
-              <div class="item-content">{{ projectInfo.projectHeight || '暂无数据' }}</div>
+              <div class="item-content">{{ '暂无数据' }}</div>
             </div>
             <div class="pro-info-item">
               <div class="item-circle" />

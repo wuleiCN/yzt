@@ -5,63 +5,56 @@
     :close-on-click-modal="false"
     :visible.sync="visible"
   >
-    <el-form ref="dataForm" :model="dataForm" label-width="120px" @keyup.enter.native="dataFormSubmit()">
-      <el-form-item label="场所名称" prop="projectName">
-        <el-input v-model.trim="dataForm.projectName" placeholder="场所名称" />
+    <el-form ref="dataForm" :model="dataForm" :rules="dataRule" label-width="120px" @keyup.enter.native="dataFormSubmit()">
+      <el-form-item label="场所名称" prop="siteName">
+        <el-input v-model.trim="dataForm.siteName" placeholder="场所名称" />
       </el-form-item>
-      <el-form-item label="场所编号" prop="name">
-        <el-input v-model.trim="dataForm.name" placeholder="场所编号" />
+      <el-form-item label="场所编号" prop="siteCode">
+        <el-input v-model.trim="dataForm.siteCode" placeholder="场所编号" />
       </el-form-item>
-      <el-form-item label="责任人" prop="isOversized">
-        <el-input v-model.trim="dataForm.isOversized" placeholder="责任人" />
+      <el-form-item label="责任人" prop="personCharge">
+        <el-input v-model.trim="dataForm.personCharge" placeholder="责任人" />
       </el-form-item>
-      <el-form-item label="责任电话" prop="type">
-        <el-input v-model.trim="dataForm.type" placeholder="责任电话" />
+      <el-form-item label="责任电话" prop="personPhone">
+        <el-input v-model.trim="dataForm.personPhone" placeholder="责任电话" />
       </el-form-item>
-      <el-form-item label="备注" prop="riskLevel">
-        <el-input v-model.trim="dataForm.riskLevel" type="textarea" autosize placeholder="备注" />
+      <el-form-item label="备注" prop="remarks">
+        <el-input v-model.trim="dataForm.remarks" type="textarea" autosize placeholder="备注" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" :disabled="userType !== 2" @click="dataFormSubmit()">确定</el-button>
-      <el-button type="info" style="margin-left: 30px;" @click="cancel()">取消</el-button>
+      <el-button type="primary" :disabled="userType !== 2 || disabled" @click="dataFormSubmit">确定</el-button>
+      <el-button type="info" style="margin-left: 30px;" @click="cancel">取消</el-button>
     </span>
   </el-dialog>
 </template>
 
 <script>
+import { saveOrUpdate } from '@/api/material/materialSite'
 export default {
   data() {
     return {
       visible: false,
+      disabled: false,
       dataForm: {
         id: null,
-        projectName: '',
-        type: '',
-        isOversized: '',
-        riskLevel: '',
-        name: ''
+        siteName: '',
+        personPhone: '',
+        personCharge: '',
+        remarks: '',
+        siteCode: ''
       },
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       projectList: [],
       dataRule: {
-        projectId: [
-          { required: true, message: '请选择项目', trigger: 'blur' }
+        siteName: [
+          { required: true, message: '场所名称不能为空', trigger: 'blur' }
         ],
-        contractName: [
-          { required: true, message: '合同名称不能为空', trigger: 'blur' }
+        siteCode: [
+          { required: true, message: '场所编号不能为空', trigger: 'blur' }
         ],
-        yfName: [
-          { required: true, message: '乙方单位不能为空', trigger: 'blur' }
-        ],
-        startDate: [
-          { required: true, message: '请选择计划开始时间', trigger: 'blur' }
-        ],
-        endDate: [
-          { required: true, message: '请选择计划结束时间', trigger: 'blur' }
-        ],
-        status: [
-          { required: true, message: '状态不能为空', trigger: 'blur' }
+        personCharge: [
+          { required: true, message: '责任人不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -71,19 +64,37 @@ export default {
     init(row) {
       this.dataForm.id = row.id || null
       this.visible = true
+      this.disabled = false
       this.$nextTick(() => {
         this.$refs['dataForm'].resetFields()
         if (this.dataForm.id) {
-          this.dataForm = row
+          this.dataForm = { ...row }
         }
       })
     },
     // 表单提交
     dataFormSubmit() {
       this.$refs['dataForm'].validate((valid) => {
+        this.disabled = true
         if (valid) {
-          this.visible = false
-          return false
+          saveOrUpdate(this.dataForm).then(res => {
+            if (res.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.visible = false
+                  this.$emit('refreshDataList')
+                }
+              })
+            } else {
+              this.$message.error(res.message)
+              this.disabled = false
+            }
+          })
+        } else {
+          this.disabled = false
         }
       })
     },

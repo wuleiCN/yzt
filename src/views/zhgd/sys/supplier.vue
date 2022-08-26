@@ -105,7 +105,7 @@
         :show-overflow-tooltip="true"
       >
         <template slot-scope="scope">
-          <span v-show="scope.row.appId" v-clipboard="scope.row.appId" style="cursor: pointer;" @click="$message.success('复制成功')">
+          <span v-show="scope.row.appId" style="cursor: pointer;" @click="clipboardSuccessHandler(scope.row.appId)">
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
             {{ scope.row.appId }}
           </span>
@@ -120,7 +120,7 @@
         :show-overflow-tooltip="true"
       >
         <template slot-scope="scope">
-          <span v-show="scope.row.appSecret" v-clipboard="scope.row.appSecret" style="cursor: pointer;" @click="$message.success('复制成功')">
+          <span v-show="scope.row.appSecret" style="cursor: pointer;" @click="clipboardSuccessHandler(scope.row.appSecret)">
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
             {{ scope.row.appSecret }}
           </span>
@@ -286,6 +286,10 @@ export default {
           }
         })
       }).catch(() => {})
+    },
+    clipboardSuccessHandler(value) {
+      this.$clipboard(value)
+      this.$message.success('已复制')
     }
   }
 }

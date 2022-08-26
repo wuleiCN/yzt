@@ -509,6 +509,7 @@ export default {
       // eslint-disable-next-line no-return-assign
       a.map((v, i) => retunArr[i] = arr[v])
       this.localCode = retunArr
+      console.log(this.localCode)
     }
   }
 }

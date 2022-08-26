@@ -3,10 +3,10 @@
     <div class="header-nav">
       <div class="pro-name">
         <marquee v-if="prodetailInfo.projectName && prodetailInfo.projectName.length > 19" class="marquee">
-          <span @mouseover="showPanel(true)">{{ prodetailInfo.projectName }}</span>
+          <span>{{ prodetailInfo.projectName }}</span>
         </marquee>
         <div v-else class="marquee">
-          <span @mouseover="showPanel(true)">{{ prodetailInfo.projectName }}</span>
+          <span>{{ prodetailInfo.projectName }}</span>
         </div>
       </div>
       <div class="header-img-wrap">
@@ -239,12 +239,11 @@ export default {
     // 初始化
     this.setRem()
     // 改变窗口大小时重新设置 rem
-    window.onresize = () => {
-      this.setRem()
-    }
+    window.addEventListener('resize', this.setRem())
   },
   beforeDestroy() {
     document.documentElement.style.fontSize = '16px'
+    window.removeEventListener('resize', this.setRem())
     clearInterval(this.tiemer)
     clearInterval(this.tiemer1)
   },
@@ -285,6 +284,7 @@ export default {
     getTodayAttendance() {
       getTodayAttendance({ id: this.id }).then((data) => {
         this.todayaAtten = data.result
+        console.log(data.result)
       })
     },
     // 项目详情
@@ -311,6 +311,7 @@ export default {
             `<span style="color:${parseInt(item.rate) < 50 ? '#FE1E36' : '#10E87B'}">${item.rate}</span>`
           ]
         })
+        console.log(data.result)
         this.config = {
           header: ['分包单位', '在场人数', '考勤人数', '考勤率'],
           headerBGC: ['transparent'],

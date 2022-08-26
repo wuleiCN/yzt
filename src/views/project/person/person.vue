@@ -63,6 +63,7 @@
             </el-form-item>
             <el-form-item prop="noPassDays">
               <el-select v-model="dataForm.noPassDays" filterable clearable style="width:100%" placeholder="请选择未打卡天数" @change="(e) => selectChangeHandle(e, 'noPassDays')">
+                <el-option label="1天未打卡" :value="1"> 1天未打卡 </el-option>
                 <el-option label="3天未打卡" :value="3"> 3天未打卡 </el-option>
                 <el-option label="7天未打卡" :value="7"> 7天未打卡 </el-option>
                 <el-option label="15天未打卡" :value="15"> 15天未打卡 </el-option>
@@ -89,6 +90,7 @@
               <el-button v-permit="'project_person_btn_add'" type="primary" @click="addOrUpdateHandle({}, loginInfo.projectId)">新增</el-button>
               <el-button v-permit="'project_person_btn_in'" type="primary" :disabled="disabled1" @click="getInHandle()">进场</el-button>
               <el-button v-permit="'project_person_btn_out'" type="primary" :disabled="disabled2" @click="getOutHandle()">退场</el-button>
+              <el-button v-if="isRegion" v-permit="'project_person_btn_out'" type="primary" :disabled="disabled4" @click="getTemporaryOut()">暂退场</el-button>
               <el-button v-permit="'project_person_btn_audit'" type="primary" :disabled="disabled3" @click="auditStateHandle()">审核</el-button>
               <el-popover
                 v-model="popoverVisible"
@@ -199,6 +201,7 @@
                 <el-tag v-if="scope.row.enterAndRetreatCondition === 0" size="small" type="success">在场</el-tag>
                 <el-tag v-if="scope.row.enterAndRetreatCondition === 1" size="small" type="danger">退场</el-tag>
                 <el-tag v-if="scope.row.enterAndRetreatCondition === 2" size="small" type="info">未同步</el-tag>
+                <el-tag v-if="scope.row.enterAndRetreatCondition === 3" size="small" type="warning">暂退场</el-tag>
               </template>
             </el-table-column>
             <el-table-column
@@ -380,7 +383,8 @@ import IcPrint from './person-ic-print'
 import IcBind from './person-ic-bind'
 import ImportModal from './person-import'
 import IcModal from './person-ic'
-import { getList, getProjectsTreeList, getOut, getIn, getPrintType, oneKeyPrint, auditState, jobNoToCardNo, GXjobNoToCardNo } from '@/api/project/person'
+import { getList, getProjectsTreeList, getOut, getTemporary, getIn, getPrintType, oneKeyPrint, auditState, jobNoToCardNo, GXjobNoToCardNo } from '@/api/project/person'
+import { detail } from '@/api/project/project'
 export default {
   components: {
     AddOrUpdate,
@@ -403,14 +407,17 @@ export default {
       exportUrl: '',
       exportUrl1: '',
       isShow: false,
+      isRegion: false,
       disabled1: true,
       disabled2: true,
       disabled3: true,
+      disabled4: true,
       popoverVisible: false,
       importVisible: false,
       trintTypes: [],
       checkList: [],
       loginInfo: this.$store.state.user.loginInfo,
+      projectId: JSON.parse(sessionStorage.getItem('result')).projectId,
       dataForm: {
         constructionName: '',
         projectName: '',
@@ -433,6 +440,7 @@ export default {
         { value: 0, label: '在场' },
         { value: 1, label: '退场' },
         { value: 2, label: '未同步' },
+        { value: 3, label: '暂退场' },
         { value: null, label: '全部' }
       ],
       companyId: '',
@@ -480,6 +488,7 @@ export default {
       }
     }
     this.getDataList()
+    this.isRegion = await this.getProDetail(this.projectId)
   },
   methods: {
     // 获取数据列表
@@ -518,6 +527,20 @@ export default {
       this.dialogVisible = true
       this.row = row
     },
+    // 获取项目详情
+    getProDetail(id) {
+      return new Promise((resolve, reject) => {
+        detail({ id }).then((data) => {
+          this.isShowInfo = true
+          if (data && data.code === 1000) {
+            const region = data.result.projectRegion.split(',')[0] === '350000'
+            resolve(region)
+          } else {
+            this.$message.error(data.message)
+          }
+        })
+      })
+    },
     // 项目打印
     getPrintTypeHandle(projectId) {
       getPrintType({ projectId }).then((data) => {
@@ -534,10 +557,12 @@ export default {
       this.popoverVisible = false
       this.dataListSelections = val
       const status = this.dataListSelections.map(item => item.enterAndRetreatCondition)
+      console.log(status)
       const isExamine = this.dataListSelections.map(item => item.isExamine)
-      this.disabled1 = status[0] === 2 ? false : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 1)
+      this.disabled1 = status[0] === 2 ? false : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status.some(v => v === 0))
       if (isExamine.includes(0)) this.disabled1 = true
       this.disabled2 = status[0] === 2 ? true : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
+      this.disabled4 = status[0] === 2 ? true : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
       this.disabled3 = !isExamine.includes(0)
       const { token } = this.loginInfo
       if (this.dataListSelections.length) {
@@ -775,6 +800,30 @@ export default {
         type: 'warning'
       }).then(() => {
         getOut(ids).then((data) => {
+          if (data && data.code === 1000) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }).catch(() => {})
+    },
+    // 暂退场
+    getTemporaryOut(id) {
+      var ids = id ? [id] : this.dataListSelections.map(item => item.id)
+      this.$confirm(`您确定进行暂退场操作吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        getTemporary(ids).then((data) => {
           if (data && data.code === 1000) {
             this.$message({
               message: '操作成功',

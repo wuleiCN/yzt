@@ -7,7 +7,7 @@ import { getToken } from '@/utils/auth'
 
 const host = window.location.hostname
 
-const STAGE_API = ['http://192.168.1.176/yzt-zhgd', 'ws://192.168.1.176/yzt-zhgd']
+const STAGE_API = ['http://yzt.yztzn.com/yzt-zhgd', 'ws://yzt.yztzn.com/yzt-zhgd']
 const PRO_API = [
   '//' + host + '/yzt-zhgd',
   window.location.origin,
@@ -23,7 +23,7 @@ const getEnvValue = env ? PRO_API[0] : STAGE_API[0]
 // 本地测试环境
 // const getEnvValue = env ? 'https://192.168.1.125' : PRO_API[0]
 // 考试二维码变量
-const erweimaValue = env ? STAGE_API[1] : PRO_API[1]
+const erweimaValue = PRO_API[1]
 // websoket变量
 const soketEnvValue = env ? PRO_API[2] : STAGE_API[1]
 const CsGetEnvValue = env ? STAGE_API[0] : CS_PRO_API

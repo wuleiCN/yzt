@@ -219,12 +219,11 @@
       </el-row>
       <el-row>
         <el-col :span="12">
-          <el-form-item label="入场日期">
+          <el-form-item label="入场日期" prop="startTime">
             <el-date-picker
               v-model.trim="dataForm.startTime"
               style="width:100%"
               type="date"
-              :disabled="true"
               value-format="yyyy-MM-dd"
               placeholder="入场日期"
             />
@@ -828,9 +827,9 @@ export default {
           { required: true, message: '身份证有效期不能为空', trigger: 'blur' }
         ],
         teamId: [{ required: true, message: '请选择班组', trigger: 'blur' }],
-        // startTime: [
-        //   { required: true, message: '请选择入场日期', trigger: 'blur' }
-        // ],
+        startTime: [
+          { required: true, message: '请选择入场日期', trigger: 'blur' }
+        ],
         empNation: [
           { required: true, message: '民族不能为空', trigger: 'blur' },
           {

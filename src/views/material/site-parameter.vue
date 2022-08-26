@@ -5,10 +5,10 @@
         <div>
           <el-form :inline="true" :model="dataForm" @keyup.enter.native="searchHandle()">
             <el-form-item prop="title">
-              <el-input v-model="dataForm.paraName" clearable placeholder="材料名称" />
+              <el-input v-model="dataForm.materialName" clearable placeholder="材料名称" @clear="searchHandle()" />
             </el-form-item>
             <el-form-item prop="code">
-              <el-input v-model="dataForm.paraCode" clearable placeholder="材料编码" />
+              <el-input v-model="dataForm.materialCode" clearable placeholder="材料编码" @clear="searchHandle()" />
             </el-form-item>
             <div>
               <el-form-item>
@@ -42,47 +42,47 @@
               width="50"
             />
             <el-table-column
-              prop="paraName"
+              prop="materialName"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="材料名称"
             />
             <el-table-column
-              prop="name"
+              prop="materialCode"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="材料编码"
             />
             <el-table-column
-              prop="isOversized"
+              prop="materialSpec"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="材料规格"
             />
             <el-table-column
-              prop="type"
+              prop="unit"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="计量单位"
             />
             <el-table-column
-              prop="riskLevel"
+              prop="maxStock"
               header-align="center"
               align="center"
               label="允许最大库存单"
             />
             <el-table-column
-              prop="riskLevel"
+              prop="minStock"
               header-align="center"
               align="center"
               label="最低库存量"
             />
             <el-table-column
-              prop="riskLevel"
+              prop="remarks"
               header-align="center"
               align="center"
               label="备注"
@@ -111,7 +111,7 @@
             @current-change="currentChangeHandle"
           />
           <!-- 弹窗, 新增 / 修改 -->
-          <project-modal v-if="ProjectModalVisible" ref="recordModal" />
+          <project-modal v-if="ProjectModalVisible" ref="recordModal" @refreshDataList="getDataList" />
         </div>
       </el-main>
     </el-container>
@@ -120,6 +120,7 @@
 
 <script>
 import ProjectModal from './parameter-add-or-update.vue'
+import { getList, deleteById } from '@/api/material/parameterSite'
 // import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -129,28 +130,13 @@ export default {
     return {
       ProjectModalVisible: false,
       dataForm: {
-        paraName: '',
-        type: '',
-        isOversized: '',
-        riskLevel: '',
-        name: ''
+        materialName: '',
+        materialCode: ''
       },
       dialogVisible: false,
       row: {},
-      dataList: [
-        {
-          id: 1,
-          paraName: 'xxxx',
-          type: '13575758585',
-          isOversized: 'da',
-          riskLevel: 'dada',
-          name: 'as1010'
-        }
-      ],
+      dataList: [],
       dataListSelections: [],
-      categoryList: [],
-      worketype: [],
-      oversizedList: ['超大', '一般', '非危大工程'],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
@@ -162,11 +148,22 @@ export default {
   },
   mounted() {
     this.getDataList()
+    this.exportUrl = `/materialParameter/export?token=${this.token}&page=${this.pageIndex}&rows=9999`
   },
   methods: {
     // 获取数据列表
     getDataList() {
       this.dataListLoading = false
+      getList({
+        page: this.pageIndex,
+        rows: this.pageSize,
+        ...this.dataForm
+      }).then(res => {
+        if (res.result && res.code === 1000) {
+          this.dataList = res.result.records
+          this.totalPage = res.result.total
+        } else this.$message.error(res.message)
+      })
     },
     selectionChangeHandle(val) {
       this.dataListSelections = val
@@ -195,13 +192,25 @@ export default {
     },
     // 删除
     deleteHandle(id) {
+      var ids = id
+        ? [id]
+        : this.dataListSelections.map(item => {
+          return item.id
+        })
       this.$confirm('您确定进行删除操作吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(() => {
-          console.log('delete')
+          deleteById(ids).then(res => {
+            if (res.code === 1000) {
+              this.getDataList()
+              this.$message.success('删除成功！')
+            } else {
+              this.$message.error(res.message)
+            }
+          })
         })
         .catch(() => {})
     },

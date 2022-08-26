@@ -5,14 +5,14 @@
         <div>
           <el-form :inline="true" :model="dataForm" @keyup.enter.native="searchHandle()">
             <el-form-item prop="title">
-              <el-input v-model="dataForm.projectName" clearable placeholder="项目名称" />
+              <el-input v-model="dataForm.siteName" clearable placeholder="场所名称" @clear="searchHandle()" />
             </el-form-item>
             <div>
               <el-form-item>
                 <el-button type="primary" @click="searchHandle()">查询</el-button>
                 <el-button type="primary" :disabled="userType !== 2" @click="showDatalModal({})">新增</el-button>
-                <el-button v-permit="'dangerouslargeproject_del'" type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
-                <a v-permit="'dangerouslargeproject_export'" target="_blank" :href="$http.baseUrl(exportUrl)" style="margin-left: 10px;"><el-button type="primary">导出</el-button></a>
+                <el-button type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
+                <a target="_blank" :href="$http.baseUrl(exportUrl)" style="margin-left: 10px;"><el-button type="primary">导出</el-button></a>
               </el-form-item>
             </div>
           </el-form>
@@ -39,35 +39,35 @@
               width="50"
             />
             <el-table-column
-              prop="projectName"
+              prop="siteName"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="场所名称"
             />
             <el-table-column
-              prop="name"
+              prop="siteCode"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="场所编号"
             />
             <el-table-column
-              prop="isOversized"
+              prop="personCharge"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="责任人"
             />
             <el-table-column
-              prop="type"
+              prop="personPhone"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="责任电话"
             />
             <el-table-column
-              prop="riskLevel"
+              prop="remarks"
               header-align="center"
               align="center"
               label="备注"
@@ -80,8 +80,8 @@
               label="操作"
             >
               <template slot-scope="scope">
-                <el-button v-permit="'dangerouslargeproject_detail'" type="text" size="small" @click="showDatalModal(scope.row)">查看</el-button>
-                <el-button v-permit="'dangerouslargeproject_del'" type="text" size="small" style="color:#D9001B;" @click="deleteHandle(scope.row.id)">删除</el-button>
+                <el-button type="text" size="small" @click="showDatalModal(scope.row)">查看</el-button>
+                <el-button type="text" size="small" style="color:#D9001B;" @click="deleteHandle(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -96,7 +96,7 @@
             @current-change="currentChangeHandle"
           />
           <!-- 弹窗, 新增 / 修改 -->
-          <project-modal v-if="ProjectModalVisible" ref="recordModal" />
+          <project-modal v-if="ProjectModalVisible" ref="recordModal" @refreshDataList="getDataList" />
         </div>
       </el-main>
     </el-container>
@@ -105,6 +105,7 @@
 
 <script>
 import ProjectModal from './maintenance-add-or-update.vue'
+import { getList, deleteById } from '@/api/material/materialSite'
 // import { parseTime } from '@/utils/index'
 export default {
   components: {
@@ -114,44 +115,39 @@ export default {
     return {
       ProjectModalVisible: false,
       dataForm: {
-        projectName: '',
-        type: '',
-        isOversized: '',
-        riskLevel: '',
-        name: ''
+        siteName: ''
       },
       dialogVisible: false,
       row: {},
-      dataList: [
-        {
-          id: 1,
-          projectName: 'xxxx',
-          type: '13575758585',
-          isOversized: 'da',
-          riskLevel: 'dada',
-          name: 'as1010'
-        }
-      ],
+      dataList: [],
       dataListSelections: [],
-      categoryList: [],
-      worketype: [],
-      oversizedList: ['超大', '一般', '非危大工程'],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
-      exportUrl: '',
       token: JSON.parse(sessionStorage.getItem('result')).token,
+      exportUrl: '',
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       dataListLoading: false
     }
   },
   mounted() {
     this.getDataList()
+    this.exportUrl = `/materialSite/export?token=${this.token}&page=${this.pageIndex}&rows=9999`
   },
   methods: {
     // 获取数据列表
     getDataList() {
       this.dataListLoading = false
+      getList({
+        page: this.pageIndex,
+        rows: this.pageSize,
+        ...this.dataForm
+      }).then(res => {
+        if (res.result && res.code === 1000) {
+          this.dataList = res.result.records
+          this.totalPage = res.result.total
+        } else this.$message.error(res.message)
+      })
     },
     selectionChangeHandle(val) {
       this.dataListSelections = val
@@ -180,13 +176,25 @@ export default {
     },
     // 删除
     deleteHandle(id) {
+      var ids = id
+        ? [id]
+        : this.dataListSelections.map(item => {
+          return item.id
+        })
       this.$confirm('您确定进行删除操作吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
         .then(() => {
-          console.log('delete')
+          deleteById(ids).then(res => {
+            if (res.code === 1000) {
+              this.getDataList()
+              this.$message.success('删除成功！')
+            } else {
+              this.$message.error(res.message)
+            }
+          })
         })
         .catch(() => {})
     },

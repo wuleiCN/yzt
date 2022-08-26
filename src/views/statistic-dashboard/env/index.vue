@@ -33,11 +33,11 @@
                   <div>
                     <div class="title1">不达标</div>
                     <div class="value-img value1">
-                      <span style="color: #FCB31E">{{ monthData.noise.qualified || 0 }}</span> 天
+                      <span style="color: #FCB31E">{{ monthData.noise.notQualified || 0 }}</span> 天
                     </div>
                     <div class="title2">达标</div>
                     <div class="value-img value2">
-                      <span style="color: #46EDE8">{{ monthData.noise.notQualified || 0 }}</span> 天
+                      <span style="color: #46EDE8">{{ monthData.noise.qualified || 0 }}</span> 天
                     </div>
                   </div>
                 </div>

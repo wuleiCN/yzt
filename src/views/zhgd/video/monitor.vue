@@ -102,7 +102,7 @@
       <el-main>
         <div>
           <div class="video-area">
-            <div v-for="(item,index) in videoList" :key="index" :style="{ width: (100 / Math.sqrt(activeClass)) + '%', height: (100 / Math.sqrt(activeClass)) + '%' }" class="video-item">
+            <div v-for="(item,index) in (videoList.length ? videoList : activeClass)" :key="index" :style="{ width: (100 / Math.sqrt(activeClass)) + '%', height: (100 / Math.sqrt(activeClass)) + '%' }" class="video-item">
               <div :class="selectIndex === index ? 'selectActive' : ''" class="video-item-block">
                 <iframe
                   :id="'container' + index"
@@ -169,6 +169,7 @@ export default {
       total: 0,
       direction: '',
       selectIndex: '',
+      channelNo: '',
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       projectId: this.$store.state.user.loginInfo.projectId,
       selectVideoInfo: {},
@@ -361,7 +362,7 @@ export default {
             ele.pId = item.id
             ele.accessToken = item.accessToken
             ele.isControl = item.isControl
-            ele.deviceSerial = `https://open.ys7.com/ezopen/h5/iframe?url=${item.deviceSerial.replace(lastStr, `${index + 1}.live`)}&autoplay=1&accessToken=${ele.accessToken}`
+            ele.deviceSerial = `https://open.ys7.com/ezopen/h5/iframe?url=${item.deviceSerial.replace(lastStr, `${index + 1}.hd.live`)}&autoplay=1&accessToken=${ele.accessToken}`
             list.push(ele)
           })
         } else if (item.isControl === 1) {

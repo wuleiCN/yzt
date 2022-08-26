@@ -120,7 +120,7 @@
               label="身份证"
             >
               <template slot-scope="scope">
-                <div v-show="scope.row.idCode" v-clipboard="scope.row.idCode" @click="doCopy">
+                <div v-show="scope.row.idCode" @click="doCopy(scope.row.idCode)">
                   {{ scope.row.idCode }}
                   <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
                 </div>

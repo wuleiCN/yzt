@@ -22,6 +22,13 @@ export function getOut(data) {
     data
   })
 }
+export function getTemporary(data) {
+  return request({
+    url: '/workers/getTemporaryOut',
+    method: 'post',
+    data
+  })
+}
 export function getIn(data) {
   return request({
     url: '/workers/getIn',

@@ -121,7 +121,8 @@ export default {
     // 所属参建单位选择列表
     getProSelectList(id) {
       proSelectList({ id, status: 0 }).then((data) => {
-        this.proList = data.result
+        console.log(data)
+        if (data.code === 1000 && data.result) this.proList = data.result
         this.$refs.myTransfer.dataList = this.proList.map((item, index) => {
           item.index = index
           return item
@@ -140,13 +141,13 @@ export default {
     },
     // 下拉奖惩类别
     getOptionList(type) {
-      optionList({ category: type === 1 ? 'FB_REW_CATEGORY' : 'FB_PUN_CATEGORY' }).then(data => {
+      optionList({ category: type === 1 ? 'FB_PUN_CATEGORY' : 'FB_REW_CATEGORY' }).then(data => {
         this.selectList = data.result
       })
     },
     // 下拉奖惩等级
     getlevelList(type) {
-      optionList({ category: type === 1 ? 'FB_REW_LEVEL' : 'FB_PUN_LEVEL' }).then(data => {
+      optionList({ category: type === 1 ? 'FB_PUN_LEVEL' : 'FB_REW_LEVEL' }).then(data => {
         this.levelList = data.result
       })
     },

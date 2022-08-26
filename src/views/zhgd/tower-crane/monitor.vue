@@ -190,10 +190,12 @@ export default {
     // 初始化
     this.setRem()
     // 改变窗口大小时重新设置 rem
-    window.onresize = () => {
-      this.setRem()
-    }
+    window.addEventListener('resize', this.setRem())
     this.getProList()
+  },
+  beforeDestroy() {
+    document.documentElement.style.fontSize = '16px'
+    window.removeEventListener('resize', this.setRem())
   },
   methods: {
     setRem() {

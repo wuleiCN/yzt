@@ -17,4 +17,22 @@ export function directive() {
       }
     }
   })
+  Vue.directive('resize', {
+    bind(el, binding) { // el为绑定的元素，binding为绑定给指令的对象
+      let width = ''
+      let height = ''
+      function isReize() {
+        const style = document.defaultView.getComputedStyle(el)
+        if (width !== style.width || height !== style.height) {
+          binding.value(style.width, style.height)
+        }
+        width = style.width
+        height = style.height
+      }
+      el.__vueSetInterval__ = setInterval(isReize, 300)
+    },
+    unbind(el) {
+      clearInterval(el.__vueSetInterval__)
+    }
+  })
 }

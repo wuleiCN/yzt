@@ -175,7 +175,9 @@ export default {
       this.id = row ? row.id : ''
       resources({ roleId: this.id }).then(data => {
         if (data && data.code === 1000) {
-          this.$refs.tree.setCheckedKeys(data.result.map(item => item.id) || [])
+          this.$refs.tree.setCheckedKeys(data.result.map(item => {
+            if (item !== null) return item.id
+          }) || [])
         }
       })
     },

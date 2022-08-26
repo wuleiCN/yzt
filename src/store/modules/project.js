@@ -1,5 +1,8 @@
 const state = {
-  contarct: {}
+  contarct: {
+    width: '100%',
+    height: '330'
+  }
 }
 
 const mutations = {

@@ -253,8 +253,10 @@ export default {
       this.dataListSelections = val
     },
     showMsg(row) {
+      if (row.userType === 0) {
+        return this.$message.error('不能修改集团账号')
+      }
       if (row.userType !== 0 && this.loginInfo.isManager === 1 && this.loginInfo.userType === 0) {
-        if (row.userType === 1) return this.$message.error('请登录集团账号操作')
         if (row.userType === 2) return this.$message.error('请登录企业账号操作')
         if (row.userType === 3) return this.$message.error('请登录项目账号操作')
       }

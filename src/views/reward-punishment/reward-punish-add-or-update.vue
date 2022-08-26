@@ -125,16 +125,16 @@ export default {
           this.getWorkersList()
           this.getProSelectList(this.loginInfo.projectId)
         } else {
-          this.dataForm = row
+          this.dataForm = { ...row }
         }
-        this.getOptionList(row.type)
-        this.getlevelList(row.type)
+        this.getOptionList(this.dataForm.type)
+        this.getlevelList(this.dataForm.type)
       })
     },
     // 所属参建单位选择列表
     getProSelectList(id) {
       proSelectList({ id, status: 0 }).then((data) => {
-        this.proList = data.result
+        if (data.code === 1000 && data.result) this.proList = data.result
       })
     },
     // 下拉奖惩类别
@@ -183,16 +183,18 @@ export default {
     // 人员列表
     getWorkersList() {
       workersList({ projectId: this.loginInfo.projectId }).then((data) => {
-        this.data = data.result.map(item => {
-          item.label = item.empName
-          item.key = item.id
-          return item
-        })
-        this.copyData = this.data
-        this.$refs.myTransfer.dataList = this.data.map((item, index) => {
-          item.index = index
-          return item
-        })
+        if (data.code === 1000 && data.result) {
+          this.data = data.result.map(item => {
+            item.label = item.empName
+            item.key = item.id
+            return item
+          })
+          this.copyData = this.data
+          this.$refs.myTransfer.dataList = this.data.map((item, index) => {
+            item.index = index
+            return item
+          })
+        }
       })
     },
     handleClose() {

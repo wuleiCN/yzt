@@ -7,7 +7,7 @@ import { getToken } from '@/utils/auth'
 
 const host = window.location.hostname
 
-const STAGE_API = ['http://192.168.1.176/yzt-provider', 'http://yzt.yztzn.com/yzt-provider'] // 测试环境
+const STAGE_API = ['http://yzt.yztzn.com/yzt-provider', 'http://yzt.yztzn.com/yzt-provider'] // 测试环境
 const PRO_API = ['//' + host + '/yzt-provider', window.location.origin] // 线上环境
 const CS_PRO_API = '//' + window.location.hostname + '/yzt-cs' // cs线上环境
 // const CS_DEV_API = 'http://192.168.1.176/yzt-cs' // cs测试环境
@@ -19,7 +19,7 @@ const getEnvValue = env ? PRO_API[0] : STAGE_API[0]
 // const getEnvValue = env ? 'https://192.168.1.125' : PRO_API[0]
 // const getEnvValue = env ? `${window.location.origin}/yzt-provider` : PRO_API[0]
 // 考试二维码变量
-const erweimaValue = env ? STAGE_API[1] : PRO_API[1]
+const erweimaValue = PRO_API[1]
 const CsGetEnvValue = env ? STAGE_API[0] : CS_PRO_API
 axios.defaults.retry = 4
 axios.defaults.retryDelay = 1000

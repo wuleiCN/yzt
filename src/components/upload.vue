@@ -51,7 +51,7 @@ export default {
     },
     title: {
       type: String,
-      default: ''
+      default: '上传'
     },
     icon: {
       type: String,

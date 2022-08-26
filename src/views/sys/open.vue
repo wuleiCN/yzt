@@ -41,7 +41,7 @@
         label="公司名称"
       >
         <template slot-scope="scope">
-          <div v-show="scope.row.companyName" v-clipboard="scope.row.companyId" @click="$message.success('复制成功')">
+          <div v-show="scope.row.companyName" @click="clipboardSuccessHandler(scope.row.companyId)">
             {{ scope.row.companyName }}
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
           </div>
@@ -55,7 +55,7 @@
         label="项目名称"
       >
         <template slot-scope="scope">
-          <div v-show="scope.row.projectName" v-clipboard="scope.row.projectId" @click="$message.success('复制成功')">
+          <div v-show="scope.row.projectName" @click="clipboardSuccessHandler(scope.row.projectId)">
             {{ scope.row.projectName }}
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
           </div>
@@ -93,7 +93,7 @@
         label="appId"
       >
         <template slot-scope="scope">
-          <span v-show="scope.row.appId" v-clipboard="scope.row.appId" @click="$message.success('复制成功')">
+          <span v-show="scope.row.appId" @click="clipboardSuccessHandler(scope.row.appId)">
             {{ scope.row.appId }}
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
           </span>
@@ -107,7 +107,7 @@
         label="appSecret"
       >
         <template slot-scope="scope">
-          <span v-show="scope.row.appSecret" v-clipboard="scope.row.appSecret" @click="$message.success('复制成功')">
+          <span v-show="scope.row.appSecret" @click="clipboardSuccessHandler(scope.row.appSecret)">
             {{ scope.row.appSecret }}
             <i style="cursor: pointer;color:#46a6ff" title="点击复制" class="el-icon-document-copy" />
           </span>
@@ -254,6 +254,10 @@ export default {
           }
         })
       }).catch(() => {})
+    },
+    clipboardSuccessHandler(value) {
+      this.$clipboard(value)
+      this.$message.success('已复制')
     }
   }
 }
