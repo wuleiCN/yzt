@@ -67,6 +67,13 @@ export function detail(data) {
     data
   })
 }
+export function projectRegion(data) {
+  return request({
+    url: '/workers/queryProjectRegion',
+    method: 'post',
+    data
+  })
+}
 export function teamList(data) {
   return request({
     url: '/team/getListByConsId',
@@ -299,6 +306,15 @@ export function setGjtInfo(data) {
 export function getBankList(data) {
   return request({
     url: '/dictionaries/getBankList',
+    method: 'post',
+    data
+  })
+}
+
+// 进退场审核
+export function toExamine(data) {
+  return request({
+    url: '/workers/toExamine',
     method: 'post',
     data
   })

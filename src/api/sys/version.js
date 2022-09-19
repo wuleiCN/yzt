@@ -52,3 +52,9 @@ export function openDelete(data) {
     data
   })
 }
+export function getAPP(data) {
+  return request({
+    url: `/version/getVersion?uuid=${data.uuid}`,
+    method: 'get'
+  })
+}

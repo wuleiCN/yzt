@@ -106,3 +106,20 @@ export function getOrgList(data) {
   })
 }
 
+// 考勤补推
+export function AttSupplePush(data) {
+  return request({
+    url: '/attendanceRecord/synAtt',
+    method: 'post',
+    data
+  })
+}
+
+export function getAtteList(data) {
+  return request({
+    url: '/attendanceRecord/getArProjects',
+    method: 'post',
+    data
+  })
+}
+

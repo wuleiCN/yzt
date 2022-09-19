@@ -46,6 +46,7 @@
               <el-button v-permit="'project_list_btn_log'" type="primary" @click="viewAsyncLog()">对接日志</el-button>
               <el-button v-permit="'project_list_btn_delete'" type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
               <el-button v-permit="'project_list_btn_setStatus'" type="primary" :disabled="dataListSelections.length <= 0" @click="setProStatus()">项目设置</el-button>
+              <el-button v-if="userType !== 2" type="primary" @click="proSupplement()">项目考勤补推</el-button>
             </div>
           </el-form>
           <div v-if="userType === 1 || userType === 0" class="tree-toggle-style" @click="isShow = !isShow">
@@ -188,6 +189,7 @@
           <asyncLog v-if="asyncLogVisible" ref="asyncLog" />
           <!-- 项目设置弹窗 -->
           <setStatus v-if="setStatusVisible" ref="setStatus" />
+          <pushSupple v-if="pushSuppleVisble" ref="supple" />
         </div>
       </el-main>
     </el-container>
@@ -201,6 +203,7 @@ import AddOrUpdate from './list-add-or-update'
 import synDetial from './list-synSet'
 import asyncLog from './list-async-log'
 import setStatus from './list-setStatus'
+import pushSupple from './list-projectSupple.vue'
 import dist from '@/utils/dist'
 import { getList, getTreeList, del, setList } from '@/api/project/project'
 export default {
@@ -208,7 +211,8 @@ export default {
     AddOrUpdate,
     asyncLog,
     setStatus,
-    synDetial
+    synDetial,
+    pushSupple
   },
   data() {
     return {
@@ -218,6 +222,7 @@ export default {
       synDetialVisible: false,
       asyncLogVisible: false,
       setStatusVisible: false,
+      pushSuppleVisble: false,
       options: [
         { value: null, label: '全部' },
         { value: 0, label: '在建' },
@@ -350,6 +355,13 @@ export default {
       this.setStatusVisible = true
       this.$nextTick(() => {
         this.$refs.setStatus.init(ids[0])
+      })
+    },
+    // 人员补推
+    proSupplement() {
+      this.pushSuppleVisble = true
+      this.$nextTick(() => {
+        this.$refs.supple.init()
       })
     },
     // 对接设置

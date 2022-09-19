@@ -258,6 +258,7 @@ export default {
     }
     .select-wrap {
       flex: 8;
+      font-size: 16px;
       padding-top: 5px;
       .hd {
           width: 6.92rem;

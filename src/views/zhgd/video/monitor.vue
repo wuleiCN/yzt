@@ -348,7 +348,7 @@ export default {
             console.log(hasHk.length, '开启海康sdk长连接')
             this.soketVisible = true
           }
-          console.log(this.videoList)
+          console.log(this.videoList, result)
         }
       })
     },

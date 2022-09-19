@@ -88,10 +88,11 @@
             </el-form-item>
             <div class="search-btn-style">
               <el-button v-permit="'project_person_btn_add'" type="primary" @click="addOrUpdateHandle({}, loginInfo.projectId)">新增</el-button>
-              <el-button v-permit="'project_person_btn_in'" type="primary" :disabled="disabled1" @click="getInHandle()">进场</el-button>
-              <el-button v-permit="'project_person_btn_out'" type="primary" :disabled="disabled2" @click="getOutHandle()">退场</el-button>
+              <el-button v-permit="'project_person_btn_in'" type="primary" :disabled="disabled1 || !disabled3" @click="getInHandle()">进场</el-button>
+              <el-button v-permit="'project_person_btn_out'" type="primary" :disabled="disabled2 || !disabled3" @click="getOutHandle()">退场</el-button>
               <el-button v-if="isRegion" v-permit="'project_person_btn_out'" type="primary" :disabled="disabled4" @click="getTemporaryOut()">暂退场</el-button>
               <el-button v-permit="'project_person_btn_audit'" type="primary" :disabled="disabled3" @click="auditStateHandle()">审核</el-button>
+              <el-button v-if="loginInfo.userType !== 2" v-permit="'project_person_btn_audit'" type="danger" :disabled="disabled3" @click="rejectStateHandle()">驳回</el-button>
               <el-popover
                 v-model="popoverVisible"
                 placement="bottom"
@@ -215,6 +216,8 @@
                 <el-tag v-if="scope.row.isExamine === 0" size="small" type="danger">未审核</el-tag>
                 <el-tag v-if="scope.row.isExamine === 1" size="small" type="info">已审核</el-tag>
                 <el-tag v-if="scope.row.isExamine === 2" size="small" type="info">驳回</el-tag>
+                <el-tag v-if="scope.row.isExamine === 3 || scope.row.isExamine === 4" size="small" type="warning">审核中</el-tag>
+
               </template>
             </el-table-column>
             <el-table-column
@@ -327,7 +330,7 @@
                   <div v-for="(item, index) in trintTypes" :key="index" class="temp-name" @click="showPrint(scope.row.id, item.id)">{{ index + 1 }}、{{ item.name }}</div>
                   <el-button slot="reference" v-permit="'project_person_btn_print'" style="margin-right:5px" type="text" @click="getPrintTypeHandle(scope.row.projectId)">打印</el-button>
                 </el-popover>
-                <el-button v-permit="'project_person_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row, scope.row.projectId)">修改</el-button>
+                <el-button v-permit="'project_person_btn_update'" type="text" size="small" :disabled="scope.row.isExamine === 3 || scope.row.isExamine === 4" @click="addOrUpdateHandle(scope.row, scope.row.projectId)">修改</el-button>
                 <el-button v-permit="'project_person_btn_ic_print'" type="text" size="small" @click="icPrintHandle(scope.row)">证卡打印</el-button>
                 <!-- <el-button v-permit="'project_person_btn_delete'" style="color: rgb(254, 27, 54);" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button> -->
               </template>
@@ -383,7 +386,7 @@ import IcPrint from './person-ic-print'
 import IcBind from './person-ic-bind'
 import ImportModal from './person-import'
 import IcModal from './person-ic'
-import { getList, getProjectsTreeList, getOut, getTemporary, getIn, getPrintType, oneKeyPrint, auditState, jobNoToCardNo, GXjobNoToCardNo } from '@/api/project/person'
+import { getList, getProjectsTreeList, getOut, getTemporary, getIn, getPrintType, oneKeyPrint, auditState, jobNoToCardNo, GXjobNoToCardNo, toExamine, projectRegion } from '@/api/project/person'
 import { detail } from '@/api/project/project'
 export default {
   components: {
@@ -399,6 +402,7 @@ export default {
       parseTime,
       dist,
       row: {},
+      projectRegion: false,
       dialogVisible: false,
       toCardLoading: false,
       icardVisible: false,
@@ -489,6 +493,7 @@ export default {
     }
     this.getDataList()
     this.isRegion = await this.getProDetail(this.projectId)
+    this.projectRegion = await this.getProjectRegion()
   },
   methods: {
     // 获取数据列表
@@ -536,7 +541,20 @@ export default {
             const region = data.result.projectRegion.split(',')[0] === '350000'
             resolve(region)
           } else {
-            this.$message.error(data.message)
+            resolve(false)
+          }
+        })
+      })
+    },
+    // 获取项目地区
+    getProjectRegion(id) {
+      return new Promise((resolve, reject) => {
+        projectRegion().then((data) => {
+          if (data && data.code === 1000) {
+            const region = data.result
+            resolve(region)
+          } else {
+            resolve(false)
           }
         })
       })
@@ -557,13 +575,13 @@ export default {
       this.popoverVisible = false
       this.dataListSelections = val
       const status = this.dataListSelections.map(item => item.enterAndRetreatCondition)
-      console.log(status)
       const isExamine = this.dataListSelections.map(item => item.isExamine)
       this.disabled1 = status[0] === 2 ? false : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status.some(v => v === 0))
       if (isExamine.includes(0)) this.disabled1 = true
       this.disabled2 = status[0] === 2 ? true : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
       this.disabled4 = status[0] === 2 ? true : ([...new Set(status)].length > 1 || this.dataListSelections.length <= 0 || status[0] !== 0)
-      this.disabled3 = !isExamine.includes(0)
+      if (isExamine.includes(0) || isExamine.includes(3) || isExamine.includes(4)) this.disabled3 = false
+      if (this.dataListSelections.length <= 0) this.disabled3 = true
       const { token } = this.loginInfo
       if (this.dataListSelections.length) {
         this.exportUrl1 = `/workers/exportYZGX?token=${token}&ids=${this.dataListSelections.map(item => item.id).toString()}`
@@ -847,21 +865,122 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        auditState(ids).then((data) => {
-          if (data && data.code === 1000) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.getDataList()
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
+        const isExamine1 = this.dataListSelections.filter(item => item.isExamine === 3)
+        const isExamine2 = this.dataListSelections.filter(item => item.isExamine === 4)
+        const id3 = isExamine1.map(item => item.id)
+        const id4 = isExamine2.map(item => item.id)
+        if (isExamine1.length !== 0 && this.loginInfo.userType !== 2) {
+          toExamine({
+            ids: [...id3],
+            lx: 1,
+            isExamine: 1
+          }).then(res => {
+            if (res && res.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(res.message)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        } else if (isExamine2.length !== 0 && this.loginInfo.userType !== 2) {
+          toExamine({
+            ids: [...id4],
+            lx: 2,
+            isExamine: 1
+          }).then(data => {
+            if (data && data.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.message)
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        } else if (this.projectRegion) {
+          this.$message.warning('暂无权限，请联系管理人员进行相应操作!')
+        } else {
+          auditState(ids).then((data) => {
+            if (data && data.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        }
       }).catch(() => {})
+    },
+    rejectStateHandle() {
+      this.$confirm(`您确定对当前的人员进行驳回操作吗?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const isExamine1 = this.dataListSelections.filter(item => item.isExamine === 3)
+        const isExamine2 = this.dataListSelections.filter(item => item.isExamine === 4)
+        const id3 = isExamine1.map(item => item.id)
+        const id4 = isExamine2.map(item => item.id)
+        if (isExamine1.length !== 0 && this.userType !== 2) {
+          toExamine({
+            ids: [...id3],
+            lx: 1,
+            isExamine: 2
+          }).then(res => {
+            if (res && res.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(res.message)
+            }
+          })
+        } else if (isExamine2.length !== 0 && this.userType !== 2) {
+          toExamine({
+            ids: [...id4],
+            lx: 2,
+            isExamine: 2
+          }).then(data => {
+            if (data && data.code === 1000) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.getDataList()
+                }
+              })
+            } else {
+              this.$message.error(data.message)
+            }
+          })
+        }
+      })
     },
     // 进场
     getInHandle(id) {

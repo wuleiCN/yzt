@@ -43,6 +43,7 @@ export default {
       name: 'base-info',
       activeName: 'base-info',
       loginInfo: this.$store.state.user.loginInfo,
+      projectId: JSON.parse(sessionStorage.getItem('result')).projectId,
       editableTabs: [
         { title: '人员基本信息', name: 'base-info', content: baseInfo },
         { title: '劳动合同附件', name: 'contract-info', content: contractInfo },
@@ -89,10 +90,10 @@ export default {
           if (!newDataForm.empNaticeplace) {
             return this.$message.error('请上传证件头像')
           }
-          if (!newDataForm.idphotoScan) {
+          if (!newDataForm.idphotoScan) { // !newDataForm.idphotoScan
             return this.$message.error('请上传身份证正面照片')
           }
-          if (!newDataForm.idphotoScan2) {
+          if (!newDataForm.idphotoScan2) { // !newDataForm.idphotoScan2
             return this.$message.error('请上传身份证反面照片')
           }
           if (newDataForm.startTime && newDataForm.endTime) {

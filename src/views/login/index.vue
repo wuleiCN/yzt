@@ -127,6 +127,14 @@
 
       </div>
     </el-form>
+    <div class="App">
+      <i class="el-icon-mobile-phone" />
+      APP下载
+      <div class="app-card">
+        <p>扫码下载安卓端APP</p>
+        <div id="qrCode" ref="qrCodeDiv" />
+      </div>
+    </div>
     <UserPrivacy v-if="dialogVisible" ref="userPrivacy" />
     <div class="footer-contraner">
       <span>系统版本: v{{ version }}</span>
@@ -139,8 +147,10 @@
 import { version } from '../../../package.json'
 import { getUUID } from '@/utils'
 import { sendSms } from '@/api/sys/user'
+import { getAPP } from '@/api/sys/version'
 import UserPrivacy from './user-privacy'
 import md5 from 'md5'
+import QRCode from 'qrcodejs2'
 const TIME_COUNT = 60
 export default {
   name: 'Login',
@@ -187,6 +197,7 @@ export default {
       },
       loading: false,
       passwordType: 'password',
+      qrCode: '',
       redirect: undefined
     }
   },
@@ -204,6 +215,8 @@ export default {
     }
   },
   created() {
+  },
+  mounted() {
     this.getCaptcha()
   },
   methods: {
@@ -273,6 +286,18 @@ export default {
     getCaptcha() {
       this.loginForm.uuid = getUUID()
       this.captchaPath = this.$http.baseUrl(`/user/getVerifyCode?uuid=${this.loginForm.uuid}`)
+      getAPP({ uuid: this.loginForm.uuid }).then(res => {
+        if (res.result && res.code === 1000) {
+          new QRCode(this.$refs.qrCodeDiv, {
+            text: res.result,
+            width: 180,
+            height: 180,
+            colorDark: '#333333',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.L
+          })
+        }
+      }).catch(err => err)
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
@@ -491,6 +516,50 @@ $light_gray:#eee;
     left: 8%;
     top:15%;
   }
+  .App {
+    position: absolute;
+    width: 200px;
+    // height: 44px;
+    // line-height: 44px;
+    text-align: center;
+    top: 54px;
+    right: 170px;
+    font-size: 18px;
+    color: #eee;
+    cursor: pointer;
+    transition: all .5s;
+    -moz-transition: all .5s; /* Firefox 4 */
+    -webkit-transition: all .5s; /* Safari and Chrome */
+    -o-transition:width all .5s; /* Opera */
+    .app-card {
+      width: 100%;
+      opacity: 0;
+      color: #2d3a4b;
+      font-size: 16px;
+      background: #eee;
+      border-radius: 5px;
+      p {
+        margin: 5px 0;
+        padding-top: 10px;
+        font-weight: 600;
+      }
+      #qrCode {
+        width: 200px;
+        height: 200px;
+        padding: 10px;
+      }
+    }
+    &:hover {
+      font-size: 24px;
+      height: 210px;
+    }
+    &:hover>.app-card {
+      // display: block;
+      -webkit-animation: scale-up-ver-top 1s 0.2s ;
+      animation: scale-up-ver-top 1s 0.2s ;
+      animation-fill-mode: forwards;
+    }
+  }
   .footer-contraner {
     font-size: 16px;
     width: 100%;
@@ -502,6 +571,38 @@ $light_gray:#eee;
       display: inline-block;
       margin: 0 40px;
     }
+  }
+}
+@-webkit-keyframes scale-up-ver-top {
+  0% {
+    opacity: 0;
+    -webkit-transform: scaleY(0.4);
+            transform: scaleY(0.4);
+    -webkit-transform-origin: 100% 0%;
+            transform-origin: 100% 0%;
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scaleY(1);
+            transform: scaleY(1);
+    -webkit-transform-origin: 100% 0%;
+            transform-origin: 100% 0%;
+  }
+}
+@keyframes scale-up-ver-top {
+  0% {
+    opacity: 0;
+    -webkit-transform: scaleY(0.4);
+            transform: scaleY(0.4);
+    -webkit-transform-origin: 100% 0%;
+            transform-origin: 100% 0%;
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scaleY(1);
+            transform: scaleY(1);
+    -webkit-transform-origin: 100% 0%;
+            transform-origin: 100% 0%;
   }
 }
 </style>

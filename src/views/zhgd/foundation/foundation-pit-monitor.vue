@@ -246,6 +246,7 @@ export default {
     handleClick(e) {
       console.log(e)
     },
+    searchHandle() {},
     // 每页数
     sizeChangeHandle(val) {
       this.pageSize = val
