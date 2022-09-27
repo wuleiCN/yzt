@@ -186,6 +186,8 @@ export default {
       let category = ''
       if (this.projectType === '102') {
         category = 'TEAM_TYPE_HFTX'
+      } else if (this.projectType === '112') {
+        category = 'TEAM_TYPE_XMJY'
       } else {
         // 根据不同项目拉取不同班组 山西(JOB_NAME_SHANXI)：140000
         const code = {

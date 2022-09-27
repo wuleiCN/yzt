@@ -84,17 +84,20 @@ export default {
               newDataForm = { ...newDataForm, ...item[0].dataForm }
             }
           })
+          console.log('newDataForm', newDataForm)
           if (!newDataForm.faceUrl) {
             return this.$message.error('请上传人脸照片')
           }
           if (!newDataForm.empNaticeplace) {
             return this.$message.error('请上传证件头像')
           }
-          if (!newDataForm.idphotoScan) { // !newDataForm.idphotoScan
-            return this.$message.error('请上传身份证正面照片')
-          }
-          if (!newDataForm.idphotoScan2) { // !newDataForm.idphotoScan2
-            return this.$message.error('请上传身份证反面照片')
+          if (newDataForm.projectType !== '112') {
+            if (!newDataForm.idphotoScan) { // !newDataForm.idphotoScan
+              return this.$message.error('请上传身份证正面照片')
+            }
+            if (!newDataForm.idphotoScan2) { // !newDataForm.idphotoScan2
+              return this.$message.error('请上传身份证反面照片')
+            }
           }
           if (newDataForm.startTime && newDataForm.endTime) {
             if (newDataForm.startTime > newDataForm.endTime) {

@@ -38,15 +38,15 @@
                 </el-col>
                 <el-col style="margin-top: 60px" :span="5">
                   <div style="margin-bottom: 10px">在建分包</div>
-                  <div class="item-num">{{ statistics.constractionCount }}</div>
+                  <div class="item-num1">{{ statistics.constractionCount }}</div>
                 </el-col>
                 <el-col style="margin-top: 60px" :span="5">
                   <div style="margin-bottom: 10px">在建人数</div>
-                  <div class="item-num">{{ statistics.workersCount }}</div>
+                  <div class="item-num2">{{ statistics.workersCount }}</div>
                 </el-col>
                 <el-col style="margin-top: 60px" :span="5">
                   <div style="margin-bottom: 10px">在场人数</div>
-                  <div class="item-num">{{ statistics.inWorkersCount }}</div>
+                  <div class="item-num3">{{ statistics.inWorkersCount }}</div>
                 </el-col>
               </el-row>
             </div>
@@ -399,9 +399,17 @@ export default {
     width: 100%;
     opacity: 1;
     text-align: center;
-    .item-num {
-      color: #3c75c2;
+    .item-num1 {
+      // color: #3c75c2;
       font-size: 30px;
+    }
+    .item-num2 {
+      font-size: 30px;
+      color: #3c75c2;
+    }
+    .item-num3 {
+      font-size: 30px;
+      color: #13ce66;
     }
     .todayAttendRate {
       position: absolute;
