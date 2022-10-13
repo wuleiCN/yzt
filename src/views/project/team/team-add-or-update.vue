@@ -127,7 +127,7 @@ export default {
     // 打开弹窗
     init(row, pId) {
       this.dataForm.id = (row ? row.id : null)
-      this.projectType = JSON.parse(sessionStorage.getItem('projectType'))
+      this.projectType = JSON.parse(sessionStorage.getItem('projectType')) || row.projectType
       this.visible = true
       this.$nextTick(async() => {
         this.$refs['dataForm'].resetFields()
@@ -159,7 +159,6 @@ export default {
           this.$set(this.dataForm, 'projectName', data.result.projectName)
           return data.result ? data.result.projectRegion : ''
         } else {
-          console.log(data)
           this.$message.error(data.message)
         }
       })

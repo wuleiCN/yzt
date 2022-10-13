@@ -164,6 +164,7 @@
 
 <script>
 import { treeDataTranslate, parseTime } from '@/utils/index'
+// import { optionList, projectsDetail } from '@/api/project/team'
 import dist from '@/utils/dist'
 import AddOrUpdate from './team-add-or-update'
 import transferOrmerge from './team-transfer-merge'
@@ -201,6 +202,8 @@ export default {
       },
       companyId: '',
       dataList: [],
+      category: '',
+      optionList: [],
       orgList: [],
       pageIndex: 1,
       pageSize: 10,
@@ -232,6 +235,9 @@ export default {
         this.type = list[0].type
       }
     }
+    // const { projectId } = this.loginInfo
+    // const projectRegion = await this.getProjectsDetail(projectId)
+    // this.setCategory(projectRegion)
     this.getDataList()
   },
   methods: {
@@ -255,6 +261,43 @@ export default {
         this.dataListLoading = false
       })
     },
+    // setCategory(projectRegion) {
+    //   if (this.projectType === '102') {
+    //     this.category = 'TEAM_TYPE_HFTX'
+    //   } else if (this.projectType === '112') {
+    //     this.category = 'TEAM_TYPE_XMJY'
+    //   } else {
+    //     // 根据不同项目拉取不同班组 山西(JOB_NAME_SHANXI)：140000
+    //     const code = {
+    //       140000: 'JOB_NAME_SHANXI',
+    //       441400: 'JOB_NAME_GDMEIZHOU',
+    //       441800: 'JOB_NAME_GDQINGYUAN',
+    //       440700: 'JOB_NAME_JIANGMEN'
+    //     }
+    //     const region = projectRegion && projectRegion.split(',')
+    //     const fregion = region.find(item => {
+    //       return Object.keys(code).includes(item)
+    //     })
+    //     this.category = fregion ? code[fregion] : 'TEAM_TYPE_SZGWS'
+    //     // const category = projectRegion.includes('140000') ? 'JOB_NAME_SHANXI' : 'TEAM_TYPE_SZGWS'
+    //   }
+    //   optionList({ category: this.category }).then((data) => {
+    //     if (data && data.code === 1000) {
+    //       this.optionList = data.result
+    //     } else {
+    //       this.$message.error(data.message)
+    //     }
+    //   })
+    // },
+    // getProjectsDetail(id) {
+    //   return projectsDetail({ id }).then((data) => {
+    //     if (data && data.code === 1000) {
+    //       return data.result ? data.result.projectRegion : ''
+    //     } else {
+    //       this.$message.error(data.message)
+    //     }
+    //   })
+    // },
     // 获取树列表
     getTreeList() {
       return new Promise((resolve, reject) => {

@@ -120,6 +120,7 @@
 import { getLogList, setList } from '@/api/project/project'
 import { parseTime } from '@/utils'
 export default {
+  name: 'AsyncLog',
   data() {
     return {
       visible: false,
@@ -136,6 +137,7 @@ export default {
         ObjectName: '',
         status: ''
       },
+      localForm: JSON.parse(sessionStorage.getItem('dataForm')),
       dataRule: {}
     }
   },
@@ -143,10 +145,10 @@ export default {
     // 打开弹窗
     init({ id }) {
       this.visible = true
-      this.id = id
       this.getSetList()
       this.$nextTick(() => {
-        this.$refs['dataForm'].resetFields()
+        // this.$refs['dataForm'].resetFields()
+        if (id) this.$refs['dataForm'].resetFields()
         this.getDataList()
       })
     },
@@ -197,6 +199,17 @@ export default {
     currentChangeHandle(val) {
       this.pageIndex = val
       this.getDataList()
+    },
+    dialogColse() {
+      // sessionStorage.setItem('dataForm', JSON.stringify({}))
+      this.visible = false
+      this.$refs['dataForm'].resetFields()
+    },
+    keepData() {
+      // const index = 1
+      // const dataForm = { pageIndex: this.pageIndex, pageSize: this.pageIndex, index, dataForm: { ...this.dataForm }}
+      // sessionStorage.setItem('dataForm', JSON.stringify(dataForm))
+      this.visible = false
     }
   }
 }
@@ -206,6 +219,25 @@ export default {
     width: 1180px;
     .el-dialog__body {
       padding-top: 20px;
+    }
+    .title {
+      font-weight: bold;
+      font-size: 16px;
+      line-height: 24px;
+      font-size: 18px;
+      color: #303133;
+      .icon-minus {
+        position: absolute;
+        top: 18px;
+        right: 50px;
+        padding: 0;
+        font-size: 16px;
+        color: #909399;
+        cursor: pointer;
+        &:hover {
+          color: #1890ff
+        }
+      }
     }
 
   }

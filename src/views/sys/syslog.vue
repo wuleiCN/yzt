@@ -121,8 +121,8 @@
 </template>
 
 <script>
-import { webLogList } from '@/api/sys/user'
-import { parseTime } from '@/utils'
+// import { webLogList } from '@/api/sys/user'
+// import { parseTime } from '@/utils'
 export default {
   components: {},
   data() {
@@ -140,31 +140,31 @@ export default {
     }
   },
   created() {
-    this.getDataList()
+    // this.getDataList()
   },
   methods: {
     // 获取数据列表
     getDataList() {
-      this.dataListLoading = true
-      webLogList({
-        'page': this.pageIndex,
-        'rows': this.pageSize,
-        ...this.dataForm
-      }).then((data) => {
-        if (data && data.code === 1000) {
-          this.dataList = data.result.records.map(item => {
-            item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
-            item.requestParams = item.requestParams ? JSON.stringify(item.requestParams) : ''
-            item.responseParams = item.responseParams ? JSON.stringify(item.responseParams) : ''
-            return item
-          })
-          this.totalPage = data.result.total
-        } else {
-          this.dataList = []
-          this.totalPage = 0
-        }
-        this.dataListLoading = false
-      })
+      // this.dataListLoading = true
+      // webLogList({
+      //   'page': this.pageIndex,
+      //   'rows': this.pageSize,
+      //   ...this.dataForm
+      // }).then((data) => {
+      //   if (data && data.code === 1000) {
+      //     this.dataList = data.result.records.map(item => {
+      //       item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+      //       item.requestParams = item.requestParams ? JSON.stringify(item.requestParams) : ''
+      //       item.responseParams = item.responseParams ? JSON.stringify(item.responseParams) : ''
+      //       return item
+      //     })
+      //     this.totalPage = data.result.total
+      //   } else {
+      //     this.dataList = []
+      //     this.totalPage = 0
+      //   }
+      //   this.dataListLoading = false
+      // })
     },
     // 每页数
     sizeChangeHandle(val) {

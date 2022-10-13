@@ -185,7 +185,7 @@ export default {
         'rows': this.pageSize,
         ...this.dataForm
       }).then((data) => {
-        if (data && data.code === 1000) {
+        if (data.result && data.code === 1000) {
           this.dataList = data.result.records.map(item => {
             item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
             item.style = item.remark && item.remark.indexOf('成功人数') !== -1 && item.remark.indexOf('失败人数') !== -1

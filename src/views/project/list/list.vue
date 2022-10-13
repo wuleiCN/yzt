@@ -340,10 +340,10 @@ export default {
       })
     },
     // 对接弹窗
-    viewAsyncLog(row) {
+    viewAsyncLog() {
       this.asyncLogVisible = true
       this.$nextTick(() => {
-        this.$refs.asyncLog.init({ ...row })
+        this.$refs.asyncLog.init({ id: this.asyncLogVisible })
       })
     },
     // 项目设置

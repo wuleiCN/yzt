@@ -4,6 +4,10 @@
     <div :class="{hasTagsView:needTagsView}" :style="{'margin-left': 0}" class="main-container">
       <div :style="{'width': 'calc(100%)'}" :class="{'fixed-header':fixedHeader}">
         <navbar @childrenRoutes="getroutes" />
+        <div class="async-log" @click="openLog">
+          <svg-icon icon-class="laodong" />
+          <span>对接日志</span>
+        </div>
         <!-- <div class="breadcrumb-wrap">
           <div v-if="childrenRoutes.length" class="sys-title">智慧工地宝管理平台</div>
           <breadcrumb class="breadcrumb-container" />
@@ -11,11 +15,12 @@
         <!-- <tags-view v-if="needTagsView" /> -->
 
       </div>
-      <app-main :children-routes="childrenRoutes" />
+      <app-main ref="appMain" :children-routes="childrenRoutes" />
       <!-- <right-panel v-if="showSettings">
         <settings />
       </right-panel> -->
     </div>
+    <async-dialog ref="asyncDialog" />
   </div>
 </template>
 
@@ -25,12 +30,15 @@
 import { AppMain, Navbar } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
+// import { AsyncDialog } from '../views/project/list/list-async-log'
 
 export default {
   name: 'Layout',
   components: {
     AppMain,
-    Navbar
+    Navbar,
+    // AsyncDialog+
+    AsyncDialog: () => import('../views/project/list/list-async-log')
     // Breadcrumb
     // RightPanel,
     // Settings,
@@ -40,6 +48,7 @@ export default {
   data() {
     return {
       // flag: sessionStorage.getItem('flag'),
+      // current: { content: AsyncDialog, name: 'asyncDialog' },
       childrenRoutes: []
     }
   },
@@ -75,6 +84,11 @@ export default {
     },
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+    },
+    openLog() {
+      this.$nextTick(() => {
+        this.$refs.asyncDialog.init({})
+      })
     }
   }
 }
@@ -93,6 +107,17 @@ export default {
     &.mobile.openSidebar {
       position: fixed;
       top: 0;
+    }
+
+    .async-log {
+      display: inline-block;
+      position: absolute;
+      top: 15px;
+      right: 280px;
+      color: yellowgreen;
+      font-weight: 700;
+      font-size: 17px;
+      cursor: pointer;
     }
   }
 
