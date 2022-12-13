@@ -78,9 +78,15 @@ export default {
   mixins: [resize],
   props: {
     catType: {
-      type: Object,
+      type: Array,
       default: () => {
-        return {}
+        return []
+      }
+    },
+    alarm: {
+      type: Array,
+      default: () => {
+        return []
       }
     },
     id: {
@@ -100,19 +106,15 @@ export default {
     return {
       chartDom: null,
       myChart: null,
+      count: 0,
       option: {},
-      data: [
-        { value: 1048, name: '未戴安全帽' },
-        { value: 735, name: '未穿反光衣' },
-        { value: 580, name: '危险闯入' },
-        { value: 484, name: '裸土报警' }
-      ]
+      data: []
     }
   },
   watch: {
     catType: {
       handler(newVData) {
-        return Object.keys(newVData).length && this.initChart()
+        return this.initChart(newVData)
       },
       deep: true
     }
@@ -123,10 +125,25 @@ export default {
     this.initChart()
   },
   methods: {
-    initChart() {
+    initChart(data) {
+      if (this.catType.length && this.alarm.length) {
+        this.data = []
+        this.count = 0
+        this.catType.forEach(v => {
+          this.count += v.frequency
+          this.data.push({
+            value: v.frequency,
+            // eslint-disable-next-line eqeqeq
+            name: this.alarm.find(e => e.type === v.type).name
+          })
+        })
+      } else {
+        this.data = []
+        this.count = 0
+      }
       this.option = {
         title: {
-          text: ['320/次'], // join('\n')作用是换行居中
+          text: this.count + '/次', // join('\n')作用是换行居中
           left: '19%',
           y: 'center',
           textAlign: 'center',
@@ -142,6 +159,7 @@ export default {
           trigger: 'item'
         },
         legend: {
+          type: 'scroll',
           orient: 'vertical',
           right: '15%',
           y: 'center',
@@ -157,8 +175,8 @@ export default {
             }
             var arr = [
               '{a|' + name + '}',
-              '{b|' + ((target / total) * 100).toFixed(2) + '%}',
-              '{c|' + target + '次' + '}'
+              '{b|' + (((target / total) * 100).toFixed(2) || 0) + '%}',
+              '{c|' + (target || 0) + '次' + '}'
             ]
             return arr.join('')
           },

@@ -1,7 +1,5 @@
 <template>
-  <div class="chart" :style="{ height: height, width: width }">
-    <div id="meaterial" />
-  </div>
+  <div :id="id" :style="{ height: height, width: width }" />
 </template>
 <script>
 import * as echarts from 'echarts'
@@ -10,11 +8,9 @@ import { getMataierStockView } from '@/api/material/meterialDatav'
 export default {
   mixins: [resize],
   props: {
-    workers: {
-      type: Array,
-      default: () => {
-        return []
-      }
+    id: {
+      type: String,
+      default: 'chart'
     },
     width: {
       type: String,
@@ -31,29 +27,16 @@ export default {
       myChart: null,
       height_: '',
       date_: [],
-      outCount: [],
-      inCount: [],
+      inCount: [1, 3, 6, 2, 7, 9, 2],
+      outCount: [0, 4, 7, 4, 8, 11, 4],
       option: {},
       days: []
     }
   },
   mounted() {
-    this.height_ = this.$parent.$refs.itemWarp.offsetHeight - this.$parent.$refs.titleWrap.offsetHeight
-    const setEchartWH = {
-      width: 1100,
-      height: this.height_
-    }
-    this.chartDom = document.getElementById('meaterial')
-    this.myChart = echarts.init(this.chartDom, null, setEchartWH)
+    this.chartDom = document.getElementById(this.id)
+    this.myChart = echarts.init(this.chartDom)
     this.mataierStockView()
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', () => {
-      if (this.$parent.$refs.itemWarp) {
-        var height = this.$parent.$refs.itemWarp.offsetHeight - this.$parent.$refs.titleWrap.offsetHeight
-        this.myChart.resize({ height })
-      }
-    })
   },
   methods: {
     mataierStockView() {
@@ -72,18 +55,31 @@ export default {
     },
     initChart() {
       this.option = {
-        tooltip: {},
-        legend: {
-          data: ['入库数量', '出库数量'],
-          right: '10%',
-          textStyle: {
-            color: '#FFFFFF'
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
           }
+        },
+        grid: {
+          width: '90%',
+          height: '55%',
+          right: '2%',
+          top: '10%'
         },
         xAxis: [
           {
             data: this.date_ || [],
-            boundaryGap: false
+            boundaryGap: false,
+            axisTick: {
+              show: false
+            },
+            axisLabel: {
+              textStyle: {
+                color: '#FFFFFF',
+                align: 'right'
+              }
+            }
           }
         ],
         yAxis: [
@@ -95,6 +91,21 @@ export default {
                 color: ['#5f9ea0']
               },
               show: true
+            },
+            axisLabel: {
+              textStyle: {
+                color: '#FFFFFF'
+              }
+            },
+            axisLine: {
+              show: true,
+              lineStyle: {
+                type: 'solid',
+                color: '#29B9C8'
+              }
+            },
+            axisTick: {
+              show: false
             }
           }
         ],
@@ -104,34 +115,72 @@ export default {
             type: 'line',
             smooth: true,
             areaStyle: {
-              color: '#1ABDD5'
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: 'rgba(26,189,213,0.5)'
+                  },
+                  {
+                    offset: 1,
+                    color: 'rgba(26,189,213,0.1)'
+                  }
+                ]
+              }
+            },
+            label: {
+              show: true,
+              position: 'top',
+              color: '#00EDFF'
             },
             lineStyle: {
-              width: 0
+              color: '#57EEFF',
+              width: 2
             },
             data: this.inCount || []
           },
           {
-            name: '出库数量',
+            name: '入库数量',
             type: 'line',
             smooth: true,
-            lineStyle: {
-              width: 0
-            },
             areaStyle: {
-              color: '#33F7AE'
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: 'rgba(87,174,255,.5)'
+                  },
+                  {
+                    offset: 1,
+                    color: 'rgba(87,174,255,.1)'
+                  }
+                ]
+              }
+            },
+            label: {
+              show: true,
+              position: 'top',
+              color: '#00EDFF'
+            },
+            lineStyle: {
+              color: '#57AEFF',
+              width: 2
             },
             data: this.outCount || []
           }
         ]
       }
       this.option && this.myChart.setOption(this.option)
-      window.addEventListener('resize', () => {
-        if (this.$parent.$refs.itemWarp) {
-          var height = this.$parent.$refs.itemWarp.offsetHeight - this.$parent.$refs.titleWrap.offsetHeight
-          this.myChart.resize({ height })
-        }
-      })
     }
   }
 }

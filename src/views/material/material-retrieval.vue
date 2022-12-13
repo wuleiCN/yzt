@@ -99,12 +99,6 @@
               label="领用单位"
             />
             <el-table-column
-              prop="outHouseTime"
-              header-align="center"
-              align="center"
-              label="入库时间"
-            />
-            <el-table-column
               fixed="right"
               header-align="center"
               align="center"

@@ -69,7 +69,9 @@
                 :key="index"
                 :title="`${item.videoName}-${item.area}`"
                 :class="item.heart ? 'online' : 'offline'"
+                @click="selectVideo(item)"
               >
+                <i v-if="palyVideo(item.channelNo)" class="el-icon-video-play" />
                 <span v-if="isControl === 2">{{ item.videoName }}</span>
                 <!-- <span v-else>{{ item.videoName }}</span> -->
               </div>
@@ -89,7 +91,7 @@
                 :disabled="item.disabled"
                 plain
                 class="control-btn"
-                @click="item.key ? directionChange(item.key) : stopHandle()"
+                @click="item.key !== null ? directionChange(item.key) : stopHandle()"
               >
                 <span v-if="item.key === null">暂停</span>
                 <svg-icon v-else :icon-class="item.name" />
@@ -102,29 +104,29 @@
       <el-main>
         <div>
           <div class="video-area">
-            <div v-for="(item,index) in (videoList.length ? videoList : activeClass)" :key="index" :style="{ width: (100 / Math.sqrt(activeClass)) + '%', height: (100 / Math.sqrt(activeClass)) + '%' }" class="video-item">
+            <div v-for="(item,index) in videoList" :key="index" :style="{ width: (100 / Math.sqrt(activeClass)) + '%', height: (100 / Math.sqrt(activeClass)) + '%' }" class="video-item">
               <div :class="selectIndex === index ? 'selectActive' : ''" class="video-item-block">
                 <iframe
-                  :id="'container' + index"
+                  :id="'container' + selectIndex"
                   class="video-style"
                   style="height:99%;width: 99%"
                   :src="item.deviceSerial"
                   allowfullscreen
                 />
-                <div v-if="item && item.isControl" class="zhezhao" @click.stop="selectVideoHandle(item, index, 'yinshiyun')" />
+                <div class="zhezhao" @click.stop="selectVideoHandle(item, index, 'yinshiyun')" />
               </div>
             </div>
           </div>
         </div>
 
-        <el-pagination
+        <!-- <el-pagination
           v-if="activeClass !== 1"
           background
           :current-page="pageIndex"
           :page-size="activeClass"
           :total="total"
           @current-change="currentChangeHandle"
-        />
+        /> -->
       </el-main>
     </el-container>
     <WebSocket :path="'/zhgd/video/' + projectId" :project-id="projectId" @reloadData="reloadData" />
@@ -197,6 +199,9 @@ export default {
             this.getDataList()
             this.visible = false
             this.getVideoMonitorList(this.value)
+            for (let i = 0; i < 4; i++) {
+              this.videoList.push({})
+            }
           }
         }
       })
@@ -205,9 +210,11 @@ export default {
     selectVideoHandle(item, selectIndex, type) {
       this.selectIndex = selectIndex
       this.videoType = type
+      console.log(item)
       if (item.isControl) {
         this.channelNo = item.channelNo
         findDeviceCapacity({ videoSn: item.videoSn, channelNo: item.channelNo }).then(data => {})
+        console.log(selectIndex)
       } else {
         this.selectVideoInfo = {}
       }
@@ -270,13 +277,14 @@ export default {
     // 改变画面分布
     changeLayout(index, id) {
       this.activeClass = index
+      this.videoList = []
+      for (let i = 0; i < index; i++) {
+        this.videoList.push({})
+      }
       this.selectIndex = ''
       if (this.projectId) {
         this.getVideoMonitorList(id)
       }
-    },
-    fullScreenHandle(item) {
-      this.changeLayout(1, item.id)
     },
     // 选择某个设备，默认显示4个摄像头
     async changeDevice(id) {
@@ -285,14 +293,20 @@ export default {
       const dataList = await this.getDataList()
       if (this.dataList.length) this.value = dataList.find(item => item.id === id).id
     },
-    show(item) {
-      this.player = null
-      // const env = this.$httpZhgd.siteEnv() ? 'http://' : 'https://'
-      if (item && item.isControl === 0) {
-        // 本地模式
+    // 播放某个摄像头
+    selectVideo(data) {
+      if (this.selectIndex !== '') {
+        // this.videoList[this.selectIndex].deviceSerial = data.deviceSerial
+        if (this.videoList.find(v => v.channelNo === data.channelNo) === undefined) {
+          this.$set(this.videoList, this.selectIndex, { ...data })
+        } else this.$message.warning('该摄像头播放中')
       } else {
-        this.src = item.deviceSerial
+        this.$message.error('请选择摄像头画布')
       }
+      console.log(data, this.videoList, this.videoList.find(v => v.channelNo === data.channelNo))
+    },
+    palyVideo(data) {
+      return this.videoList.some(v => v.channelNo === data)
     },
     // 查询
     async searchHandle() {
@@ -301,13 +315,13 @@ export default {
       this.getVideoMonitorList()
     },
     // 当前页
-    currentChangeHandle(val) {
-      this.pageIndex = val
-      if (this.isControl === 2) {
-        const count = this.activeClass * (this.pageIndex - 1)
-        this.videoList = this.totalList.slice(count, this.activeClass + count)
-      }
-    },
+    // currentChangeHandle(val) {
+    //   this.pageIndex = val
+    //   if (this.isControl === 2) {
+    //     const count = this.activeClass * (this.pageIndex - 1)
+    //     this.videoList = this.totalList.slice(count, this.activeClass + count)
+    //   }
+    // },
     // 获取设备下拉
     getDataList(projectId) {
       return getList({ projectId: this.projectId, isDel: 0 }).then(data => {
@@ -334,21 +348,16 @@ export default {
           this.totalList = this.getVideoList(result)
           arr = this.totalList
           this.total = arr.length
-          this.videoList = []
-          for (let index = 0; index < this.activeClass; index++) {
-            const element = arr[index] || {}
-            this.videoList.push(element)
-          }
-          this.videoList.map((item) => {
-            if (item) this.show(item)
-          })
+          // for (let index = 0; index < this.activeClass; index++) {
+          //   const element = arr[index] || {}
+          //   this.videoList.push(element)
+          // }
           // 如果是本地海康sdk开启websoket(给后台关流使用)
-          const hasHk = this.videoList.filter(item => item && item.isControl === 0)
-          if (hasHk.length) {
-            console.log(hasHk.length, '开启海康sdk长连接')
-            this.soketVisible = true
-          }
-          console.log(this.videoList, result)
+          // const hasHk = this.videoList.filter(item => item && item.isControl === 0)
+          // if (hasHk.length) {
+          //   console.log(hasHk.length, '开启海康sdk长连接')
+          //   this.soketVisible = true
+          // }
         }
       })
     },
@@ -362,11 +371,13 @@ export default {
             ele.pId = item.id
             ele.accessToken = item.accessToken
             ele.isControl = item.isControl
-            ele.deviceSerial = `https://open.ys7.com/ezopen/h5/iframe?url=${item.deviceSerial.replace(lastStr, `${index + 1}.hd.live`)}&autoplay=1&accessToken=${ele.accessToken}`
+            ele.deviceSerial = `https://open.ys7.com/ezopen/h5/iframe?url=${item.deviceSerial.replace(lastStr, `${ele.channelNo}.hd.live`)}&autoplay=1&accessToken=${ele.accessToken}`
+            // item.deviceSerial = 'https://open.ys7.com/ezopen/h5/iframe?url=ezopen://open.ys7.com/C11649978/1.hd.cloud.rec?begin=20221120060000&end=20221121130000&accessToken=at.d23kop2scc5x99qg1kdpqo5db09d8twz-5j3flyghh4-0pguahm-uiulx7123'
             list.push(ele)
           })
         } else if (item.isControl === 1) {
           item.deviceSerial = 'https://open.ys7.com/ezopen/h5/iframe?url=' + item.deviceSerial + '&autoplay=1&accessToken=' + item.accessToken
+          // item.deviceSerial = 'https://open.ys7.com/ezopen/h5/iframe?url=ezopen://open.ys7.com/C11649978/1.hd.local.rec?begin=20221120060000&end=20221121130000&accessToken=at.99yfwws48k0shhfsanwufs1t24mczxwz-9rimqilf4n-1nqj3j8-fena7m1tg'
           list.push(item)
         }
       })
@@ -406,6 +417,7 @@ export default {
       .list-wrap {
         height: 230px;
         overflow-y: auto;
+        cursor: pointer;
         div {
           height: 30px;
           line-height: 30px;

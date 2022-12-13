@@ -4,10 +4,13 @@
 <script>
 import * as echarts from 'echarts'
 import resize from '@/utils/resize'
-import { getMataierStockView } from '@/api/material/meterialDatav'
 export default {
   mixins: [resize],
   props: {
+    trendData: {
+      type: Array,
+      default: () => []
+    },
     id: {
       type: String,
       default: 'chart'
@@ -27,34 +30,28 @@ export default {
       myChart: null,
       height_: '',
       date_: [],
-      inCount: [1, 3, 6, 2, 7, 9, 2],
-      outCount: [0, 4, 7, 4, 8, 11, 4],
-      option: {},
-      days: []
+      inCount: [],
+      option: {}
+    }
+  },
+  watch: {
+    trendData: {
+      handler(newVData) {
+        return Object.keys(newVData).length && this.initChart(newVData)
+      },
+      deep: true
     }
   },
   mounted() {
     this.chartDom = document.getElementById(this.id)
     this.myChart = echarts.init(this.chartDom)
-    this.mataierStockView()
   },
   methods: {
-    mataierStockView() {
-      getMataierStockView().then(res => {
-        if (res.code === 1000 && res.result) {
-          res.result.length && res.result.map(v => {
-            this.date_.unshift(v[0].date)
-            // this.inCount.push(v[0].inCount + 5)
-            // this.outCount.push(v[0].outCount + 3)
-          })
-        }
-        console.log(this.date_)
-        this.initChart()
-      }).catch(() => {
-        this.initChart()
-      })
-    },
-    initChart() {
+    initChart(data) {
+      if (this.trendData.length) {
+        this.inCount = data.map(v => v.frequency).reverse()
+        this.date_ = data.map(v => v.date).reverse()
+      }
       this.option = {
         tooltip: {
           trigger: 'axis',

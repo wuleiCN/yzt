@@ -575,7 +575,7 @@ export default {
     .cpt-name {
       position: absolute;
       letter-spacing: .19rem;
-      width: 12.31rem;
+      // width: 12.31rem;
       height: 1.27rem;
       top: 1.32rem;
       right: 3.54rem;

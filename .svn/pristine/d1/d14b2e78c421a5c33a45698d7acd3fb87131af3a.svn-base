@@ -1,0 +1,817 @@
+<template>
+  <div class="zhgd-dashboard dashboard-full-screen">
+    <div class="zhgd-dashboard-header">
+      <FullScreen ref="FullScreen" />
+      <SelectProject @newsReload="closePanel" />
+    </div>
+    <div class="main-wrap">
+      <div class="left-wrap">
+        <div class="video">
+          <div class="video-title title-common"><span>视频监控</span></div>
+          <div class="video-main">
+            <VideoPie id="video-pie" :video-data="{...videoData, videoPercentage}" height="10rem" width="10rem" />
+            <div class="video-main-right">
+              <div class="device">
+                <div class="device-left">
+                  <div>设备总数</div>
+                  <div class="device-left-num">{{ videoData.videoTotal }}</div>
+                </div>
+                <div class="device-right">
+                  <div>在线设备</div>
+                  <div class="device-right-num">{{ videoData.onLineTotal }}</div>
+                </div>
+              </div>
+              <div class="device-row">
+                <div class="device-col"><span style="background: #179EC6;" class="line" /> <span class="text">在线</span></div>
+                <div class="device-col"><span style="background: #e0e0e0;" class="line" /> <span class="text">离线</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="env">
+          <div class="env-title title-common"><span>环境监测</span></div>
+          <div class="env-main">
+            <Bar :dust-data="{...dustData, color: '#DA0051', name: 'AQI'}" />
+            <Bar :dust-data="{...dustData, color: '#FFB508', name: 'PM2.5'}" />
+            <Bar :dust-data="{...dustData, color: '#01BD8D', name: 'PM10'}" />
+            <Bar :dust-data="{...dustData, color: '#9011E1', name: 'TSP'}" />
+          </div>
+          <div>
+            <div class="env-row">
+              <span class="yuan yuan-zy" style="background: #DA0051;" /><span>噪音</span><span class="env-row-num">{{ dustData.noise || '暂无数据' }}</span>
+              <span class="yuan yuan-sd" style="background: #01BD8D;" /><span>湿度</span><span class="env-row-num">{{ dustData.humidity || '暂无数据' }}</span>
+            </div>
+            <div class="env-row">
+              <span class="yuan yuan-wd" style="background: #F8B00A;" /><span>温度</span><span class="env-row-num">{{ dustData.temperature || '暂无数据' }}</span>
+              <span class="yuan yuan-fs" style="background: #9011E1;" /><span>风速</span><span class="env-row-num">{{ dustData.windSpeed || '暂无数据' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="crane">
+          <div class="crane-title title-common"><span>塔吊监测</span></div>
+          <div class="crane-main">
+            <div class="crane-main-img">
+              <img class="header-img" src="@/assets/img-zhgd/crane.gif" alt="">
+            </div>
+            <div class="crane-main-right">
+              <div class="device">
+                <div class="device-left">
+                  <div>设备总数</div>
+                  <div class="device-left-num">{{ craneData.craneTotal }}</div>
+                </div>
+                <div class="device-right">
+                  <div>在线设备</div>
+                  <div class="device-right-num">{{ craneData.onLineTotal }}</div>
+                </div>
+              </div>
+              <div class="device-row">
+                <div class="device-col">今日报警 <span>{{ craneData.todayWarnTotal }}</span></div>
+                <div class="device-col">今日预警 <span>{{ craneData.todayEarlyTotal }}</span></div>
+              </div>
+              <div class="device-row">
+                <div class="device-col">报警总数 <span>{{ craneData.warnTotal }}</span></div>
+                <div class="device-col">预警总数 <span>{{ craneData.earlyTotal }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="center-wrap">
+        <div class="carousel">
+          <div class="carousel-main">
+            <el-carousel ref="carousel" height="100%" :interval="videoDuration" indicator-position="none" arrow="always" @change="changeVideo">
+              <el-carousel-item v-for="(item, idx) in cList" :key="item.id" :name="`${idx}`">
+                <video
+                  v-if="index === idx && item.type === 2"
+                  id="videoPlayer"
+                  :loop="cList.length === 1"
+                  class="video-style"
+                  :src="item.url"
+                  muted="muted"
+                  :autoplay="index === idx"
+                  @ended="handleEnd(index + 1)"
+                />
+                <img v-if="index === idx && item.type === 1" class="video-style" :src="item.url">
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+        </div>
+        <div class="worker">
+          <div class="worker-main">
+            <div class="main-top">
+              <div class="top-item">
+                <img class="animation-img" src="@/assets/img-zhgd/worker.png">
+                <div class="top-item-wrap">
+                  <div>劳务出勤</div>
+                  <div :class="AttendData.laborSituation >= 0.5 ? 'top-item-wrap-num' : 'top-item-wrap-num1'">{{ AttendData.laborSituation || 0 }}%</div>
+                </div>
+              </div>
+              <div class="top-item">
+                <img class="animation-img" src="@/assets/img-zhgd/manager.png">
+                <div class="top-item-wrap">
+                  <div>管理出勤</div>
+                  <div :class="AttendData.laborSituation >= 0.5 ? 'top-item-wrap-num' : 'top-item-wrap-num1'">{{ AttendData.adminSituation || 0 }}%</div>
+                </div>
+              </div>
+            </div>
+            <div class="main-bottom">
+              <div class="bottom-item" style="color: #08C7F1">
+                <div class="bottom-item-num">{{ AttendData.laborCount }}</div>
+                <div class="bottom-item-name">劳务人员</div>
+              </div>
+              <div class="bottom-item" style="color: #FFD725">
+                <div class="bottom-item-num">{{ AttendData.adminIstrationCount }}</div>
+                <div class="bottom-item-name">管理人员</div>
+              </div>
+              <div class="bottom-item" style="color: #AD55FF">
+                <div class="bottom-item-num">{{ AttendData.attendanceCount }}</div>
+                <div class="bottom-item-name">今日出勤</div>
+              </div>
+              <div class="bottom-item" style="color: #0DDE79">
+                <div class="bottom-item-num">{{ AttendData.bePresentCount }}</div>
+                <div class="bottom-item-name">当前在场</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-wrap">
+        <div class="box">
+          <div class="box-title title-common"><span>用电监控</span></div>
+          <div class="sub-title">设备线路状况</div>
+          <div class="box-alarm">
+            <div>
+              <span>漏电流报警</span>
+              <span v-if="electData.current > 50" style="color: #FF0303">报警</span>
+              <span v-else style="color: #00FF84">正常</span>
+            </div>
+            <div>
+              <span>电缆报警</span>
+              <span v-if="(electData.awarm > 70) || (electData.bwarm > 70) || electData.cwarm > 70" style="color: #FF0303">报警</span>
+              <span v-else style="color: #00FF84">正常</span>
+            </div>
+            <div><span>环境报警</span>
+              <span v-if="(nowTmp < -20) || (nowTmp > 35)" style="color: #FF0303">报警</span>
+              <span v-else style="color: #00FF84">正常</span>
+            </div>
+          </div>
+          <div class="box-main">
+            <Box :elect-data="electData" />
+          </div>
+        </div>
+        <div class="vehicle">
+          <div class="vehicle-title title-common"><span>车辆监控</span></div>
+          <div class="vehicle-main">
+            <div>车辆进出统计</div>
+            <div class="item-wrap">
+              <div class="vehicle-main-item">
+                <div>今日进车辆</div>
+                <div class="item-num">{{ vehicleData.getInCar || 0 }}</div>
+                <div>辆</div>
+              </div>
+              <div class="vehicle-main-item">
+                <div>今日进出车次</div>
+                <div class="item-num">{{ vehicleData.getInOutCarCount || 0 }}</div>
+                <div>辆</div>
+              </div>
+              <div class="vehicle-main-item">
+                <div>今日进车次</div>
+                <div class="item-num">{{ vehicleData.getInCarCount || 0 }}</div>
+                <div>辆</div>
+              </div>
+              <div class="vehicle-main-item">
+                <div>今日累计进出车</div>
+                <div class="item-num">{{ vehicleData.getInOutCar || 0 }}</div>
+                <div>辆</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="elevator">
+          <div class="elevator-title title-common"><span>升降机监控</span></div>
+          <div class="elevator-main">
+            <div class="elevator-main-img">
+              <img src="@/assets/img-zhgd/elevator.gif" alt="">
+            </div>
+            <div class="elevator-main-right">
+              <div class="device">
+                <div class="device-left">
+                  <div>设备总数</div>
+                  <div class="device-left-num">{{ elevatorData.elevatorTotal }}</div>
+                </div>
+                <div class="device-right">
+                  <div>在线设备</div>
+                  <div class="device-right-num">{{ elevatorData.onLineTotal }}</div>
+                </div>
+              </div>
+              <div class="device-row">
+                <div class="device-col">今日报警 <span>{{ elevatorData.todayWarnTotal }}</span></div>
+                <div class="device-col">今日预警 <span>{{ elevatorData.todayEarlyTotal }}</span></div>
+              </div>
+              <div class="device-row">
+                <div class="device-col">报警总数 <span>{{ elevatorData.warnTotal }}</span></div>
+                <div class="device-col">预警总数 <span>{{ elevatorData.earlyTotal }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <WebSocket :path="'/zhgd/home/' + projectId" :project-id="projectId" @reloadData="reloadData" />
+  </div>
+</template>
+<script>
+import FullScreen from '../../statistic-dashboard/component/FullScreen.vue'
+import SelectProject from '../../statistic-dashboard/component/SelectPro.vue'
+import common from '../../statistic-dashboard/mixins/common'
+import axios from 'axios'
+import Bar from './bar'
+import VideoPie from './VideoPie'
+import Box from './box'
+import WebSocket from '@/components/webSocket'
+import { videoSta, dustSta, craneSta, electSta, vehicleSta, elevatorSta, pList, carouselList, queryAttend } from '@/api-zhgd/zhgd-dashboard'
+export default {
+  components: {
+    FullScreen,
+    SelectProject,
+    VideoPie,
+    Bar,
+    WebSocket,
+    Box
+  },
+  mixins: [common],
+  data() {
+    return {
+      nowTmp: '',
+      videoDuration: 0,
+      videoPercentage: 0,
+      index: 0,
+      cList: [],
+      // pName: '',
+      videoData: {},
+      dustData: {},
+      craneData: {},
+      electData: {},
+      vehicleData: {},
+      elevatorData: {},
+      AttendData: {},
+      projectId: this.$store.state.user.loginInfo.projectId
+    }
+  },
+  async created() {
+    const pro0 = await this.getPList()
+    this.getNowWeather(pro0)
+    this.init(pro0.id)
+  },
+  mounted() {
+  },
+  methods: {
+    // 获取天气
+    getNowWeather(prodetailInfo) {
+      const { projectRegion, latitude, longitude } = prodetailInfo
+      const cityCode = projectRegion ? projectRegion.split(',')[ projectRegion.split(',').length - 2] : ''
+      const url1 = axios({
+        url: `https://free-api.heweather.net/s6/weather/now?key=17d2e87508694f82a19e156432920dbd&lat=${latitude}&lon=${longitude}&location=${cityCode}`,
+        method: 'GET'
+      })
+      const url2 = axios({
+        url: `https://free-api.heweather.net/s6/weather/forecast?key=17d2e87508694f82a19e156432920dbd&lat=${latitude}&lon=${longitude}&location=${cityCode}`,
+        method: 'GET'
+      })
+      axios.all([url1, url2])
+        .then((response) => {
+          this.nowTmp = response[0].data.HeWeather6[0].now ? +response[0].data.HeWeather6[0].now.tmp : 100
+        })
+        .catch(function(error) {
+          console.log(error)
+        })
+    },
+    closePanel(id, item) {
+      this.projectId = item.id
+      // this.pName = item.projectName
+      this.init(this.projectId)
+      this.getNowWeather(item)
+    },
+    init(projectId) {
+      this.getVideoSta(projectId)
+      this.getDustSta(projectId)
+      this.getCraneSta(projectId)
+      this.getElectSta(projectId)
+      this.getVehicleSta(projectId)
+      this.getElevatorSta(projectId)
+      this.getQueryAttend(projectId)
+      this.getcarouselList(projectId)
+    },
+    reloadData(code, projectId, data) {
+      if ((code === 8150 || code === 8151 || code === 8152)) this.getVideoSta(this.projectId)
+      if ((code === 8161)) this.getDustSta(this.projectId)
+      if ((code === 8170 || code === 8171 || code === 8172)) this.getCraneSta(this.projectId)
+      if ((code === 8180)) this.getElectSta(this.projectId)
+      if ((code === 8190)) this.getVehicleSta(this.projectId)
+      if ((code === 8200 || code === 8201 || code === 8202)) this.getElevatorSta(this.projectId)
+      if ((code === 8220 || code === 8221 || code === 8222)) this.getcarouselList(this.projectId)
+      if (code === 8210) {
+        this.AttendData = data
+      }
+    },
+    getVideoSta(projectId) {
+      videoSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.videoData = data.result || {}
+          if (this.videoData && this.videoData.onLineTotal) {
+            this.videoPercentage = this.videoData.onLineTotal / this.videoData.videoTotal * 100 || 0
+          }
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getcarouselList(projectId) {
+      carouselList({ projectId, isDel: 0, status: 1, queryType: 1 }).then((data) => {
+        if (data && data.code === 1000) {
+          this.cList = data.result
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getPList() {
+      return pList().then((data) => {
+        if (data && data.code === 1000) {
+          this.proList = data.result
+          // if (this.proList.length === 1 && this.projectId) {
+          // this.pName = this.proList[0].projectList[0].projectName
+          return this.proList[0].projectList[0]
+          // }
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getDustSta(projectId) {
+      dustSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.dustData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getCraneSta(projectId) {
+      craneSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.craneData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getElectSta(projectId) {
+      electSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.electData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getVehicleSta(projectId) {
+      vehicleSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.vehicleData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getElevatorSta(projectId) {
+      elevatorSta({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          this.elevatorData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    getQueryAttend(projectId) {
+      queryAttend({ projectId }).then((data) => {
+        if (data && data.code === 1000) {
+          data.result.adminSituation = this.$dataConver.mul(data.result.adminSituation, 100)
+          data.result.laborSituation = this.$dataConver.mul(data.result.laborSituation, 100)
+          this.AttendData = data.result || {}
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    changeVideo(index) {
+      this.index = index
+    },
+    handleEnd(index) {
+      this.$refs.carousel.setActiveItem(`${index}`)
+    }
+  }
+}
+</script>
+<style lang="scss">
+.zhgd-dashboard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: url('../../../assets/img-zhgd/zhgd-dashboard.webp') center no-repeat no-repeat;
+  background-size: 100% 100%;
+  width: 100%;
+  height: 41.54rem;
+  padding: .77rem 1.15rem 0;
+  color: #fff;
+  font-size: .77rem;
+  .zhgd-dashboard-header {
+    position: relative;
+    height: 3.85rem;
+    background: url('../../../assets/statistic-dashboard/top-header.png') center no-repeat no-repeat;
+    background-size: 100% 100%;
+  }
+  .main-wrap {
+    display: flex;
+    .left-wrap {
+      flex: 18.92;
+      // display: flex;
+      // flex-wrap: wrap;
+      .video {
+        height: 9.85rem;
+        .video-main {
+          display: flex;
+          // .video-main-bt {
+          //   width: 50%;
+          // }
+          .video-main-right {
+            width: 50%;
+            margin-top: 1rem;
+            .device {
+              background: url('../../../assets/img-zhgd/total-br.png') center no-repeat no-repeat;
+              background-size: 100% 100%;
+              width: 7.54rem;
+              height: 3.38rem;
+              display: flex;
+              text-align: center;
+              padding-top: .7rem;
+              margin-left: .8rem;
+              font-size: .54rem;
+              .device-left {
+                width: 3.77rem;
+                color: #FFB508;
+                .device-left-num {
+                  font-size: 1.38rem;
+                }
+              }
+              .device-right {
+                width: 3.77rem;
+                color: #0DDE79;
+                .device-right-num {
+                  font-size: 1.38rem;
+                }
+              }
+            }
+            .device-row {
+              display: flex;
+              .device-col {
+                margin: 1rem 0;
+                line-height: 1.19rem;
+                span {
+                  display: inline-block;
+                  margin-left: .33rem;
+                  font-size: .54rem;
+                }
+                .line {
+                  width: 1.95rem;
+                  height: .73rem;
+                }
+                .text {
+                  vertical-align: text-bottom;
+                }
+              }
+            }
+          }
+        }
+
+      }
+      .env {
+        height: 11rem;
+        .env-main {
+          display: flex;
+          margin-top: 1rem;
+        }
+        .env-row {
+          margin: .4rem;
+          font-size: .62rem;
+          .yuan {
+            display: inline-block;
+            width: .40rem;
+            height: .40rem;
+            border-radius: 50%;
+            margin: 0 1rem;
+          }
+          .env-row-num {
+            display: inline-block;
+            width: 3.4rem;
+            margin: 0 .8rem;
+          }
+        }
+      }
+      .crane {
+        height: 17.15rem;
+        .crane-main {
+          display: flex;
+          .crane-main-img {
+            img {
+              position: absolute;
+              width: 13.23rem;
+              height: 13.46rem
+            }
+          }
+          .crane-main-right {
+            padding: 4.7rem 0 0 7.5rem;
+            .device {
+              margin-left: 1rem;
+              background: url('../../../assets/img-zhgd/total-br.png') center no-repeat no-repeat;
+              background-size: 100% 100%;
+              width: 9.31rem;
+              height: 3.38rem;
+              display: flex;
+              text-align: center;
+              padding-top: 1rem;
+              font-size: .54rem;
+              .device-left {
+                width: 9.13rem;
+                color: #FFB508;
+                .device-left-num {
+                  font-size: 1.31rem;
+                }
+              }
+              .device-right {
+                width: 9.13rem;
+                color: #0DDE79;
+                .device-right-num {
+                  font-size: 1.31rem;
+                }
+              }
+            }
+            .device-row {
+              display: flex;
+              font-size: .46rem;
+              .device-col {
+                background: url('../../../assets/img-zhgd/alarm-item.png') center no-repeat no-repeat;
+                background-size: 100% 100%;
+                width: 4.7rem;
+                height: 1.54rem;
+                line-height: 1.63rem;
+                margin: .3rem;
+                span {
+                  display: inline-block;
+                  margin-left: .8rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .center-wrap {
+      flex: 32;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0 .5rem;
+      .carousel {
+        height: 18.69rem;
+        background: transparent;
+        margin-top: .3rem;
+        width: 100%;
+        .carousel-main {
+          padding: .3rem;
+          background: url('../../../assets/img-zhgd/center-ad.png') center no-repeat no-repeat;
+          background-size: 100% 100%;
+          height: 19rem;
+          // width: 30.54rem;
+          .video-style {
+            margin: 1rem;
+            height: 97%;
+            margin: 0 auto;
+            width: 100%;
+            background: #000;
+          }
+        }
+        .el-carousel__container {
+          height: 19rem !important;
+        }
+        .el-carousel__item {
+          height: 19rem !important;
+        }
+      }
+      .worker {
+        // border: 1px solid red;
+        width: 100%;
+        height: 11.5rem;
+        .worker-main {
+          margin: 0 auto;
+          .main-top {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            margin-top: 1.5rem;
+            .top-item {
+              background: url('../../../assets/img-zhgd/vehicle-border.png') center no-repeat no-repeat;
+              background-size: 100% 100%;
+              width: 15.38rem;
+              height: 5.77rem;
+              display: flex;
+              // justify-content: center; /* 水平居中 */
+              align-items: center;     /* 垂直居中 */
+              margin: 1rem 0.6rem;
+              img {
+                height: 6.25rem;
+                margin: 0 1rem;
+                animation: animation-img 3s linear .5s 1000;
+              }
+              .top-item-wrap {
+                color: #00EAFF;
+                .top-item-wrap-num {
+                  color: #0DDE79;
+                  line-height: 3.5rem;
+                  font-size: 2.13rem;
+                }
+                .top-item-wrap-num1 {
+                  color: #DA0051;
+                  line-height: 3.5rem;
+                  font-size: 1.31rem;
+                }
+              }
+            }
+          }
+          .main-bottom {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            .bottom-item {
+              background: url('../../../assets/img-zhgd/main-bottom.png') center no-repeat no-repeat;
+              background-size: 100% 100%;
+              width: 7.69rem;
+              height: 3.08rem;
+              margin: 0 .25rem;
+              text-align: center;
+              .bottom-item-num {
+                font-size: 1.31rem;
+                margin-top: .5rem;
+              }
+            }
+
+          }
+        }
+      }
+    }
+    .right-wrap {
+      flex: 18.92;
+      .box {
+        height: 15.23rem;
+        .box-alarm {
+          display: flex;
+          font-size: .44rem;
+          span {
+            display: inline-block;
+            margin: 0 .5rem;
+          }
+        }
+        .sub-title {
+          margin: .62rem;
+          font-size: .38rem;
+        }
+      }
+      .vehicle {
+        height: 9.08rem;
+        .vehicle-main {
+          margin-top: 1rem;
+          // width: 18.85rem;
+          width: 100%;
+          font-size: .54rem;
+          color: #01A0FF;
+          height: 5.62rem;
+          background: url('../../../assets/img-zhgd/vehicle-border.png') center no-repeat no-repeat;
+          background-size: 100% 100%;
+          padding: .6rem;
+          .item-wrap {
+            flex: 1;
+            width: 100%;
+            font-size: .54rem;
+            display: flex;
+            justify-items: center;
+            padding: .25rem .12rem;
+            .vehicle-main-item {
+              text-align: center;
+              margin-right: .7rem;
+              .item-num {
+                font-size: 1.38rem;
+                color: #1BF10B;
+              }
+            }
+
+          }
+        }
+      }
+      .elevator {
+        height: 13.69rem;
+        .elevator-main {
+          display: flex;
+          justify-content: center; /* 水平居中 */
+          .elevator-main-img {
+            img {
+              width: 6.54rem;
+              height: 9.62rem;
+            }
+          }
+          .elevator-main-right {
+            padding: 2rem 0 0 0;
+            .device {
+              margin-left: 1rem;
+              background: url('../../../assets/img-zhgd/total-br.png') center no-repeat no-repeat;
+              background-size: 100% 100%;
+              width: 9.31rem;
+              height: 3.38rem;
+              display: flex;
+              text-align: center;
+              padding-top: 1rem;
+              font-size: .54rem;
+              .device-left {
+                width: 9.13rem;
+                color: #FFB508;
+                .device-left-num {
+                  font-size: 1.31rem;
+                }
+              }
+              .device-right {
+                width: 9.13rem;
+                color: #0DDE79;
+                .device-right-num {
+                  font-size: 1.31rem;
+                }
+              }
+            }
+            .device-row {
+              display: flex;
+              font-size: .46rem;
+              .device-col {
+                background: url('../../../assets/img-zhgd/alarm-item.png') center no-repeat no-repeat;
+                background-size: 100% 100%;
+                width: 4.7rem;
+                height: 1.54rem;
+                line-height: 1.63rem;
+                margin: .3rem;
+                span {
+                  display: inline-block;
+                  margin-left: .8rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .title-common {
+    height: 1.54rem;
+    line-height: 1.54rem;
+    padding: 0 1rem;
+    width: 100%;
+    background:  url('../../../assets/img-zhgd/title-gb.png') no-repeat no-repeat;
+    background-size: 100% 100%;
+    span {
+      -webkit-line-clamp: 2;
+      background: -webkit-linear-gradient(92deg, #0072FF 0%, #00EAFF 48.8525390625%, #01AAFF 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: .85rem;
+      font-weight: 550;
+    }
+  }
+}
+@keyframes animation-img {
+  0% {
+        -webkit-transform: scale(0.8);
+        transform: scale(0.8)
+    }
+  25% {
+        -webkit-transform: scale(1);
+        transform: scale(1)
+  }
+  50% {
+      -webkit-transform: scale(0.8);
+      transform: scale(0.8)
+  }
+  75% {
+      -webkit-transform: scale(1);
+      transform: scale(1)
+  }
+  100% {
+      -webkit-transform: scale(0.8);
+      transform: scale(0.8)
+  }
+}
+</style>

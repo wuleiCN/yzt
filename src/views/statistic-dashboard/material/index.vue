@@ -48,7 +48,7 @@
         <div ref="titleWrap" class="title-wrap">
           <div class="title"><span class="icon" />材料库存信息</div>
         </div>
-        <MeaterialChart :height="'100%'" :width="'90%'" />
+        <MeaterialChart :id="'meaterial'" :height="'18.68rem'" :width="'100%'" />
       </div>
       <div class="item-warp2 item-pie-wrap">
         <div class="title-wrap">

@@ -323,8 +323,8 @@
           </el-table>
         </div>
       </div>
-      <el-form class="info" :model="dataForm" :rules="dataRule">
-        <el-form-item label="备注：">
+      <el-form ref="remarks" class="info" :model="dataForm" :rules="dataRule">
+        <el-form-item label="备注：" prop="remarks">
           <el-input v-model.trim="dataForm.remarks" clearable placeholder="备注" style="width: 260px;" />
         </el-form-item>
         <el-form-item label="最后更新人：">
@@ -517,6 +517,9 @@ export default {
         ],
         endDate: [
           { required: true, message: '计划结束不能为空', trigger: 'blur' }
+        ],
+        remarks: [
+          { required: true, message: '备注不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -570,32 +573,36 @@ export default {
     dataFormSubmit() {
       this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
-          if (this.dataForm.startDate && this.dataForm.endDate) {
-            if (this.dataForm.startDate > this.dataForm.endDate) {
-              return this.$message.error('计划结束时间不能小于计划开始时间')
-            }
-          }
-          if (this.dataForm.actualEndDate) {
-            if (this.dataForm.actualEndDate < this.dataForm.startDate) {
-              return this.$message.error('实际结束时间不能小于计划开始时间')
-            }
-          }
-          saverOrUpdate({ ...this.dataForm }).then(res => {
-            console.log(this.dataForm)
-            if (res && res.code === 1000) {
-              this.$message({
-                message: '操作成功',
-                type: 'success',
-                duration: 1000,
-                onClose: () => {
-                  this.visible = false
+          this.$refs['remarks'].validate((v) => {
+            if (v) {
+              if (this.dataForm.startDate && this.dataForm.endDate) {
+                if (this.dataForm.startDate > this.dataForm.endDate) {
+                  return this.$message.error('计划结束时间不能小于计划开始时间')
+                }
+              }
+              if (this.dataForm.actualEndDate) {
+                if (this.dataForm.actualEndDate < this.dataForm.startDate) {
+                  return this.$message.error('实际结束时间不能小于计划开始时间')
+                }
+              }
+              saverOrUpdate({ ...this.dataForm }).then(res => {
+                console.log(this.dataForm)
+                if (res && res.code === 1000) {
+                  this.$message({
+                    message: '操作成功',
+                    type: 'success',
+                    duration: 1000,
+                    onClose: () => {
+                      this.visible = false
+                      this.btnLoading = false
+                      this.$emit('refreshDataList')
+                    }
+                  })
+                } else {
                   this.btnLoading = false
-                  this.$emit('refreshDataList')
+                  this.$message.error(res.message)
                 }
               })
-            } else {
-              this.btnLoading = false
-              this.$message.error(res.message)
             }
           })
           // this.visible = false

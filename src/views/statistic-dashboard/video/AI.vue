@@ -18,13 +18,13 @@
                   />
                 </el-select>
               </div>
-              <TypePie :id="'AI-pie'" :width="'100%'" :height="'7.31rem'" />
+              <TypePie :id="'AI-pie'" :width="'100%'" :height="'6.92rem'" :cat-type="waringData" :alarm="AiEnum" />
             </div>
             <div class="waring-line">
               <div class="title-wrap">
                 <div class="title"><span class="icon" /> 最近7天AI预警问题趋势</div>
               </div>
-              <TypeLine :id="'AI-line'" :width="'100%'" :height="'7.69rem'" />
+              <TypeLine :id="'AI-line'" :width="'100%'" :height="'7.69rem'" :trend-data="trend" />
             </div>
           </div>
           <div class="ai-monitor">
@@ -32,13 +32,13 @@
               <div class="title"><span class="icon" /> AI监控画面</div>
             </div>
             <div class="video-area">
-              <div v-for="(item,index) in (videoList.length ? videoList : activeClass)" :key="index" class="video-item">
-                <div :class="selectIndex === index ? 'selectActive' : ''" class="video-item-block">
+              <div class="video-item">
+                <div class="selectActive">
                   <iframe
-                    :id="'container' + index"
+                    id="container"
                     class="video-style"
                     style="height:99%;width: 99%"
-                    :src="item.deviceSerial"
+                    :src="videoAddress"
                     allowfullscreen
                   />
                 </div>
@@ -52,9 +52,20 @@
           <div class="title"><span class="icon" /> 今日智能报警拍照记录</div>
         </div>
         <div class="today-record">
-          <div v-for="(item, idx) in 5" :key="idx" class="warning-img">
-            <img src="" alt="">
-          </div>
+          <swiper :options="swiperOption">
+            <swiper-slide
+              v-for="(slide, index) in swiperSlides"
+              :key="index"
+              class="warning-img"
+            >
+              <img :src="slide.image" alt="">
+              <span class="date">
+                {{ slide.location + '：' + slide.datetime }}
+              </span>
+            </swiper-slide>
+            <div slot="button-prev" class="swiper-button-prev" />
+            <div slot="button-next" class="swiper-button-next" />
+          </swiper>
         </div>
       </div>
     </div>
@@ -65,15 +76,15 @@
       <div class="camera-list">
         <div class="camera-count">
           AI摄像头总数
-          <p>0</p><p>0</p><p>4</p>
+          <p v-for="i in 3" :key="i">{{ AICount[3-i] || 0 }}</p>
           个
         </div>
         <div class="camera-scoll">
-          <div v-for="(item, idx) in 8" :key="idx" class="camera">
+          <div v-for="(item, idx) in videoList" :key="idx" class="camera">
             <div class="camera-frame" />
             <div class="camera-info">
-              <div>钢筋加工棚</div>
-              <div class="camera-paly">播放<i class="el-icon-video-play" style="margin-left: 0.27rem;color: #E4EEFF;" /></div>
+              <div class="ellipsis" :class="[item.heart ? 'online' : 'err']">{{ item.videoName }}</div>
+              <div class="camera-paly" @click="playAiVideo(item)">播放<i class="el-icon-video-play" style="margin-left: 0.27rem;color: #E4EEFF;" /></div>
             </div>
           </div>
         </div>
@@ -82,7 +93,9 @@
   </div>
 </template>
 <script>
-// import { getMataierKC, getStockInfo, getWarStock } from '@/api/material/meterialDatav'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
+import 'swiper/css/swiper.css'
+import { getAiEnum, getViolationAlarm, getAIEarlyWarningTrend, getIntelligentPhotoRecord, getFindNewsVideoList } from '@/api/statistic-dashboard/ai'
 // import common from '../mixins/common'
 // import { parseTime } from '@/utils'
 import TypePie from './component/AIPie.vue'
@@ -90,18 +103,51 @@ import TypeLine from './component/AILine'
 export default {
   components: {
     TypePie,
-    TypeLine
+    TypeLine,
+    Swiper,
+    SwiperSlide
   },
   // mixins: [common],
   data() {
     return {
-      waringData: [
-
-      ],
-      initData: [],
+      waringData: [],
+      AiEnum: [],
+      trend: [],
       videoList: [],
-      warningData: [],
-      value: '今日',
+      AICount: [],
+      videoAddress: '',
+      swiperSlides: [],
+      projectId: this.$store.state.user.loginInfo.projectId,
+      warningData: [
+        {
+          name: '1日',
+          value: 1
+        },
+        {
+          name: '3日',
+          value: 2
+        },
+        {
+          name: '7日',
+          value: 4
+        }
+      ],
+      swiperOption: {
+        slidesPerView: 6,
+        spaceBetween: 30,
+        slidesPerGroup: 1,
+        // loop: true,
+        // loopFillGroupWithBlank: true,
+        autoplay: {
+          delay: 2500,
+          disableOnInteraction: false
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev'
+        }
+      },
+      value: 4,
       activeClass: 1,
       selectIndex: '',
       videoType: ''
@@ -109,21 +155,79 @@ export default {
   },
   async mounted() {
     this.dataInit()
+    this.init()
     // this.init(this.projectId)
+  },
+  beforeDestroy() {
+    clearInterval(this.tiemer)
   },
   methods: {
     init(id) {
-
+      getAiEnum().then(v => {
+        if (v.code === 1000 && v.result) this.AiEnum = v.result
+      })
+      getAIEarlyWarningTrend({ pId: this.projectId }).then(v => {
+        if (v.code === 1000 && v.result) this.trend = v.result
+      })
+      getFindNewsVideoList({
+        isDel: 0,
+        rows: 100,
+        page: 1,
+        projectId: this.projectId
+      }).then(e => {
+        if (e.code === 1000 && e.result) {
+          this.videoList = e.result.result
+          for (let i = 0; i <= 2; i++) {
+            this.AICount[i] = (parseInt(this.videoList.length / Math.pow(10, i)) % 10)
+          }
+          console.log(this.videoList.length, this.AICount)
+          const params = this.videoList.find(v => v.heart === 1)
+          const lastStr = params.videoAddress ? params.videoAddress.split('/')[params.videoAddress.split('/').length - 1] : ''
+          if (params.isControl === 2 && params.videoAddress) {
+            this.videoAddress = `https://open.ys7.com/ezopen/h5/iframe?url=${params.videoAddress.replace(lastStr, `${params.channelNo + 1}.hd.live`)}&autoplay=1&accessToken=${params.accessToken}`
+          } else if (params.isControl === 1 && params.videoAddress) {
+            this.videoAddress = 'https://open.ys7.com/ezopen/h5/iframe?url=' + params.videoAddress + '&autoplay=1&accessToken=' + params.accessToken
+          }
+        }
+      })
+      this.getViolationAlarmData()
+      this.getIntelligentPhotoRecordFn()
+      this.tiemer = setInterval(() => {
+        this.getIntelligentPhotoRecordFn()
+        this.getViolationAlarmData()
+      }, 60000)
     },
-    // 初始化滚动表格数据
-    dataInit() {
+    dataInit() {},
+    getViolationAlarmData() {
+      getViolationAlarm({ pId: this.projectId, type: this.value }).then(v => {
+        if (v.code === 1000 && v.result) this.waringData = v.result
+      })
+    },
+    getIntelligentPhotoRecordFn() {
+      getIntelligentPhotoRecord({ pId: this.projectId }).then(e => {
+        if (e.code === 1000 && e.result) {
+          e.result.forEach(v => {
+            v.datetime = v.datetime.slice(10)
+          })
+        }
+        this.swiperSlides = e.result
+      })
     },
     newsReload(projectId) {
       this.init(projectId)
     },
-    navClick() {},
-    // 看板材料信息列表
-    getMataierList() {
+    navClick() {
+      this.getViolationAlarmData()
+    },
+    playAiVideo(params) {
+      const lastStr = params.videoAddress ? params.videoAddress.split('/')[params.videoAddress.split('/').length - 1] : ''
+      if (params.isControl === 2 && params.videoAddress && params.heart) {
+        this.videoAddress = `https://open.ys7.com/ezopen/h5/iframe?url=${params.videoAddress.replace(lastStr, `${params.channelNo + 1}.hd.live`)}&autoplay=1&accessToken=${params.accessToken}`
+      } else if (params.isControl === 1) {
+        this.videoAddress = 'https://open.ys7.com/ezopen/h5/iframe?url=' + params.videoAddress + '&autoplay=1&accessToken=' + params.accessToken
+      } else if (params.heart === 0) {
+        this.$message.error('该设备不在线')
+      }
     }
   }
 }
@@ -242,7 +346,8 @@ export default {
               }
             }
             .selectActive {
-              background: green;
+              height: 21rem;
+              background: #111111;
             }
           }
         }
@@ -268,11 +373,31 @@ export default {
         flex-wrap: nowrap;
         justify-content: space-between;
         padding: .38rem .77rem;
+        .swiper-container {
+          width: 100%;
+          .swiper-wrapper {
+            width: 100%;
+          }
+        }
         .warning-img {
           width: 11.92rem;
           height:6.92rem;
-          background: url('../../../assets/statistic-dashboard/AIGroup12@2x.png') center no-repeat no-repeat;
-          background-size: 100% 100%;
+          img{
+            width: 100%;
+            height: 100%;
+          }
+          .date {
+            display: inline-block;
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            height: .96rem;
+            text-align: center;
+            font-size: .62rem;
+            line-height: .96rem;
+            background: rgba(169, 169, 169, .5);
+          }
         }
       }
     }
@@ -337,8 +462,8 @@ export default {
           .camera-frame {
             width: 11rem;
             height: 100%;
-            background: url('../../../assets/statistic-dashboard/AIGroup6@2x.png') center no-repeat no-repeat;
-            background-size: 100% 100%;
+            border: #2AAEF2 1px solid;
+            background: #696969;
           }
           .camera-info {
             display: flex;
@@ -347,13 +472,19 @@ export default {
             margin-left: .58rem;
             width: 4.85rem;
             text-align: center;
-            cursor: pointer;
+            .online {
+              color: green;
+            }
+            .err {
+              color: red;
+            }
             .camera-paly {
               height: 1.77rem;
               line-height: 1.77rem;
               background: url('../../../assets/statistic-dashboard/AIGroup7@2x.png') center no-repeat no-repeat;
               background-size: 100% 100%;
               color: #00A8FF;
+              cursor: pointer;
             }
           }
         }
@@ -377,6 +508,11 @@ export default {
         vertical-align: middle;
       }
     }
+  }
+  .ellipsis {
+    overflow:hidden; //超出的文本隐藏
+    text-overflow:ellipsis; //溢出用省略号显示
+    white-space:nowrap; //溢出不换行
   }
 }
 </style>

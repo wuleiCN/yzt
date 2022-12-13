@@ -69,7 +69,7 @@ export default {
   }
 }
 </script>
-<style lang='scss'>
+<style lang='scss' scoped>
 .select-project {
   .project-name {
     color: #0686D8;
