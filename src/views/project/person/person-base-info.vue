@@ -494,11 +494,11 @@
         <el-form-item label="薪资计算方式" prop="salaryType">
           <el-radio-group v-model.trim="dataForm.salaryType">
             <el-radio :label="1">工时</el-radio>
-            <el-radio :label="2">工量</el-radio>
+            <el-radio v-if="dataForm.salaryType === 2" :label="2">工量</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item
-          v-if="dataForm.salaryType === 2"
+          v-if="loginInfo.userType !== 3 && dataForm.salaryType === 2"
           label="计量单位"
           prop="unit"
         >
@@ -866,7 +866,7 @@ export default {
     this.getDetail()
     this.optionList('JOB_TYPENAME_SZZJJ')
     this.optionList('EMP_TYPR_SZZJJ')
-    this.asyncHandle()
+    if (this.loginInfo.userType === 2) this.asyncHandle()
   },
   methods: {
     // 获取人员基本信息详情
@@ -879,9 +879,13 @@ export default {
           const { projectId, constructionId, teamId } = this.dataForm
           await this.getProjectsDetail(projectId)
           await this.getTeamList(constructionId, projectId)
-          this.selectTeamChange(teamId)
+          await this.selectTeamChange(teamId)
         } else {
           this.dataForm.thirdCode = null
+          if (this.loginInfo.userType === 3) {
+            this.dataForm.constructionId = this.loginInfo.constructionId
+            this.getTeamList(this.dataForm.constructionId, this.dataForm.projectId)
+          }
         }
         await this.getProjectsDetail(this.dataForm.projectId)
         this.getProSelectList(this.dataForm.projectId)
@@ -1005,11 +1009,13 @@ export default {
       const team = this.teamList.find(item => item.id === teamId)
       // 从事工种是否禁用逻辑
       if (this.projectType !== '99') {
-        this.teamIsDisabled =
-        (this.dataForm.projectRegion === '140000' ||
-        (this.isQingYuan && this.dataForm.projectType !== '111') ||
-        this.isMeiZhou || this.isJiangMen) &&
-        team && team.teamType !== '900'
+        if (this.isQingYuan || this.isMeiZhou || this.isJiangMen) {
+          this.teamIsDisabled = true
+        } else {
+          this.teamIsDisabled =
+          this.dataForm.projectRegion === '140000' &&
+          (team && team.teamType !== '900')
+        }
       } else {
         this.teamIsDisabled = false
       }

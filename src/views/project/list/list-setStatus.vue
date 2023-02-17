@@ -15,6 +15,12 @@
           <el-radio :label="1">自动审核</el-radio>
         </el-radio-group>
       </el-form-item>
+      <el-form-item label="自动暂退场" prop="isWithdrawal">
+        <el-radio-group v-model.trim="dataForm.isWithdrawal">
+          <el-radio :label="0">关闭</el-radio>
+          <el-radio :label="1">开启</el-radio>
+        </el-radio-group>
+      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
@@ -42,7 +48,8 @@ export default {
       dataList: [],
       settingList: [],
       dataForm: {
-        isExamine: 1
+        isExamine: 1,
+        isWithdrawal: 0
       },
       dataRule: {
         isExamine: [

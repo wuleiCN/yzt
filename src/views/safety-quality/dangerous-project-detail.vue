@@ -115,7 +115,7 @@
                     <el-avatar
                       icon="el-icon-picture"
                       :size="30"
-                      :src="scope.row.type === 0 && scope.row.photoList.length !== 0 && scope.row.photoList[0].indexOf('.pdf') !== -1 ? '' : (scope.row.photoList[0] )"
+                      :src="scope.row.type === 0 && scope.row.photoList.length !== 0 && scope.row.photoList[0].indexOf('.pdf') !== -1 ? (scope.row.photoList[0] ) : ''"
                     />
                   </div>
                   <my-upload
@@ -152,16 +152,16 @@
                     <el-avatar
                       icon="el-icon-picture"
                       :size="30"
-                      :src="scope.row.type === 1 && scope.row.photoList.length !== 0 && scope.row.photoList[0].indexOf('.jpg') !== -1 ? (scope.row.photoList[0] ) : ''"
+                      :src="scope.row.type === 1 && scope.row.photoList.length !== 0 ? (scope.row.photoList[0] ) : ''"
                     />
                   </div>
                   <my-upload
                     ref="myUpload"
                     v-permit="'saverorupdate'"
                     :disalbed="scope.row.type === 0"
-                    :limit="'png&pdf'"
+                    :limit="'image'"
                     style="width:40%"
-                    :is-show="true"
+                    :is-show="false"
                     :title="'上传'"
                     :action="'/user/upload'"
                     @getfileList="(fileList) => getFileData(fileList, 'task', scope.$index, 1)"
@@ -334,36 +334,36 @@
       <span slot="footer" class="dialog-footer">
         <el-button v-permit="'saverorupdate'" type="primary" :disabled="btnLoading" @click="dataFormSubmit(dataForm)">确定</el-button>
       </span>
-      <el-dialog
-        title="照片详情"
-        custom-class="safety-avatar"
-        append-to-body
-        onselectstart="return false;"
-        :close-on-click-modal="false"
-        :visible.sync="dialogVisible"
-        @close="dialogClose"
-      >
-        <div class="img-wrap">
-          <el-tabs v-model="activeName">
-            <el-tab-pane label="现场照片" name="first">
-              <div v-for="(ele, index) in rowImg" :key="index">
-                <h1>现场照片 {{ index + 1 }}</h1>
-                <img
-                  style="width: 100%;height:600px"
-                  :src="ele | http2HttpsFilter"
-                  alt=""
-                >
-              </div>
-            </el-tab-pane>
-            <el-tab-pane label="PDF文件" name="second">
-              <div v-for="(ele, index) in rowPdf" :key="index">
-                <h1>PDF文件 {{ index + 1 }}</h1>
-                <a target="_blank" :href="ele"><el-button type="primary">预览</el-button></a>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </el-dialog>
+    </el-dialog>
+    <el-dialog
+      title="照片详情"
+      custom-class="safety-avatar"
+      append-to-body
+      onselectstart="return false;"
+      :close-on-click-modal="false"
+      :visible.sync="dialogVisible"
+      @close="dialogClose"
+    >
+      <div class="img-wrap">
+        <el-tabs v-model="activeName">
+          <el-tab-pane label="现场照片" name="first">
+            <div v-for="(ele, index) in rowImg" :key="index">
+              <h1>现场照片 {{ index + 1 }}</h1>
+              <img
+                style="width: 100%;height:600px"
+                :src="ele | http2HttpsFilter"
+                alt=""
+              >
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="PDF文件" name="second">
+            <div v-for="(ele, index) in rowPdf" :key="index">
+              <h1>PDF文件 {{ index + 1 }}</h1>
+              <a target="_blank" :href="ele"><el-button type="primary">预览</el-button></a>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -562,6 +562,7 @@ export default {
     },
     handleClickImg(row) {
       this.dialogVisible = true
+      console.log(row)
       row.photoList.map(v => {
         v.indexOf('.pdf') !== -1 ? this.rowPdf = [...this.rowPdf, v] : this.rowImg = [...this.rowImg, v]
       })

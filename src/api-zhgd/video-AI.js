@@ -31,3 +31,13 @@ export function videoProList(params) {
     params
   })
 }
+
+// 抓拍图片
+
+export function photoRecordList(data) {
+  return request({
+    url: '/aiAlarm/photoRecording',
+    method: 'post',
+    data
+  })
+}

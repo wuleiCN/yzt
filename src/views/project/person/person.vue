@@ -911,7 +911,7 @@ export default {
           }).catch(err => {
             console.log(err)
           })
-        } else if (this.projectRegion) {
+        } else if (this.projectRegion) { // 东莞地区
           this.$message.warning('暂无权限，请联系管理人员进行相应操作!')
         } else {
           auditState(ids).then((data) => {

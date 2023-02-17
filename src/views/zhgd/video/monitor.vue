@@ -72,8 +72,8 @@
                 @click="selectVideo(item)"
               >
                 <i v-if="palyVideo(item.channelNo)" class="el-icon-video-play" />
-                <span v-if="isControl === 2">{{ item.videoName }}</span>
-                <!-- <span v-else>{{ item.videoName }}</span> -->
+                <!-- <span v-if="isControl === 2">{{ item.videoName }}</span> -->
+                <span>{{ item.videoName }}</span>
               </div>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default {
         // this.videoList[this.selectIndex].deviceSerial = data.deviceSerial
         if (this.videoList.find(v => v.channelNo === data.channelNo) === undefined) {
           this.$set(this.videoList, this.selectIndex, { ...data })
-        } else this.$message.warning('该摄像头播放中')
+        } else this.$message.warning('该摄像头播放中，请选择其它通道播放!')
       } else {
         this.$message.error('请选择摄像头画布')
       }
@@ -348,6 +348,7 @@ export default {
           this.totalList = this.getVideoList(result)
           arr = this.totalList
           this.total = arr.length
+          console.log('arr', arr)
           // for (let index = 0; index < this.activeClass; index++) {
           //   const element = arr[index] || {}
           //   this.videoList.push(element)

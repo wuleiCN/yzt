@@ -319,3 +319,13 @@ export function toExamine(data) {
     data
   })
 }
+
+// 临时白名单
+
+export function whiteList(data) {
+  return request({
+    url: '/workersCj/list',
+    method: 'post',
+    data
+  })
+}

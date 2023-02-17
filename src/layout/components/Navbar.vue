@@ -213,7 +213,7 @@ export default {
       color: #DA0051 !important;
       position: absolute;
       font-weight: 700;
-      right: 130px;
+      right: 210px;
     }
   }
   .logo-style {

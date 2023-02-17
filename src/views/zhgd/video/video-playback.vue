@@ -76,12 +76,12 @@
           <el-date-picker
             v-model="timeRange"
             clearable
-            value-format="yyyy-MM-dd"
-            type="daterange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            type="datetimerange"
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-            style="margin-top: 15px;"
+            style="margin-top: 15px;width: 352px;"
             @change="(e) => changeTimeRange(e)"
           />
         </el-card>
@@ -215,8 +215,8 @@ export default {
       if (this.dataList.length) this.value = dataList.find(item => item.id === id).id
     },
     changeTimeRange(e) {
-      this.startTime = (e && e.length ? e[0] : '') + ' 00:00:00'
-      this.stopTime = (e && e.length ? e[1] : '') + ' 23:00:00'
+      this.startTime = (e && e.length ? e[0] : '')
+      this.stopTime = (e && e.length ? e[1] : '')
       this.getVideoMonitorList(this.value)
     },
     show(item) {

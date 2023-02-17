@@ -49,7 +49,11 @@
       </div>
       <div class="left-bottom-wrap">
         <div class="title-wrap">
-          <div class="title"><span class="icon" /> 今日智能报警拍照记录</div>
+          <div class="title">
+            <span class="icon" />
+            今日智能报警拍照记录
+            <span class="history" @click="showHistory()">查看历史</span>
+          </div>
         </div>
         <div class="today-record">
           <swiper :options="swiperOption">
@@ -90,6 +94,28 @@
         </div>
       </div>
     </div>
+    <el-dialog
+      custom-class="history-modal"
+      :append-to-body="true"
+      title="历史记录"
+      :visible.sync="historyVisible"
+    >
+      <div class="warning-img">
+        <div v-for="(slide, index) in swiperSlides" :key="index" class="history-img">
+          <img :src="slide.image" alt="">
+        </div>
+      </div>
+      <el-pagination
+        background
+        :current-page="pageIndex"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="pageSize"
+        :total="totalPage"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="sizeChangeHandle"
+        @current-change="currentChangeHandle"
+      />
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -117,6 +143,10 @@ export default {
       AICount: [],
       videoAddress: '',
       swiperSlides: [],
+      historyVisible: false,
+      pageIndex: 1,
+      pageSize: 10,
+      totalPage: 0,
       projectId: this.$store.state.user.loginInfo.projectId,
       warningData: [
         {
@@ -198,6 +228,20 @@ export default {
       }, 60000)
     },
     dataInit() {},
+    showHistory() {
+      this.historyVisible = true
+    },
+    // 每页数
+    sizeChangeHandle(val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      // this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle(val) {
+      this.pageIndex = val
+      // this.getDataList()
+    },
     getViolationAlarmData() {
       getViolationAlarm({ pId: this.projectId, type: this.value }).then(v => {
         if (v.code === 1000 && v.result) this.waringData = v.result
@@ -222,7 +266,7 @@ export default {
     playAiVideo(params) {
       const lastStr = params.videoAddress ? params.videoAddress.split('/')[params.videoAddress.split('/').length - 1] : ''
       if (params.isControl === 2 && params.videoAddress && params.heart) {
-        this.videoAddress = `https://open.ys7.com/ezopen/h5/iframe?url=${params.videoAddress.replace(lastStr, `${params.channelNo + 1}.hd.live`)}&autoplay=1&accessToken=${params.accessToken}`
+        this.videoAddress = `https://open.ys7.com/ezopen/h5/iframe?url=${params.videoAddress.replace(lastStr, `${params.channelNo}.hd.live`)}&autoplay=1&accessToken=${params.accessToken}`
       } else if (params.isControl === 1) {
         this.videoAddress = 'https://open.ys7.com/ezopen/h5/iframe?url=' + params.videoAddress + '&autoplay=1&accessToken=' + params.accessToken
       } else if (params.heart === 0) {
@@ -366,6 +410,11 @@ export default {
         height: 1.31rem;
         .title {
           margin-left: .19rem;
+          .history {
+            margin-left: 80%;
+            border-bottom: 1px #fff solid;
+            cursor: pointer;
+          }
         }
       }
       .today-record {
@@ -385,6 +434,7 @@ export default {
           img{
             width: 100%;
             height: 100%;
+            margin-right: 10px;
           }
           .date {
             display: inline-block;
@@ -515,4 +565,19 @@ export default {
     white-space:nowrap; //溢出不换行
   }
 }
+::v-deep .el-dialog {
+    margin-top: 15vh !important;
+    width: 46.15rem;
+    height:50%;
+    .warning-img {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+          img{
+            width: 8.85rem;
+            height: 6.54rem;
+            padding-right: .19rem;
+          }
+        }
+  }
 </style>

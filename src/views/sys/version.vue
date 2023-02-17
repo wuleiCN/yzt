@@ -4,6 +4,11 @@
       <div class="search-btn-style">
         <el-button v-permit="'sys_version_btn_add'" type="primary" @click="addOrUpdateHandle({})">新增</el-button>
         <el-button v-permit="'sys_version_btn_delete'" type="danger" :disabled="dataListSelections.length <= 0" @click="deleteHandle()">批量删除</el-button>
+        <el-form-item label="设备类别：" label-width="110px" prop="type">
+          <el-select v-model.trim="dataForm.deviceTypePlus" clearable style="width:160px" placeholder="设备类型" @change="getDataList()">
+            <el-option v-for="(v, i) in deviceList" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
+          </el-select>
+        </el-form-item>
       </div>
     </el-form>
     <el-table
@@ -115,8 +120,31 @@ export default {
     return {
       dataForm: {
         companyName: null,
-        suid: null
+        suid: null,
+        deviceTypePlus: null
       },
+      deviceList: [
+        {
+          title: 'Android_v1',
+          id: 1
+        },
+        {
+          title: 'Android_v2',
+          id: 4
+        },
+        {
+          title: 'Android_v3',
+          id: 5
+        },
+        {
+          title: 'IOS',
+          id: 2
+        },
+        {
+          title: '小智',
+          id: 3
+        }
+      ],
       dataList: [],
       pageIndex: 1,
       pageSize: 10,
@@ -142,7 +170,7 @@ export default {
           this.dataList = data.result.records.map(item => {
             item.createTime = item.createTime ? parseTime(item.createTime, '{y}-{m}-{d}') : ''
             item.update = item.isUpdate ? (item.isUpdate === 1 ? '是' : '否') : ''
-            item.type = item.deviceType ? (item.deviceType === 1 ? 'Android' : item.deviceType === 2 ? 'IOS' : '小智') : ''
+            item.type = item.deviceType && this.deviceList.find(v => v.id === item.deviceType).title
             return item
           })
           this.totalPage = data.result.total

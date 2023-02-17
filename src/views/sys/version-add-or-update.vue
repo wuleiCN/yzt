@@ -33,11 +33,9 @@
         <my-upload ref="myUpload" :is-show="true" :title="'点击上传'" :limit="'apk'" :action="'/version/uploadFileApp'" @getfileList="(fileList) => getFileData(fileList, 'downloadUrl')" />
       </el-form-item>
       <el-form-item label="设备类型：" prop="deviceType">
-        <el-radio-group v-model="dataForm.deviceType" style="width:100%">
-          <el-radio :label="1">Android</el-radio>
-          <el-radio :label="2">IOS</el-radio>
-          <el-radio :label="3">小智</el-radio>
-        </el-radio-group>
+        <el-select v-model.trim="dataForm.deviceType" style="width:160px" placeholder="设备类型">
+          <el-option v-for="(v, i) in deviceList" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
+        </el-select>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -66,9 +64,34 @@ export default {
         isLocalupdate: 1,
         deviceType: 1
       },
+      deviceList: [
+        {
+          title: 'Android_v1',
+          id: 1
+        },
+        {
+          title: 'Android_v2',
+          id: 4
+        },
+        {
+          title: 'Android_v3',
+          id: 5
+        },
+        {
+          title: 'IOS',
+          id: 2
+        },
+        {
+          title: '小智',
+          id: 3
+        }
+      ],
       dataRule: {
         version: [
           { required: true, message: '版本号不能为空', trigger: 'blur' }
+        ],
+        downloadUrl: [
+          { required: true, message: '上传文件不能为空', trigger: 'blur' }
         ]
       }
     }

@@ -63,19 +63,21 @@ export default {
       this.visible = true
     },
     getAttendList() {
-      console.log(123)
       getAtteList().then(data => {
         if (data.result && data.code === 1000) this.proList = data.result
       })
     },
     // 表单提交
     dataFormSubmit() {
-      if (this.dataForm.projectIds.length === 0) this.$message.warning('请选择要补推的项目')
-      AttSupplePush({ ...this.dataForm }).then(res => {
-        if (res.code === 1000) this.$message.success('操作成功！')
-        else this.$message.error('操作失败！')
-        this.visible = false
-      })
+      if (this.dataForm.projectIds.length !== 0) {
+        AttSupplePush({ ...this.dataForm }).then(res => {
+          if (res.code === 1000) this.$message.success('操作成功！')
+          else this.$message.error('操作失败！')
+          this.visible = false
+        })
+      } else {
+        this.$message.warning('请选择要补推的项目')
+      }
     },
     dataFormClose() {
       this.dataForm.projectIds = []

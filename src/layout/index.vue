@@ -4,7 +4,7 @@
     <div :class="{hasTagsView:needTagsView}" :style="{'margin-left': 0}" class="main-container">
       <div :style="{'width': 'calc(100%)'}" :class="{'fixed-header':fixedHeader}">
         <navbar @childrenRoutes="getroutes" />
-        <div class="async-log" @click="openLog">
+        <div v-permit="'project_list_btn_log'" class="async-log" @click="openLog">
           <svg-icon icon-class="laodong" />
           <span>对接日志</span>
         </div>
@@ -113,7 +113,7 @@ export default {
       display: inline-block;
       position: absolute;
       top: 15px;
-      right: 280px;
+      right: 360px;
       color: yellowgreen;
       font-weight: 700;
       font-size: 17px;

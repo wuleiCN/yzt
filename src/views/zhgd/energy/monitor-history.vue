@@ -1,6 +1,5 @@
 <template>
   <div class="water-history">
-    {{ exportUrl }}
     <el-form :inline="true" :model="dataForm">
       <el-form-item>
         <el-radio-group v-model="btnVal" size="medium" @change="changeHandle">

@@ -75,6 +75,7 @@
             />
             <el-table-column
               prop="projectName"
+              fixed="left"
               header-align="center"
               align="center"
               width="250"
@@ -96,14 +97,14 @@
               prop="workersNum"
               header-align="center"
               align="center"
-              width="100"
+              width="190"
               label="项目人员数"
             />
             <el-table-column
               prop="projectRegion"
               header-align="center"
               align="center"
-              width="182"
+              width="220"
               :show-overflow-tooltip="true"
               label="所属区域"
             />
@@ -111,14 +112,14 @@
               prop="projectTypeName"
               header-align="center"
               align="center"
-              width="120"
+              width="190"
               label="项目类别"
             />
             <el-table-column
               prop="companyName"
               header-align="center"
               align="center"
-              width="200"
+              width="300"
               :show-overflow-tooltip="true"
               label="所属企业"
             />
@@ -126,7 +127,7 @@
               prop="startingTime"
               header-align="center"
               align="center"
-              width="110"
+              width="190"
               label="开工日期"
             >
               <template slot-scope="scope"> <span>{{ scope.row.startingTime ? parseTime(scope.row.startingTime, '{y}-{m}-{d}') : '' }}</span> </template>
@@ -135,7 +136,7 @@
               prop="finishTime"
               header-align="center"
               align="center"
-              width="110"
+              width="190"
               label="完工日期"
             >
               <template slot-scope="scope"> <span>{{ scope.row.finishTime ? parseTime(scope.row.finishTime, '{y}-{m}-{d}') : '' }}</span> </template>
@@ -145,6 +146,7 @@
               header-align="center"
               align="center"
               label="项目状态"
+              width="190"
             >
               <template slot-scope="scope">
                 <el-tag v-if="scope.row.projectState == 0" size="small" type="success">在建</el-tag>
@@ -158,11 +160,12 @@
               header-align="center"
               align="center"
               label="操作"
-              width="190"
+              width="260"
             >
               <template slot-scope="scope">
                 <el-button v-permit="'project_list_btn_update'" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-                <el-button slot="reference" v-permit="'project_list_btn_set'" style="margin-right:5px" type="text" @click="settingGruop(null, scope.row.id)">对接设置</el-button>
+                <el-button slot="reference" v-permit="'project_list_btn_set'" style="margin-right:5px" type="text" @click="settingGruop(null, scope.row.id)">两制对接</el-button>
+                <el-button slot="reference" v-permit="'device_list_btn_set'" style="margin-right:5px" type="text" @click="settingData(null, scope.row.id)">设备对接</el-button>
                 <!-- <el-popover
                   placement="left"
                   width="auto"
@@ -189,6 +192,7 @@
           <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList" />
           <!-- 对接设置弹窗 -->
           <synDetial v-if="synDetialVisible" ref="synDetial" @refreshDataList="getDataList" />
+          <synData v-if="synDataVisible" ref="synData" @refreshDataList="getDataList" />
           <!-- 对接设置弹窗 -->
           <asyncLog v-if="asyncLogVisible" ref="asyncLog" />
           <!-- 项目设置弹窗 -->
@@ -205,6 +209,7 @@
 import { treeDataTranslate, parseTime } from '@/utils/index'
 import AddOrUpdate from './list-add-or-update'
 import synDetial from './list-synSet'
+import synData from './list-dataSet'
 import asyncLog from './list-async-log'
 import setStatus from './list-setStatus'
 import pushSupple from './list-projectSupple.vue'
@@ -216,7 +221,8 @@ export default {
     asyncLog,
     setStatus,
     synDetial,
-    pushSupple
+    pushSupple,
+    synData
   },
   data() {
     return {
@@ -224,6 +230,7 @@ export default {
       parseTime,
       isShow: false,
       synDetialVisible: false,
+      synDataVisible: false,
       asyncLogVisible: false,
       setStatusVisible: false,
       pushSuppleVisble: false,
@@ -255,7 +262,6 @@ export default {
     }
   },
   async created() {
-    console.log('router', this.$router)
     if (this.userType === 1 || this.userType === 0) {
       const list = await this.getTreeList()
       if (list.length) {
@@ -278,7 +284,7 @@ export default {
         if (data && data.code === 1000) {
           this.dataList = data.result.records
           this.totalPage = data.result.total
-          if (this.userType === 2 && data.result.records.length > 0) sessionStorage.setItem('projectType', JSON.stringify(data.result.records[0].projectType))
+          if ((this.userType === 2 || this.userType === 3) && data.result.records.length > 0) sessionStorage.setItem('projectType', JSON.stringify(data.result.records[0].projectType))
         } else {
           this.dataList = []
           this.totalPage = 0
@@ -342,6 +348,12 @@ export default {
       this.synDetialVisible = true
       this.$nextTick(() => {
         this.$refs.synDetial.init(tag, id)
+      })
+    },
+    settingData(tag, id) {
+      this.synDataVisible = true
+      this.$nextTick(() => {
+        this.$refs.synData.init(tag, id)
       })
     },
     // 对接弹窗
