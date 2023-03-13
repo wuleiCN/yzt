@@ -94,7 +94,7 @@
                 </el-row>
                 <el-row v-for="(item, index) in waterSortData[btnVal]" :key="index" :class="`row-${index+1}`">
                   <el-col :span="12">{{ index+ 1 }}{{ item.name }}</el-col>
-                  <el-col :span="12">{{ item.mwo }}kWh</el-col>
+                  <el-col :span="12">{{ item.mwo }} t</el-col>
                 </el-row>
               </div>
             </el-card>
@@ -104,11 +104,11 @@
                 <div class="row-item">水表</div>
                 <div class="row-item"><img src="@/assets/dianbiao.png" alt=""></div>
                 <div class="row-item">
-                  <div class="online-num">{{ waterStaData.onLineTotal }}</div>
+                  <div class="online-num">{{ waterStaData.onLineTotal || 1 }}</div>
                   <div>在线数</div>
                 </div>
                 <div class="row-item">
-                  <div class="all-num">{{ waterStaData.total }}</div>
+                  <div class="all-num">{{ waterStaData.total || 1 }}</div>
                   <div>总数</div>
                 </div>
               </div>
@@ -126,6 +126,7 @@
 <script>
 import { parseTime } from '@/utils'
 import { waterSta, getSort, getDayTOLastDay, getMonTOLastMon, getYearTOLastYear, getBy15, getByHour, getByDay, waterProList } from '@/api-zhgd/water-meter'
+import { getList as elevatorGetList, elevatorProList } from '@/api-zhgd/zhgd-elevator'
 import Box from './pie'
 import MonitorHistory from './monitor-history'
 // import WebSocket from '@/components/webSocket'
@@ -142,11 +143,69 @@ export default {
   data() {
     return {
       waterStaData: {},
-      waterSortData: {},
-      dayCompare: {},
-      monCompare: {},
-      yearCompare: {},
-      chartData: [],
+      waterSortData: {
+        sortDay: [
+          {
+            name: '9#',
+            mwo: 60
+          },
+          {
+            name: '3#',
+            mwo: 30
+          },
+          {
+            name: '6#',
+            mwo: 20
+          }
+        ]
+      },
+      dayCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '210',
+        dayRate: '60',
+        weekRate: '80'
+      },
+      monCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '410',
+        MonMwo: '40',
+        MonRate: '60'
+      },
+      yearCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '110',
+        YearMwo: '4800',
+        YearRate: '436'
+      },
+      chartData: [
+        {
+          mwo: 30,
+          time: '00:00'
+        },
+        {
+          mwo: 20,
+          time: '00:03'
+        },
+        {
+          mwo: 15,
+          time: '00:06'
+        },
+        {
+          mwo: 23,
+          time: '00:09'
+        },
+        {
+          mwo: 23,
+          time: '00:12'
+        },
+        {
+          mwo: 31,
+          time: '00:15'
+        }
+      ],
       status: '',
       chartBtnVal: 'chartM',
       btnVal: 'sortDay',
@@ -160,8 +219,8 @@ export default {
       activeName: 'ssjc'
     }
   },
-  async created() {
-    await this.getWaterProList()
+  created() {
+    this.getWaterProList()
     this.fatchGetBy15(this.projectId)
     this.init()
   },
@@ -176,6 +235,11 @@ export default {
     // 获取设备下拉列表
     getDustEmList(projectId) {
       getDustEmissionList({ isDel: 0, projectId }).then(data => {
+        // if (data && data.code === 1000) {
+        //   this.deviceList = data.result.records
+        // }
+      })
+      elevatorGetList({ isDel: 0, projectId }).then(data => {
         if (data && data.code === 1000) {
           this.deviceList = data.result.records
         }
@@ -193,7 +257,7 @@ export default {
     fatchSort(projectId) {
       getSort({ projectId }).then(data => {
         if (data && data.code === 1000) {
-          this.waterSortData = data.result
+          // this.waterSortData = data.result
         }
       })
     },
@@ -252,15 +316,28 @@ export default {
     },
     // 获取项目列表
     getWaterProList() {
-      return waterProList().then(data => {
+      waterProList().then(data => {
+        if (data && data.code === 1000) {
+          // this.proList = data.result
+          // if (this.proList.length) {
+          //   this.proName = this.proList[0].projectName
+          //   this.deviceList = this.proList[0].deviceList
+          //   this.projectId = this.deviceList[0].projectId
+          //   this.deviceId = this.deviceList[0].sortNumber
+          //   this.deviceRealTimeData(this.deviceId)
+          //   this.getHearType()
+          // }
+        }
+      })
+      elevatorProList().then(data => {
         if (data && data.code === 1000) {
           this.proList = data.result
           if (this.proList.length) {
             this.proName = this.proList[0].projectName
             this.deviceList = this.proList[0].deviceList
             this.projectId = this.deviceList[0].projectId
-            this.deviceId = this.deviceList[0].sortNumber
-            this.deviceRealTimeData(this.deviceId)
+            this.elevatorId = this.deviceList[0].id
+            this.deviceRealTimeData(this.elevatorId)
             this.getHearType()
           }
         }

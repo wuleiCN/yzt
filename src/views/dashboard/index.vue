@@ -366,9 +366,9 @@ export default {
 .toggle {
   float: left;
   color:#666;
-  border: 1px solid #999;
+  // border: 1px solid #999;
   background: #fff;
-  width: 70px;
+  width: 94px;
   text-align: center;
   cursor: pointer;
   position: absolute;

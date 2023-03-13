@@ -547,6 +547,10 @@ $light_gray:#eee;
         width: 200px;
         height: 200px;
         padding: 10px;
+        img {
+          height: 0px;
+          width: 0px;
+        }
       }
     }
     &:hover {

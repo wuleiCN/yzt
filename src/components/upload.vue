@@ -6,7 +6,8 @@
       :disabled="disalbed"
       :action="isZhgd ? $httpZhgd.baseUrl(action) : $http.baseUrl(action)"
       :headers="{
-        token: loginInfo.token
+        token: loginInfo.token,
+        type: deviceTpye
       }"
       :data="{...data}"
       :on-preview="handlePreview"
@@ -72,6 +73,10 @@ export default {
     disalbed: {
       type: Boolean,
       default: false
+    },
+    deviceTpye: {
+      type: Number,
+      default: null
     }
   },
   data() {

@@ -22,6 +22,7 @@ export default {
       projectName: '',
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       projectId: this.$store.state.user.loginInfo.projectId,
+      loginId: JSON.parse(sessionStorage.getItem('result')).id,
       firstPanelVisible: false,
       company: this.isCompany
     }
@@ -43,7 +44,9 @@ export default {
       this.$emit('newsReload', projectId, item)
     },
     getPList() {
-      return pList().then((data) => {
+      return pList({
+        loginId: this.loginId
+      }).then((data) => {
         if (data && data.code === 1000) {
           console.log('project', data)
           this.proList = data.result
@@ -51,7 +54,7 @@ export default {
           console.log('project', this.projectName)
           return this.proList[0].projectList[0]
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },

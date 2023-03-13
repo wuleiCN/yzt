@@ -176,6 +176,7 @@ export default {
       womenNumPercentage: 0,
       userType: JSON.parse(sessionStorage.getItem('result')).userType,
       projectId: this.$store.state.user.loginInfo.projectId,
+      userId: JSON.parse(sessionStorage.getItem('result')).id,
       dustData: {},
       proData: {},
       sexData: {},
@@ -254,7 +255,9 @@ export default {
       this.firstPanelVisible = false
     },
     getPList() {
-      return pList().then((data) => {
+      return pList({
+        loginId: this.userId
+      }).then((data) => {
         if (data && data.code === 1000) {
           this.proList = data.result
           this.pName = this.proList[0].projectList[0].projectName

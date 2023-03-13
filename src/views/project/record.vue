@@ -58,6 +58,12 @@
                 <el-option label="不分进出" value="none"> 不分进出 </el-option>
               </el-select>
             </el-form-item>
+            <el-form-item prop="diredeviceTypection">
+              <el-select v-model.trim="dataForm.deviceType" clearable style="width:100%" placeholder="考勤类别" @change="(e) => searchHandle(e, 'deviceType')">
+                <el-option label="普通考勤" :value="1"> 普通考勤 </el-option>
+                <el-option label="手持机考勤" :value="2"> 手持机考勤 </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="searchHandle()">查询</el-button>
             </el-form-item>
@@ -255,7 +261,9 @@ export default {
         teamName: '',
         deviceSn: '',
         startTime: '',
-        endTime: ''
+        endTime: '',
+        deviceType: null,
+        direction: ''
       },
       defaultProps: {
         children: 'children',

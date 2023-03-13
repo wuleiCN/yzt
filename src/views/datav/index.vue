@@ -235,8 +235,8 @@ export default {
       this.getAttendanceDynamic()
     }, 5000)
     this.tiemer1 = setInterval(() => {
-      this.getNewestAttendance()
-      this.getAttendanceDynamic()
+      this.getTodayAttendance()
+      this.getConsAttendance()
     }, 3600000)
     // 初始化
     this.setRem()

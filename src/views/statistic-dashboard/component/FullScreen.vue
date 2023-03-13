@@ -32,23 +32,13 @@ export default {
   methods: {
     // 全屏 / 退出全屏
     toggleFullScreen() {
-      // setTimeout(() => {
       this.status = !full.isElementFullScreen()
       if (full.isElementFullScreen()) {
         full.exitFullscreen()
-        // this.$store.dispatch('project/contarct', {
-        //   width: '100%',
-        //   height: '330'
-        // })
       } else {
         // 必须加 dashboard-full-screen 类名
         full.Fullscreen(this.className)
-        // this.$store.dispatch('project/contarct', {
-        //   width: '100%',
-        //   height: '420'
-        // })
       }
-      // }, 100)
     }
   }
 }

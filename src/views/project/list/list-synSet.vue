@@ -115,6 +115,23 @@
                   placeholder="WORKID"
                 />
               </el-form-item>
+              <div v-if="['ZHONGSHAN'].includes(platformName)">
+                <el-form-item label="工程编码" prop="engineeringCode">
+                  <el-input v-model.trim="dataForm.engineeringCode" placeholder="工程编码" />
+                </el-form-item>
+                <el-form-item label="设备序号" prop="clientSerial">
+                  <el-input v-model.trim="dataForm.clientSerial" placeholder="设备序号" />
+                </el-form-item>
+                <el-form-item
+                  label="平台地址"
+                  prop="userName"
+                  :rules="[
+                    { required: true, message: '请输入平台地址', trigger: 'blur' }
+                  ]"
+                >
+                  <el-input v-model.trim="dataForm.userName" placeholder="平台地址" />
+                </el-form-item>
+              </div>
             </el-form>
           </el-col>
           <el-col :span="9">

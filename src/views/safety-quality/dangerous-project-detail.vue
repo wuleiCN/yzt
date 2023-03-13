@@ -83,22 +83,15 @@
               :show-overflow-tooltip="true"
               label="时间"
             />
-            <!-- <el-table-column
-              prop="emergencyType"
-              header-align="center"
-              align="center"
-              :show-overflow-tooltip="true"
-              label="类型"
-            /> -->
             <el-table-column
-              prop="emergencyType"
+              prop="workerType"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="类型"
             >
               <template slot-scope="scope">
-                <el-select v-model.trim="scope.row.emergencyType" style="width:200px" placeholder="危大工程类别">
+                <el-select v-model.trim="scope.row.workerType" style="width:200px" placeholder="类型">
                   <el-option v-for="(v, i) in worketype" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
                 </el-select>
               </template>
@@ -202,14 +195,14 @@
               label="时间"
             />
             <el-table-column
-              prop="emergencyType"
+              prop="workerType"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
-              label="类型"
+              label="方案类型"
             >
               <template slot-scope="scope">
-                <el-select v-model.trim="scope.row.emergencyType" style="width:200px" placeholder="危大工程类别">
+                <el-select v-model.trim="scope.row.workerType" style="width:200px" placeholder="方案类型">
                   <el-option v-for="(v, i) in worketype" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
                 </el-select>
               </template>
@@ -287,14 +280,14 @@
               label="时间"
             />
             <el-table-column
-              prop="emergencyType"
+              prop="workerType"
               header-align="center"
               align="center"
               :show-overflow-tooltip="true"
               label="方案类型"
             >
               <template slot-scope="scope">
-                <el-select v-model.trim="scope.row.emergencyType" style="width:200px" placeholder="危大工程类别">
+                <el-select v-model.trim="scope.row.workerType" style="width:200px" placeholder="方案类型">
                   <el-option v-for="(v, i) in worketype" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
                 </el-select>
               </template>
@@ -451,48 +444,9 @@ export default {
         createdDate: '',
         updatedDate: '',
         updateBy: '',
-        workerRecordDtoList: [
-          // {
-          //   id: '',
-          //   dangerousLargeProjectId: '',
-          //   workerType: '',
-          //   operationDate: parseTime(new Date().getTime(), '{y}-{m}-{d}'),
-          //   photoList: [],
-          //   emergencyType: '',
-          //   maintenanceBy: '',
-          //   emergencyPlan: '',
-          //   serialNum: '',
-          //   type: 4
-          // }
-        ],
-        emergencyTreatmentDtoList: [
-          // {
-          //   id: '',
-          //   dangerousLargeProjectId: '',
-          //   workerType: '',
-          //   operationDate: parseTime(new Date().getTime(), '{y}-{m}-{d}'),
-          //   photoList: [],
-          //   emergencyType: '',
-          //   maintenanceBy: '',
-          //   emergencyPlan: '',
-          //   serialNum: '',
-          //   type: 2
-          // }
-        ],
-        maintenanceRecordDtoList: [
-          // {
-          //   id: '',
-          //   dangerousLargeProjectId: '',
-          //   workerType: '',
-          //   operationDate: parseTime(new Date().getTime(), '{y}-{m}-{d}'),
-          //   photoList: [],
-          //   emergencyType: '',
-          //   maintenanceBy: '',
-          //   emergencyPlan: '',
-          //   serialNum: '',
-          //   type: 3
-          // }
-        ]
+        workerRecordDtoList: [],
+        emergencyTreatmentDtoList: [],
+        maintenanceRecordDtoList: []
       },
       exportUrl: '',
       token: JSON.parse(sessionStorage.getItem('result')).token,

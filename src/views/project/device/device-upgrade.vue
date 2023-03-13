@@ -12,7 +12,7 @@
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="dataFormSubmit()">确定</el-button>
+      <el-button type="primary" :disabled="isUpgrade" @click="dataFormSubmit()">确定</el-button>
     </span>
   </el-dialog>
 </template>
@@ -27,14 +27,15 @@ export default {
   data() {
     return {
       visible: false,
+      isUpgrade: true,
       types: [],
       dataForm: {
         url: '',
         id: null
       },
       dataRule: {
-        ip: [
-          { required: true, message: 'ip不能为空', trigger: 'blur' }
+        url: [
+          { required: true, message: '上传文件不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -46,7 +47,10 @@ export default {
       this.visible = true
     },
     getFileData(fileList, type) {
-      this.$set(this.dataForm, type, fileList.result)
+      if (fileList.code === 1000) {
+        this.$set(this.dataForm, type, fileList.result)
+        this.isUpgrade = false
+      }
     },
     // 表单提交
     dataFormSubmit() {

@@ -63,6 +63,14 @@ export function upgrade(data) {
     data
   })
 }
+// 手撕鸡设备升级
+export function upssj(data) {
+  return request({
+    url: '/device/upSCJ',
+    method: 'post',
+    data
+  })
+}
 // 设备重启
 export function rebootdevice(data) {
   return request({

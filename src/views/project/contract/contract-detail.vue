@@ -27,6 +27,7 @@
           </el-form-item></el-form>
         <div class="contract-category-edit">
           <Uediter ref="ue" :value="ueditor.value" :config="ueditor.config" />
+          <!-- 右键新增字段 -->
           <el-dialog
             custom-class="contract-keys-modal"
             title="关键词"
@@ -80,7 +81,9 @@ export default {
         zIndex: 1000000,
         initialFrameHeight: 420,
         contextMenu: [
-          { label: '合同关键字', cmdName: 'cleardoc',
+          {
+            label: '合同关键字',
+            cmdName: 'cleardoc',
             icon: 'aligntd',
             exec: function() {
               that.showDodal()
@@ -101,6 +104,7 @@ export default {
       })
     },
     showDodal(e) {
+      console.log('=====>', e)
       this.visible = true
     },
     getCategoryList() {
@@ -149,6 +153,7 @@ export default {
         this.keyList = data.result
       })
     },
+    // 插入新增字段
     getKey(item) {
       this.ue.execCommand('insertHtml', `${item}`)
       this.visible = false

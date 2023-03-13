@@ -195,7 +195,7 @@ export default {
     init(projectId) {
       this.projectId = projectId
       this.getMapDetail(projectId)
-      // this.getDataList(projectId)
+      this.getDataList(projectId)
       // this.getVideoMonitorList(null, projectId)
     },
     newsReload(projectId) {
@@ -209,7 +209,7 @@ export default {
             this.proName = this.proList[0].projectName
             this.projectId = this.proList[0].id
             this.value = this.proList[0].deviceList[0].id
-            this.getDataList()
+            this.getDataList(this.projectId)
             this.visible = false
             this.getVideoMonitorList(this.value)
           }
@@ -296,7 +296,7 @@ export default {
     },
     // 获取设备列表
     getDataList(projectId) {
-      return getList({ projectId, isDel: 0 }).then(data => {
+      return getList({ projectId: projectId, isDel: 0 }).then(data => {
         if (data && data.code === 1000) {
           this.dataList = data.result.records
           return this.dataList

@@ -28,6 +28,7 @@
               :default-active="fullPath"
               :router="true"
               mode="vertical"
+              :unique-opened="true"
               @select="handleSubSelect"
             >
               <template v-for="(route) in childrenRoutes">
@@ -35,7 +36,7 @@
                   <svg-icon :icon-class="route.meta.icon" />
                   <span slot="title">{{ route.meta.title }}</span>
                 </el-menu-item>
-                <el-submenu v-else :key="route.path" :index="route.path">
+                <el-submenu v-else :key="route.path + 1" :index="route.path">
                   <template slot="title">
                     <!-- <svg-icon :icon-class="route.meta.icon" /> -->
                     <span slot="title">{{ route.meta.title }}</span>

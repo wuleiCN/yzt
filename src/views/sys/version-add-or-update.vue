@@ -29,13 +29,13 @@
           <el-radio :label="0">否</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="上传文件：" prop="downloadUrl">
-        <my-upload ref="myUpload" :is-show="true" :title="'点击上传'" :limit="'apk'" :action="'/version/uploadFileApp'" @getfileList="(fileList) => getFileData(fileList, 'downloadUrl')" />
-      </el-form-item>
       <el-form-item label="设备类型：" prop="deviceType">
         <el-select v-model.trim="dataForm.deviceType" style="width:160px" placeholder="设备类型">
           <el-option v-for="(v, i) in deviceList" :key="i" :label="v.title" :value="v.id">{{ v.title }}</el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item label="上传文件：" prop="downloadUrl">
+        <my-upload ref="myUpload" :is-show="true" :title="'点击上传'" :limit="'apk'" :device-tpye="dataForm.deviceType" :action="'/version/uploadFileApp'" @getfileList="(fileList) => getFileData(fileList, 'downloadUrl')" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">

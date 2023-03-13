@@ -268,14 +268,16 @@ export default {
       }, 2400)
     },
     getPList() {
-      return pList().then((data) => {
+      return pList({
+        loginId: this.userId
+      }).then((data) => {
         if (data && data.code === 1000) {
           this.proList = data.result
           this.projectName = this.proList.length !== 0 ? this.proList[0].projectList[0].projectName : ''
           console.log('project', this.projectName)
           return this.proList[0].projectList[0]
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },

@@ -22,6 +22,7 @@ export default {
     return {
       isShow: false,
       index: '',
+      loginId: JSON.parse(sessionStorage.getItem('result')).id,
       list: [
         {
           companyName: '213',
@@ -35,7 +36,7 @@ export default {
     }
   },
   created() {
-    console.log(this.proList)
+    if (this.loginId === '339693a0e31f84d1f10a037b45dac458') this.proList[0].companyName = '智慧工地'
   },
   methods: {
     selectCompany(index) {

@@ -48,11 +48,11 @@ export function elevatorSta(data) {
   })
 }
 // 选择项目
-export function pList(data) {
+export function pList(params) {
   return request({
     url: '/project/pList',
     method: 'get',
-    data
+    params
   })
 }
 

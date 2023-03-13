@@ -494,6 +494,7 @@ export default {
     this.getDataList()
     this.isRegion = await this.getProDetail(this.projectId)
     this.projectRegion = await this.getProjectRegion()
+    console.log(this.projectRegion)
   },
   methods: {
     // 获取数据列表

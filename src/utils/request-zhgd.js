@@ -7,8 +7,8 @@ import { getToken } from '@/utils/auth'
 
 const host = window.location.hostname
 
-const STAGE_API = ['http://yzt.yztzn.com/yzt-zhgd', 'ws://yzt.yztzn.com/yzt-zhgd']
-// const STAGE_API = ['http://192.168.1.176/yzt-zhgd', 'ws://192.168.1.176/yzt-zhgd']
+// const STAGE_API = ['http://yzt.yztzn.com/yzt-zhgd', 'ws://yzt.yztzn.com/yzt-zhgd']
+const STAGE_API = ['http://192.168.1.176/yzt-zhgd', 'ws://192.168.1.176/yzt-zhgd']
 const PRO_API = [
   '//' + host + '/yzt-zhgd',
   window.location.origin,
@@ -63,7 +63,8 @@ service.interceptors.response.use(
       }
       // 请求超时
       Message({
-        message: res.message || 'Error',
+        // message: res.message || 'Error',
+        message: '网络繁忙，请稍后重试！',
         type: 'error',
         duration: 5 * 1000
       })
@@ -81,7 +82,8 @@ service.interceptors.response.use(
   },
   error => {
     Message({
-      message: error.message,
+      // message: error.message,
+      message: '网络繁忙，请稍后重试！',
       type: 'error',
       duration: 5 * 1000
     })

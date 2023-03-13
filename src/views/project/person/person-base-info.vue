@@ -494,7 +494,7 @@
         <el-form-item label="薪资计算方式" prop="salaryType">
           <el-radio-group v-model.trim="dataForm.salaryType">
             <el-radio :label="1">工时</el-radio>
-            <el-radio v-if="dataForm.salaryType === 2" :label="2">工量</el-radio>
+            <el-radio :label="2">工量</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item
@@ -1008,16 +1008,16 @@ export default {
     selectTeamChange(teamId) {
       const team = this.teamList.find(item => item.id === teamId)
       // 从事工种是否禁用逻辑
-      if (this.projectType !== '99') {
-        if (this.isQingYuan || this.isMeiZhou || this.isJiangMen) {
+      if (this.isMeiZhou || this.isJiangMen) {
+        if (this.projectType !== '99') { // 恩平项目放开工种
           this.teamIsDisabled = true
         } else {
-          this.teamIsDisabled =
-          this.dataForm.projectRegion === '140000' &&
-          (team && team.teamType !== '900')
+          this.teamIsDisabled = false
         }
       } else {
-        this.teamIsDisabled = false
+        this.teamIsDisabled =
+          (this.dataForm.projectRegion === '140000' || this.isQingYuan) &&
+          (team && team.teamType !== '900') // 山西地区管理岗放开工种
       }
       // 如果是新增 或者 从事工种禁用， 清空从事工种
       if (!this.id || this.teamIsDisabled) this.dataForm.jobName = ''

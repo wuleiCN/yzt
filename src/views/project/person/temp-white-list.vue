@@ -106,6 +106,24 @@
             >
               <template slot-scope="scope"> <span>{{ scope.row.startTime ? parseTime(new Date(scope.row.startTime), '{y}-{m}-{d}') : '' }}</span> </template>
             </el-table-column>
+            <el-table-column
+              fixed="right"
+              header-align="center"
+              align="center"
+              label="操作"
+              width="180"
+            >
+              <template slot-scope="scope">
+                <my-upload
+                  ref="myUpload"
+                  :limit="'image'"
+                  style="display:inline-block;"
+                  :title="'上传'"
+                  :action="'/user/upload'"
+                  @getfileList="fileList => getFileData(fileList, 'faceUrl', scope)"
+                />
+              </template>
+            </el-table-column>
           </el-table>
           <el-pagination
             background
@@ -120,15 +138,35 @@
         </div>
       </el-main>
     </el-container>
-
+    <el-dialog
+      :title="row.empName"
+      custom-class="person-avatar el-dialog_img"
+      append-to-body
+      width="400px"
+      onselectstart="return false;"
+      :close-on-click-modal="false"
+      :visible.sync="dialogVisible"
+    >
+      <!-- <div style="height: 500px;width: 100%;margin:0 auto;text-align:center"> -->
+      <img
+        style="width: 100%;height:600px"
+        :src="row.faceUrl | http2HttpsFilter"
+        alt=""
+      >
+      <!-- </div> -->
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { parseTime } from '@/utils/index'
 import dist from '@/utils/dist'
-import { whiteList } from '@/api/project/person'
+import { whiteList, updateById } from '@/api/project/person'
+import MyUpload from '@/components/upload'
 export default {
+  components: {
+    MyUpload
+  },
   data() {
     return {
       parseTime,
@@ -137,6 +175,7 @@ export default {
       projectRegion: false,
       isShow: false,
       isRegion: false,
+      dialogVisible: false,
       trintTypes: [],
       loginInfo: this.$store.state.user.loginInfo,
       projectId: JSON.parse(sessionStorage.getItem('result')).projectId,
@@ -218,6 +257,18 @@ export default {
       // this.$refs.multiTable.clearSelection()
       this.pageIndex = val
       this.getDataList()
+    },
+    handleClickImg(row) {
+      this.dialogVisible = true
+      this.row = row
+    },
+    // 上传头像
+    getFileData(fileList, type, row) {
+      updateById({
+        faceUrl: fileList.result,
+        id: row.row.id
+      })
+      this.$set(this.dataList[row.$index], type, fileList.result)
     }
   }
 }

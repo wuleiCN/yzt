@@ -19,12 +19,17 @@ import WorkerIndex from './worker/index.vue'
 import QualityIndex from './quality/index.vue'
 import SafetyIndex from './safety/securityManage.vue'
 import SafelityStars from './safety/safelityStars.vue'
-import EnvIndex from './env/index.vue'
+import SmokeSensation from './safety/smokeSensation.vue'
+import ScrewTightness from './safety/screwTightness'
+import EnvIndex from './env/evn.vue'
+import CruingRoom from './env/cruing-room.vue'
 import ElevatorIndex from './mechanical/elevator.vue'
 import CraneIndex from './mechanical/crane.vue'
 import VehicleIndex from './mechanical/vehicle.vue'
 import HighFormwork from './mechanical/highFormwork.vue'
 import DeepExcavation from './mechanical/deepExcavation'
+import MaterialTable from './mechanical/materialTable'
+import HangingBasket from './mechanical/hangingBasket'
 import BoxIndex from './mechanical/box.vue'
 import videoIndex from './video/index.vue'
 import videoAI from './video/AI.vue'
@@ -40,12 +45,17 @@ export default {
     QualityIndex,
     SafetyIndex,
     SafelityStars,
+    SmokeSensation,
+    ScrewTightness,
     EnvIndex,
+    CruingRoom,
     ElevatorIndex,
     CraneIndex,
     VehicleIndex,
     HighFormwork,
     DeepExcavation,
+    MaterialTable,
+    HangingBasket,
     BoxIndex,
     videoIndex,
     videoAI,
@@ -64,13 +74,18 @@ export default {
         { content: QualityIndex, path: '/statistic-dashboard/quality/index', name: '质量管理' },
         { content: SafetyIndex, path: '/statistic-dashboard/safety/securityManage', name: '安全管理' },
         { content: SafelityStars, path: '/statistic-dashboard/safety/safelityStars', name: '安全之星' },
-        { content: EnvIndex, path: '/statistic-dashboard/env/index', name: '绿色施工管理' },
+        { content: SmokeSensation, path: '/statistic-dashboard/safety/smokeSensation', name: '烟感监测' },
+        { content: ScrewTightness, path: '/statistic-dashboard/safety/screwTightness', name: '螺丝松紧' },
+        { content: EnvIndex, path: '/statistic-dashboard/env/evn', name: 'AQI质量管理' },
+        { content: CruingRoom, path: '/statistic-dashboard/env/cruing-room', name: '养护室管理' },
         { content: ElevatorIndex, path: '/statistic-dashboard/mechanical/elevator', name: '升降机管理' },
         { content: CraneIndex, path: '/statistic-dashboard/mechanical/crane', name: '塔吊机管理' },
         { content: VehicleIndex, path: '/statistic-dashboard/mechanical/vehicle', name: '车辆管理' },
         { content: BoxIndex, path: '/statistic-dashboard/mechanical/box', name: '电箱管理' },
         { content: HighFormwork, path: '/statistic-dashboard/mechanical/highFormwork', name: '高支模' },
         { content: DeepExcavation, path: '/statistic-dashboard/mechanical/deepExcavation', name: '深基坑监测' },
+        { content: MaterialTable, path: '/statistic-dashboard/mechanical/materialTable', name: '料台监测' },
+        { content: HangingBasket, path: '/statistic-dashboard/mechanical/hangingBasket', name: '吊篮监测' },
         { content: EnergyIndex, path: '/statistic-dashboard/energy/index', name: '能耗管理' },
         { content: videoIndex, path: '/statistic-dashboard/video/index', name: '视频监控管理' },
         { content: videoAI, path: '/statistic-dashboard/video/AI', name: 'AI视频监控' }

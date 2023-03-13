@@ -18,7 +18,7 @@
       </el-tab-pane>
     </el-tabs>
     <span v-if="loginInfo.projectId" slot="footer" class="dialog-footer">
-      <el-button :loading="btnLoading" type="primary" @click="dataFormSubmit()">确定</el-button>
+      <el-button :loading="btnLoading" type="primary" :disabled="row.isExamine === 3 ||row.isExamine === 4" @click="dataFormSubmit()">确定</el-button>
     </span>
   </el-dialog>
 </template>

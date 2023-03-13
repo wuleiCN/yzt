@@ -13,6 +13,12 @@
       <el-form-item prop="empName">
         <el-input v-model="dataForm.empName" clearable placeholder="姓名" />
       </el-form-item>
+      <el-form-item prop="empName">
+        <el-select v-model.trim="dataForm.type" clearable style="width:100%" placeholder="入住/迁出" @change="searchHandle()">
+          <el-option label="入住" :value="1"> 入住 </el-option>
+          <el-option label="迁出" :value="2"> 迁出 </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item prop="timeRange">
         <el-date-picker
           v-model="dataForm.timeRange"

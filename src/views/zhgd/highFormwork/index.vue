@@ -29,14 +29,13 @@
       </el-form-item>
       <el-form-item>
         <el-select
-          v-model="dataForm.projectId"
+          v-model="dataForm.deviceName"
           clearable
           filterable
           placeholder="请选择设备名称"
-          @change="e => searchHandle()"
         >
           <el-option
-            v-for="item in devList"
+            v-for="item in []"
             :key="item.id"
             :label="item.projectName"
             :value="item.id"

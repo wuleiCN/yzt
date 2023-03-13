@@ -25,6 +25,9 @@ export default {
       deep: true
     }
   },
+  created() {
+    this.getWorkTypeProportion(this.chartData)
+  },
   methods: {
     getWorkTypeProportion(newVal) {
       var data1 = newVal.map(item => item.mwo)

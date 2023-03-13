@@ -1543,5 +1543,31 @@ export const platformDesc = {
       title: '上传薪资单',
       ps: ['必须先保证项目绑定账号上传成功。']
     }
+  ],
+  ZHONGSHAN: [
+    {
+      title: '项目同步编号对应',
+      ps: ['ProjectID']
+    },
+    {
+      title: '授权秘钥对应',
+      ps: ['Secret_key']
+    },
+    {
+      title: '授权账号对应',
+      ps: ['Token']
+    },
+    {
+      title: '工程编码',
+      ps: ['projectnum']
+    },
+    {
+      title: '设备序号',
+      ps: ['devicekey']
+    },
+    {
+      title: '平台地址对应',
+      ps: ['http_port']
+    }
   ]
 }

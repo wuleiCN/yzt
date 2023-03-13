@@ -56,7 +56,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.paths)
+    console.log('===>', this.paths)
   },
   methods: {
     navClick(path, index) {

@@ -329,3 +329,13 @@ export function whiteList(data) {
     data
   })
 }
+
+// 临时白名单上传头像
+
+export function updateById(data) {
+  return request({
+    url: '/workersCj/updateById',
+    method: 'post',
+    data
+  })
+}

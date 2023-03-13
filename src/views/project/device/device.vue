@@ -42,6 +42,7 @@
         <el-button v-permit="'project_device_btn_open'" type="primary" :disabled="dataListSelections.length <= 0" @click="openHandle()">远程开门</el-button>
         <!-- <el-button v-permit="'project_device_btn_subscribe'" type="primary" :disabled="dataListSelections.length <= 0" @click="subscribeModal()">接入服务</el-button> -->
         <el-button v-permit="'project_device_btn_upgrade'" type="primary" :disabled="dataListSelections.length <= 0" @click="upgradeModal()">设备升级</el-button>
+        <el-button v-permit="'project_device_btn_ssj'" type="primary" :disabled="dataListSelections.length <= 0" @click="upSsjModal()">手持机设备升级</el-button>
         <el-button v-permit="'project_device_btn_gjt'" type="primary" :disabled="dataListSelections.length <= 0" @click="gjtModal()">桂建通</el-button>
         <el-button v-permit="'project_device_btn_restart'" type="primary" :disabled="dataListSelections.length <= 0" @click="restartHandle()">设备重启</el-button>
         <!-- <el-button v-permit="'project_device_btn_hkinit'" type="primary" size="small" @click="initHandle()">初始化海康设备</el-button> -->
@@ -165,7 +166,9 @@
     <device-subscribe v-if="subscribeDeviceVisible" ref="subscribeDevice" @refreshDataList="getDataList" />
     <!-- 设备升级 -->
     <device-upgrade v-if="upgradeDeviceVisible" ref="upgradeDevice" @refreshDataList="getDataList" />
-    <!-- 设备升级 -->
+    <!-- 手持机设备升级 -->
+    <device-upssj v-if="ssjDeviceVisible" ref="upSsjDevice" @refreshDataList="getDataList" />
+    <!-- 桂建通设备升级 -->
     <device-gjt v-if="gjtDeviceVisible" ref="gjtDevice" />
     <!-- 同步人员 -->
     <sync-worker v-if="syncWorkerVisible" ref="syncWorker" @refreshDataList="getDataList" />
@@ -178,6 +181,7 @@ import DeviceIssued from './device-issued'
 import DeviceDetail from './device-detail'
 import DeviceSubscribe from './device-subscribe'
 import DeviceUpgrade from './device-upgrade'
+import DeviceUpssj from './device-upSSJ'
 import DeviceGjt from './device-gjt'
 import SyncWorker from './device-sync-worker'
 import { parseTime } from '@/utils/index'
@@ -191,7 +195,8 @@ export default {
     DeviceUpgrade,
     DeviceGjt,
     SyncWorker,
-    DeviceDetail
+    DeviceDetail,
+    DeviceUpssj
   },
   data() {
     return {
@@ -213,6 +218,7 @@ export default {
       detailDeviceVisible: false,
       subscribeDeviceVisible: false,
       upgradeDeviceVisible: false,
+      ssjDeviceVisible: false,
       gjtDeviceVisible: false,
       dataListSelections: [],
       addOrUpdateVisible: false,
@@ -333,6 +339,20 @@ export default {
       this.upgradeDeviceVisible = true
       this.$nextTick(() => {
         this.$refs.upgradeDevice.init(ids[0])
+      })
+    },
+    // 手撕鸡升级弹框
+    upSsjModal() {
+      var ids = this.dataListSelections.map(item => {
+        return item.id
+      })
+      if (ids.length > 1) return this.$message.error('设备升级只能单选')
+      if (this.dataListSelections.length === 1 && this.dataListSelections[0].deviceFactory === 'yztscj') {
+        return this.$message.error('只能升级手持机设备')
+      }
+      this.ssjDeviceVisible = true
+      this.$nextTick(() => {
+        this.$refs.upSsjDevice.init(ids[0])
       })
     },
     // 桂建通弹窗

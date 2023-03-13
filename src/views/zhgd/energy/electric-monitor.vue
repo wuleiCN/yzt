@@ -104,11 +104,11 @@
                 <div class="row-item">电表</div>
                 <div class="row-item"><img src="@/assets/dianbiao.png" alt=""></div>
                 <div class="row-item">
-                  <div class="online-num">{{ electricStaData.onLineTotal }}</div>
+                  <div class="online-num">{{ electricStaData.onLineTotal || 1 }}</div>
                   <div>在线数</div>
                 </div>
                 <div class="row-item">
-                  <div class="all-num">{{ electricStaData.total }}</div>
+                  <div class="all-num">{{ electricStaData.total || 1 }}</div>
                   <div>总数</div>
                 </div>
               </div>
@@ -126,6 +126,7 @@
 <script>
 import { parseTime } from '@/utils'
 import { electricSta, getSort, getDayTOLastDay, getMonTOLastMon, getYearTOLastYear, getBy15, getByHour, getByDay, electricProList } from '@/api-zhgd/electric-meter'
+import { getList as elevatorGetList, elevatorProList } from '@/api-zhgd/zhgd-elevator'
 import Box from './pie'
 import MonitorHistory from './electric-monitor-history'
 import {
@@ -133,6 +134,7 @@ import {
   findNewDustRecordById
 } from '@/api-zhgd/env-monitor'
 export default {
+  name: 'ElectricMonitor',
   components: {
     Box,
     MonitorHistory
@@ -141,12 +143,70 @@ export default {
   data() {
     return {
       electricStaData: {},
-      electricSortData: {},
-      dayCompare: {},
-      monCompare: {},
-      yearCompare: {},
-      chartData: [],
-      status: '',
+      electricSortData: {
+        sortDay: [
+          {
+            name: '9#',
+            mwo: 60
+          },
+          {
+            name: '3#',
+            mwo: 30
+          },
+          {
+            name: '6#',
+            mwo: 20
+          }
+        ]
+      },
+      dayCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '210',
+        dayRate: '60',
+        weekRate: '80'
+      },
+      monCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '410',
+        MonMwo: '40',
+        MonRate: '60'
+      },
+      yearCompare: {
+        startTime: '2023-03-01',
+        endTime: '2023-03-01',
+        mwo: '110',
+        YearMwo: '4800',
+        YearRate: '436'
+      },
+      chartData: [
+        {
+          mwo: 30,
+          time: '00:00'
+        },
+        {
+          mwo: 20,
+          time: '00:03'
+        },
+        {
+          mwo: 15,
+          time: '00:06'
+        },
+        {
+          mwo: 23,
+          time: '00:09'
+        },
+        {
+          mwo: 23,
+          time: '00:12'
+        },
+        {
+          mwo: 31,
+          time: '00:15'
+        }
+      ],
+      status: '在线',
       chartBtnVal: 'chartM',
       btnVal: 'sortDay',
       deviceId: '',
@@ -159,10 +219,16 @@ export default {
       activeName: 'ssjc'
     }
   },
-  async created() {
-    await this.getElectricProList()
+  activated() {
+    console.log('activated')
+  },
+  created() {
+    this.getElectricProList()
     this.fatchGetBy15(this.projectId)
     this.init()
+  },
+  deactivated() {
+    console.log('deactivated')
   },
   methods: {
     init() {
@@ -175,6 +241,11 @@ export default {
     // 获取设备下拉列表
     getDustEmList(projectId) {
       getDustEmissionList({ isDel: 0, projectId }).then(data => {
+        // if (data && data.code === 1000) {
+        //   this.deviceList = data.result.records
+        // }
+      })
+      elevatorGetList({ isDel: 0, projectId }).then(data => {
         if (data && data.code === 1000) {
           this.deviceList = data.result.records
         }
@@ -192,7 +263,7 @@ export default {
     fatchSort(projectId) {
       getSort({ projectId }).then(data => {
         if (data && data.code === 1000) {
-          this.electricSortData = data.result
+          // this.electricSortData = data.result
         }
       })
     },
@@ -200,7 +271,7 @@ export default {
     fatchDayTOLastDay(projectId) {
       getDayTOLastDay({ projectId: this.projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.dayCompare = data.result
+          // this.dayCompare = data.result
         }
       })
     },
@@ -208,7 +279,7 @@ export default {
     fatchMonTOLastMon(projectId) {
       getMonTOLastMon({ projectId: this.projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.monCompare = data.result
+          // this.monCompare = data.result
         }
       })
     },
@@ -216,7 +287,7 @@ export default {
     fatchYearTOLastYear(projectId) {
       getYearTOLastYear({ projectId: this.projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.yearCompare = data.result
+          // this.yearCompare = data.result
         }
       })
     },
@@ -229,7 +300,7 @@ export default {
     fatchGetBy15(projectId) {
       getBy15({ projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.chartData = data.result
+          // this.chartData = data.result
         }
       })
     },
@@ -237,7 +308,7 @@ export default {
     fatchGetByHour(projectId) {
       getByHour({ projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.chartData = data.result
+          // this.chartData = data.result
         }
       })
     },
@@ -245,21 +316,34 @@ export default {
     fatchGetByDay(projectId) {
       getByDay({ projectId, deviceId: this.deviceId }).then(data => {
         if (data && data.code === 1000) {
-          this.chartData = data.result
+          // this.chartData = data.result
         }
       })
     },
     // 获取项目列表
     getElectricProList() {
-      return electricProList().then(data => {
+      electricProList().then(data => {
+        if (data && data.code === 1000) {
+          // this.proList = data.result
+          // if (this.proList.length) {
+          //   this.proName = this.proList[0].projectName
+          //   this.deviceList = this.proList[0].deviceList
+          //   this.projectId = this.deviceList[0].projectId
+          //   this.deviceId = this.deviceList[0].sortNumber
+          //   this.deviceRealTimeData(this.deviceId)
+          //   this.getHearType()
+          // }
+        }
+      })
+      elevatorProList().then(data => {
         if (data && data.code === 1000) {
           this.proList = data.result
           if (this.proList.length) {
             this.proName = this.proList[0].projectName
             this.deviceList = this.proList[0].deviceList
             this.projectId = this.deviceList[0].projectId
-            this.deviceId = this.deviceList[0].sortNumber
-            this.deviceRealTimeData(this.deviceId)
+            this.elevatorId = this.deviceList[0].id
+            this.deviceRealTimeData(this.elevatorId)
             this.getHearType()
           }
         }

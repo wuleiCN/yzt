@@ -255,13 +255,15 @@ export default {
       vehicleData: {},
       elevatorData: {},
       AttendData: {},
-      projectId: this.$store.state.user.loginInfo.projectId
+      projectId: this.$store.state.user.loginInfo.projectId,
+      loginId: this.$store.state.user.loginInfo.id
     }
   },
   async created() {
     const pro0 = await this.getPList()
     this.getNowWeather(pro0)
-    this.init(pro0.id)
+    // this.init(pro0.id)
+    console.log('====>', pro0)
   },
   mounted() {
   },
@@ -322,7 +324,7 @@ export default {
             this.videoPercentage = this.videoData.onLineTotal / this.videoData.videoTotal * 100 || 0
           }
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -331,20 +333,22 @@ export default {
         if (data && data.code === 1000) {
           this.cList = data.result
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
     getPList() {
-      return pList().then((data) => {
-        if (data && data.code === 1000) {
+      return pList({
+        loginId: this.loginId
+      }).then((data) => {
+        if (data.result && data.code === 1000) {
           this.proList = data.result
           // if (this.proList.length === 1 && this.projectId) {
           // this.pName = this.proList[0].projectList[0].projectName
-          return this.proList[0].projectList[0]
+          return this.proList
           // }
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -353,7 +357,7 @@ export default {
         if (data && data.code === 1000) {
           this.dustData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -362,7 +366,7 @@ export default {
         if (data && data.code === 1000) {
           this.craneData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -371,7 +375,7 @@ export default {
         if (data && data.code === 1000) {
           this.electData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -380,7 +384,7 @@ export default {
         if (data && data.code === 1000) {
           this.vehicleData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -389,7 +393,7 @@ export default {
         if (data && data.code === 1000) {
           this.elevatorData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
@@ -400,7 +404,7 @@ export default {
           data.result.laborSituation = this.$dataConver.mul(data.result.laborSituation, 100)
           this.AttendData = data.result || {}
         } else {
-          this.$message.error(data.msg)
+          this.$message.error(data.message)
         }
       })
     },
